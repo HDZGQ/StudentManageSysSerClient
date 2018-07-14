@@ -1,15 +1,15 @@
 #ifndef __BASEPROC_H__
 #define __BASEPROC_H__
 
+
 #include <iostream>
 #include <map>
 #include "ProcDef.h"
 
 using namespace std;
 
-class ProcMgr;
 
-class BaseProc
+class BaseProc 
 {
 public:
 	BaseProc(ProcDef nProcDef);
@@ -25,7 +25,7 @@ public:
 
 	virtual bool initMapChoose() = 0;
 
-	virtual void SwitchToOper(OperPermission CurOper) = 0; //进程内部操作切换，适用于有操作的界面，操作是指增删查改等这些操作
+	virtual void SwitchToOper(OperPermission CurOper); //进程内部操作切换，适用于有操作的界面，操作是指增删查改等这些操作
 
 	OperPermission GetCurOper();
 	void SetCurOper(OperPermission CurOper);
@@ -48,6 +48,7 @@ public:
 
 	void ExitSys();
 
+	void OperInputErrorHandle(); //多次输入操作错误处理
 protected:
 	//key就是realChoose
 	map<int, ChooseData> m_mChoose;
@@ -55,6 +56,8 @@ protected:
 	//受用户自身权限限制，并不对应m_mChoose中的key值。还需要转换
 	int m_iMyChoose;
 
+	//操作输入错误次数限制，会转回到原界面
+	int m_iOperInputErrorLimit;
 private:
 	bool m_IsShow;
 	bool m_IsRunning; //接受消息时，检测到运行的进程，就把这个消息投递到对应进程的StartRecv，各StartRecv再根据协议id区分取出消息  --其实感觉这样子不是很好。一般都是先根据协议id区分再做其他事
@@ -67,6 +70,7 @@ private:
 	bool m_IsChooseAgain;
 
 	const ProcDef m_MyProcDef;
+
 };
 
 #endif

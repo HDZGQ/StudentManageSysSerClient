@@ -22,34 +22,6 @@ bool EnterSysProc::initMapChoose()
 	return true;
 }
 
-void EnterSysProc::StartProc()
-{
-	__super::StartProc();
-
-	int iRealChoose = GetRealChooseByUserChoose(m_iMyChoose);
-	if (iRealChoose >= GetMinRealChoose() && iRealChoose <= GetMaxRealChoose())
-	{
-		if (OPER_PER_INVALID != GetOperPerByRealChoose(iRealChoose))
-		{
-			SetCurOper(GetOperPerByRealChoose(iRealChoose));
-			SwitchToOper(GetOperPerByRealChoose(iRealChoose));
-		}
-		else if (PROC_DEF_INVALID != GetProcDefByRealChoose(iRealChoose))
-		{
-			ProcMgr::GetInstance()->ProcSwitch(GetProcDefByRealChoose(iRealChoose));
-		}
-		else
-		{
-			//退出系统
-			ExitSys();
-		}
-	}
-	else
-	{
-		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);
-	}
-	
-}
 
 void EnterSysProc::EndProc()
 {
@@ -82,8 +54,11 @@ void EnterSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*
 		break;
 	}
 
+
 	if (bRes)
 		ProcMgr::GetInstance()->ProcSwitch(GetNextProc()); //处理成功，切换到下一个界面
+
+	EndRecv();
 }
 
 void EnterSysProc::EndRecv()
@@ -93,6 +68,8 @@ void EnterSysProc::EndRecv()
 
 void EnterSysProc::SwitchToOper(OperPermission CurOper)
 {
+	__super::SwitchToOper(CurOper);
+
 	switch(CurOper)
 	{
 	case OPER_PER_LOGIN:
@@ -114,14 +91,23 @@ void EnterSysProc::LoginChooseHandle()
 	cout<<"请输入你的用户名："<<endl;
 	cin>>strAccount;
 	if (!(CheckTool::CheckStringLen(strAccount, 30) && CheckTool::CheckStringByValid(strAccount, "A~Z|a~z|0~9")))
-		SwitchToOper(GetCurOper());	
+	{
+		OperInputErrorHandle();
+		return;
+	}
 	
 
 	string strPassword;
 	cout<<"请输入你的密码："<<endl;
 	cin>>strPassword;
 	if (!(CheckTool::CheckStringLen(strPassword, 30) && CheckTool::CheckStringByValid(strPassword, "A~Z|a~z|0~9|_|-")))
-		SwitchToOper(GetCurOper());
+	{
+		OperInputErrorHandle();
+		return;
+	}
+
+	if (0 != m_iOperInputErrorLimit)
+		m_iOperInputErrorLimit = 0;
 
 	//发送服务端
 	SC_MSG_LOGIN_REQ SendReq;
@@ -137,31 +123,49 @@ void EnterSysProc::RegisterChooseHandle()
 	cout<<"请输入你的姓名："<<endl;
 	cin>>strName;
 	if (!(CheckTool::CheckStringLen(strName, 30) && CheckTool::CheckStringByValid(strName, "")))
-		SwitchToOper(GetCurOper());	
+	{
+		OperInputErrorHandle();
+		return;
+	}
 
 	string strAccount;
 	cout<<"请输入你的用户名（用于登录）："<<endl;
 	cin>>strAccount;
 	if (!(CheckTool::CheckStringLen(strAccount, 30) && CheckTool::CheckStringByValid(strAccount, "A~Z|a~z|0~9")))
-		SwitchToOper(GetCurOper());	
+	{
+		OperInputErrorHandle();
+		return;
+	}	
 
 	string strPassword;
 	cout<<"请输入你的密码："<<endl;
 	cin>>strPassword;
 	if (!(CheckTool::CheckStringLen(strPassword, 30) && CheckTool::CheckStringByValid(strPassword, "A~Z|a~z|0~9|_|-")))
-		SwitchToOper(GetCurOper());
+	{
+		OperInputErrorHandle();	
+		return;
+	}
 
 	string strSex;
 	cout<<"请输入你的性别（0-男  1-女）："<<endl;
 	cin>>strSex;
 	if (!(CheckTool::CheckStringLen(strSex, 1) && CheckTool::CheckStringByValid(strSex, "0|1")))
-		SwitchToOper(GetCurOper());
+	{
+		OperInputErrorHandle();
+		return;
+	}
 
 	string strIdent;
 	cout<<"请输入你的职业（1-学生 2-教师）："<<endl;
 	cin>>strIdent;
 	if (!(CheckTool::CheckStringLen(strIdent, 1) && CheckTool::CheckStringByValid(strIdent, "1|2")))
-		SwitchToOper(GetCurOper());
+	{
+		OperInputErrorHandle();
+		return;
+	}
+
+	if (0 != m_iOperInputErrorLimit)
+		m_iOperInputErrorLimit = 0;
 
 	//发送服务端
 	SC_MSG_REGISTER_REQ SendReq;
@@ -195,11 +199,11 @@ bool EnterSysProc::LoginRecvHandle(void* vpData, unsigned int DataLen)
 			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 			return false;
 		}
-		printf("登录系统成功，欢迎您！\n");
+		printf(">>>登录系统成功，欢迎您<<<！\n");
 	}
 	else
 	{
-		printf("登录系统失败\n");
+		printf("***登录系统失败***\n");
 		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 		return false;
 	}
@@ -228,11 +232,11 @@ bool EnterSysProc::RegisterRecvHandle(void* vpData, unsigned int DataLen)
 			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 			return false;
 		}
-		printf("注册成功，欢迎您进入系统！\n");
+		printf(">>>注册成功，欢迎您进入系统！<<<\n");
 	}
 	else
 	{
-		printf("注册失败\n");
+		printf("***注册失败***\n");
 		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 		return false;
 	}

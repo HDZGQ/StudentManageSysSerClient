@@ -6,6 +6,8 @@
 #include <string>
 #include "ProtoDef.h"
 
+#define OPERINPUTERRORMAXLIMIT 2
+
 //进程（功能界面）标志定义
 enum ProcDef
 {

@@ -1,6 +1,7 @@
 #include "BaseProc.h"
 #include "ProcMgr.h"
 
+
 BaseProc::BaseProc(ProcDef nProcDef) : m_MyProcDef(nProcDef)
 {
 	m_IsShow = false;
@@ -12,26 +13,31 @@ BaseProc::BaseProc(ProcDef nProcDef) : m_MyProcDef(nProcDef)
 	m_iMaxRealChoose = m_iMinRealChoose;
 
 	m_IsChooseAgain = false;
+
+	m_iOperInputErrorLimit = 0;
 }
 
 BaseProc::~BaseProc()
 {
-
 }
 
 void BaseProc::OnStart(bool bChooseAgain)
 {
 	m_IsShow = true;
-
 	m_IsChooseAgain = bChooseAgain;
+
 }
 
 
 void BaseProc::StartProc()
 {
 	m_IsShow = false;
+
 	m_IsRunning = true;
 
+	printf("-------------------------------\n");
+
+	//文字选择界面显示
 	int iCount = 0;
 	for (map<int, ChooseData>::iterator iter = m_mChoose.begin(); iter != m_mChoose.end(); iter++)
 	{
@@ -60,20 +66,56 @@ void BaseProc::StartProc()
 		m_IsChooseAgain = false;
 	}
 	cin >> m_iMyChoose;
+
+	//用户选择处理
+	int iRealChoose = GetRealChooseByUserChoose(m_iMyChoose);
+	if (iRealChoose >= GetMinRealChoose() && iRealChoose <= GetMaxRealChoose())
+	{
+		if (OPER_PER_INVALID != GetOperPerByRealChoose(iRealChoose))
+		{
+			SetCurOper(GetOperPerByRealChoose(iRealChoose));
+			SwitchToOper(GetOperPerByRealChoose(iRealChoose)); //注意，这个是调其派生类的，因为这个是虚函数
+		}
+		else if (PROC_DEF_INVALID != GetProcDefByRealChoose(iRealChoose))
+		{
+			ProcMgr::GetInstance()->ProcSwitch(GetProcDefByRealChoose(iRealChoose));
+		}
+		else
+		{
+			//退出系统
+			ExitSys();
+		}
+
+		EndProc();
+	}
+	else
+	{
+		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);
+	}
 }
 
 void BaseProc::EndProc()
 {
-	m_iMyChoose = -1;
+	//printf("%s\n", __FUNCTION__);
+	m_iOperInputErrorLimit = 0;
 }
 
 void BaseProc::EndRecv()
 {
+	//printf("%s\n", __FUNCTION__);
+
 	m_IsRunning = false;
+	m_iMyChoose = -1;
 
 	if (m_CurOper != OPER_PER_INVALID)
 		m_CurOper = OPER_PER_INVALID;
 }
+
+void BaseProc::SwitchToOper(OperPermission CurOper)
+{
+	printf("-------------------------------\n");
+}
+
 
 OperPermission BaseProc::GetCurOper()
 {
@@ -196,4 +238,17 @@ void BaseProc::ExitSys()
 	cout<<"退出系统中..."<<endl;
 	system("pause");
 	exit(0);
+}
+
+void BaseProc::OperInputErrorHandle()
+{
+	if (++m_iOperInputErrorLimit >= OPERINPUTERRORMAXLIMIT)
+	{
+		m_iOperInputErrorLimit = 0;
+		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);  //重新登录注册
+	}
+	else
+	{
+		SwitchToOper(GetCurOper());	//注意，这个是调其派生类的，因为这个是虚函数
+	}
 }

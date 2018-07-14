@@ -11,7 +11,6 @@ public:
 
 	virtual bool initMapChoose();
 
-	virtual void StartProc();
 	virtual void EndProc();
 
 	virtual void StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId);

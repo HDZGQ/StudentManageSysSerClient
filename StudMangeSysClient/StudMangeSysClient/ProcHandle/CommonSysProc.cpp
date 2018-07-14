@@ -16,15 +16,10 @@ CommonSysProc::~CommonSysProc()
 bool CommonSysProc::initMapChoose()
 {
 	m_mChoose.insert(pair<int, ChooseData>(GetMaxRealChoose(), ChooseData("成绩", OPER_PER_INVALID, PROC_DEF_SCORESYSPROC)));
-	m_mChoose.insert(pair<int, ChooseData>(++GetMaxRealChoose(), ChooseData("用户信息", OPER_PER_INVALID, PROC_DEF_COMMONSYSPROC)));
-	m_mChoose.insert(pair<int, ChooseData>(++GetMaxRealChoose(), ChooseData("返回", OPER_PER_INVALID, PROC_DEF_USERINFOSYSPROC)));
+	m_mChoose.insert(pair<int, ChooseData>(++GetMaxRealChoose(), ChooseData("用户信息", OPER_PER_INVALID, PROC_DEF_USERINFOSYSPROC)));
+	m_mChoose.insert(pair<int, ChooseData>(++GetMaxRealChoose(), ChooseData("返回", OPER_PER_INVALID, PROC_DEF_ENTERSYSPROC)));
 
 	return true;
-}
-
-void CommonSysProc::StartProc()
-{
-	__super::StartProc();
 }
 
 void CommonSysProc::EndProc()
@@ -44,5 +39,7 @@ void CommonSysProc::EndRecv()
 
 void CommonSysProc::SwitchToOper(OperPermission CurOper)
 {
+	__super::SwitchToOper(CurOper);
+
 
 }

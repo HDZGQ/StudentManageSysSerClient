@@ -58,6 +58,8 @@ bool ProcMgr::Notify()
 			}
 		}
 	}
+
+	return true;
 }
 
 bool ProcMgr::CheckOperPerValid(OperPermission OperPer)
