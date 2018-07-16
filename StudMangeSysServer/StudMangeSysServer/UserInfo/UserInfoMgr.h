@@ -3,7 +3,8 @@
 
 #include <map>
 #include "xSingleton.h"
-#include "PublicDef.h"
+//#include "PublicDef.h"
+#include "NetDef.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ public:
 	~UserInfoMgr();
 
 	bool InsertInfo(unsigned __int64 socketId, UserInfo userInfo);
-	bool InsertInfo(unsigned __int64 socketId, string strIP, unsigned short sPort);
+	bool InsertInfo(unsigned __int64 socketId, string strIP, unsigned short sPort, PER_HANDLE_DATA* PerHandleData);
 
 	bool RemoveInfoBySocketId(unsigned __int64 socketId);
 	bool RemoveInfoByUserId(unsigned int iUserId);
@@ -30,6 +31,12 @@ public:
 
 	bool SetRegNeedCountBySocketId(unsigned __int64 socketId, short sRegNeedCount);
 	short GetRegNeedCountBySocketId(unsigned __int64 socketId);
+
+	bool SetPerHandleDataBySocketId(unsigned __int64 socketId, PER_HANDLE_DATA* PerHandleData);
+	PER_HANDLE_DATA* GetPerHandleDataBySocketId(unsigned __int64 socketId);
+
+	bool SetPerIoDataBySocketId(unsigned __int64 socketId, LPPER_IO_OPERATION_DATA PerIoData);
+	LPPER_IO_OPERATION_DATA GetPerIoDataBySocketId(unsigned __int64 socketId);
 private:
 	map<unsigned __int64, UserInfo> m_mUserInfo;
 };

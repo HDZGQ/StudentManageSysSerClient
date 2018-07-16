@@ -1,6 +1,7 @@
 #include "EnterSysProc.h"
 #include "MysqlMgr.h"
-#include "PublicDef.h"
+//#include "PublicDef.h"
+#include "NetDef.h"
 #include "UserInfoMgr.h"
 #include "MsgPackageMgr.h"
 #include "AuthorityMgr.h"
@@ -61,6 +62,26 @@ void EnterSysProc::RegisterRecvHandle(SOCKET SocketId, void* vpData, unsigned in
 
 	UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 1); //标记注册需要涉及的数据库操作进行一次了
 	UserInfoMgr::GetInstance()->SetAccountBySocketId(SocketId, RecvMsg->cAccount); //先记录下账号
+}
+
+void EnterSysProc::ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_EXIT_SYS))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_EXIT_SYS));
+		return;
+	}
+
+	CS_MSG_EXIT_SYS* RecvMsg = (CS_MSG_EXIT_SYS*)vpData;
+	if (RecvMsg->bExit)
+	{
+		UserInfoMgr::GetInstance()->RemoveInfoBySocketId(SocketId);
+	}
 }
 
 void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int iRes)

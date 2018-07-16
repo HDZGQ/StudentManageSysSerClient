@@ -1,7 +1,10 @@
 #ifndef __NETDEF_H__
 #define __NETDEF_H__
 
+//#define WIN32_LEAN_AND_MEAN
 #include <WinSock2.h>  
+#include <string>
+using namespace std;
 
 //服务端默认端口号
 #define  DefaultPort        6000
@@ -73,5 +76,38 @@ struct PackData
 		memset(this, 0, sizeof(PackData));
 	}
 };
+
+struct UserInfo
+{
+	LPPER_IO_OPERATION_DATA PerIoData;
+	PER_HANDLE_DATA* PerHandleData;
+
+	//用户常记录
+	unsigned int iUserId;
+	string strAccount;
+	string strIP;
+	unsigned short sPort;
+	string strAuthority;
+
+
+	//用户动态记录
+	short sRegNeedCount;  //注册需时候有3次数据库操作： 插入客户端传来的信息  查找userid和身份标识  根据身份生成权限再插入数据库
+
+	UserInfo()
+	{
+		PerIoData = NULL;
+		PerHandleData = NULL;
+
+		iUserId = 0;
+		strAccount = "";
+		strIP = "";
+		sPort = 0;
+		strAuthority = "";
+
+
+		sRegNeedCount = 0;
+	}
+};
+
 
 #endif

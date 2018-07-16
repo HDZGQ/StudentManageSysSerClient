@@ -1,8 +1,9 @@
 #ifndef __PUBLICDEF_H__
 #define __PUBLICDEF_H__
 
-#include <string>
-using namespace std;
+//#define WIN32_LEAN_AND_MEAN
+//#include <WinSock2.h>  
+
 
 //操作权限宏 与服务端对应  登录和注册操作权限，每个玩家都拥有
 enum OperPermission
@@ -26,31 +27,6 @@ enum IdentType
 	IDENT_TYPE_END                    //有效值终止值
 };
 
-struct UserInfo
-{
-	//用户常记录
-	unsigned int iUserId;
-	string strAccount;
-	string strIP;
-	unsigned short sPort;
-	string strAuthority;
-
-
-	//用户动态记录
-	short sRegNeedCount;  //注册需时候有3次数据库操作： 插入客户端传来的信息  查找userid和身份标识  根据身份生成权限再插入数据库
-
-	UserInfo()
-	{
-		iUserId = 0;
-		strAccount = "";
-		strIP = "";
-		sPort = 0;
-		strAuthority = "";
-
-
-		sRegNeedCount = 0;
-	}
-};
 
 
 #endif

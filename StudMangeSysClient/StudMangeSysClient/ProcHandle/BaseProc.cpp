@@ -1,5 +1,6 @@
 #include "BaseProc.h"
 #include "ProcMgr.h"
+#include "TCPHandle.h"
 
 
 BaseProc::BaseProc(ProcDef nProcDef) : m_MyProcDef(nProcDef)
@@ -236,6 +237,12 @@ int BaseProc::GetUserMaxChoose()
 void BaseProc::ExitSys()
 {
 	cout<<"退出系统中..."<<endl;
+
+	//发送服务端
+	CS_MSG_EXIT_SYS SendReq;
+	SendReq.bExit = true;
+	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS);
+
 	system("pause");
 	exit(0);
 }

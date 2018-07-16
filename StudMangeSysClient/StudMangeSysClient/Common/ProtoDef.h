@@ -47,6 +47,7 @@ enum Assist_ID
 	ASSIST_ID_LOGIN_ACK        =   10002, //登录回复
 	ASSIST_ID_REGISTER_REQ     =   10003, //注册请求
 	ASSIST_ID_REGISTER_ACK     =   10004, //注册回复
+	ASSIST_ID_EXIT_SYS         =   10005, //退出系统
 
 
 	ASSIST_ID_END                     //有效值终止值
@@ -119,6 +120,17 @@ struct CS_MSG_REGISTER_ACK
 		memset(this, 0, sizeof(CS_MSG_REGISTER_ACK));
 	}
 };
+
+//退出系统   assist[5]
+struct CS_MSG_EXIT_SYS
+{
+	bool bExit;
+	CS_MSG_EXIT_SYS()
+	{
+		memset(this, 0, sizeof(CS_MSG_EXIT_SYS));
+	}
+};
+
 
 
 #endif

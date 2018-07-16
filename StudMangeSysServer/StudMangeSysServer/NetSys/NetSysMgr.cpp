@@ -63,9 +63,9 @@ DWORD WINAPI ServerWorkThread(LPVOID IpParam)
 		{
 			UserInfoMgr::GetInstance()->RemoveInfoBySocketId(PerHandleData->socket);
 
-			closesocket(PerHandleData->socket);
-			GlobalFree(PerHandleData);
-			GlobalFree(PerIoData);
+// 			closesocket(PerHandleData->socket);
+// 			GlobalFree(PerHandleData);
+// 			GlobalFree(PerIoData);
 			continue;
 		}
 
@@ -216,7 +216,7 @@ void NetSysMgr::StartNet()
 		memcpy(&PerHandleData->ClientAddr, &saRemote, RemoteLen);  
 		printf("new user connect: socketId[%llu]  IP[%s]  Port[%d]\n", (unsigned __int64)AcceptSocket, inet_ntoa(saRemote.sin_addr), saRemote.sin_port);
 		//保存连接用户信息
-		UserInfoMgr::GetInstance()->InsertInfo(AcceptSocket, inet_ntoa(saRemote.sin_addr), saRemote.sin_port);
+		UserInfoMgr::GetInstance()->InsertInfo(AcceptSocket, inet_ntoa(saRemote.sin_addr), saRemote.sin_port, PerHandleData);
 
 		// 将接受套接字和完成端口关联  
 		CreateIoCompletionPort((HANDLE)(PerHandleData->socket), completionPort, (DWORD)PerHandleData, 0);
@@ -232,6 +232,8 @@ void NetSysMgr::StartNet()
 		PerIoData->databuff.len = DefaultRecvMSGLen;
 		PerIoData->databuff.buf = PerIoData->buffer;
 		PerIoData->operationType = 0;    // read  
+
+		UserInfoMgr::GetInstance()->SetPerIoDataBySocketId(AcceptSocket, PerIoData);
 
 		DWORD RecvBytes;
 		DWORD Flags = 0;

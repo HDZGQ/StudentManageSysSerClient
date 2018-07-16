@@ -5,6 +5,7 @@
 #include "EventMonitor.h"
 #include "EnterSysProc.h"
 #include "PublicDef.h"
+//#include "NetDef.h"
 
 class ProcMgr : public xSingleton<ProcMgr>
 {

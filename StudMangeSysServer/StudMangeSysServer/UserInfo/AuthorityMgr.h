@@ -5,7 +5,7 @@
 #include <vector>
 #include "PublicDef.h"
 
-
+using namespace std;
 
 class AuthorityMgr
 {

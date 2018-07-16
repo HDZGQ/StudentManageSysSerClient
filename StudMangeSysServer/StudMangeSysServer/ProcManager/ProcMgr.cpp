@@ -16,6 +16,7 @@ bool ProcMgr::InitMoniter()
 	*/
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_LOGIN_REQ, &m_EnterSysProc, &EnterSysProc::LoginRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_REGISTER_REQ, &m_EnterSysProc, &EnterSysProc::RegisterRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_EXIT_SYS, &m_EnterSysProc, &EnterSysProc::ExitSysRecvHandle);
 
 
 	/*
