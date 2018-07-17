@@ -1,12 +1,19 @@
 #include "ProcMgr.h"
-#include "CheckTool.h"
+
 
 ProcMgr::ProcMgr() : 
 		m_EnterSysProc(PROC_DEF_ENTERSYSPROC),
-		m_CommonSysProc(PROC_DEF_COMMONSYSPROC)
+		m_CommonSysProc(PROC_DEF_COMMONSYSPROC),
+		m_ScoreSysProc(PROC_DEF_SCORESYSPROC),
+		m_UserInfoSysProc(PROC_DEF_USERINFOSYSPROC),
+		m_AuthoritySysProc(PROC_DEF_AUTHORITYSYSPROC),
+		m_AddScoreSysProc(PROC_DEF_ADDSCORESYSPROC),
+		m_UpdateScoreSysProc(PROC_DEF_UPDATESCORESYSPROC),
+		m_SelectScoreSysProc(PROC_DEF_SELECTSCORESYSPROC),
+		m_DeleteScoreSysProc(PROC_DEF_DELETESCORESYSPROC),
+		m_AlterSubjectsSysProc(PROC_DEF_ALTERSUBJECTSSYSPROC)
 {
-	m_vOperPer.push_back(OPER_PER_LOGIN);
-	m_vOperPer.push_back(OPER_PER_REGISTER);
+	
 }
 
 ProcMgr::~ProcMgr()
@@ -17,6 +24,14 @@ bool ProcMgr::initProc()
 {
 	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_ENTERSYSPROC, &m_EnterSysProc));
 	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_COMMONSYSPROC, &m_CommonSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_SCORESYSPROC, &m_ScoreSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_USERINFOSYSPROC, &m_UserInfoSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_AUTHORITYSYSPROC, &m_AuthoritySysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_ADDSCORESYSPROC, &m_AddScoreSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_UPDATESCORESYSPROC, &m_UpdateScoreSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_SELECTSCORESYSPROC, &m_SelectScoreSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_DELETESCORESYSPROC, &m_DeleteScoreSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_ALTERSUBJECTSSYSPROC, &m_AlterSubjectsSysProc));
 
 	return true;
 }
@@ -62,36 +77,3 @@ bool ProcMgr::Notify()
 	return true;
 }
 
-bool ProcMgr::CheckOperPerValid(OperPermission OperPer)
-{
-	vector<OperPermission>::iterator iter = m_vOperPer.begin();
-	for (; iter != m_vOperPer.end(); iter++)
-	{
-		if (OperPer == *iter)
-			return true;
-	}
-
-	return false;
-}
-
-bool ProcMgr::SetVOperPer(string str)
-{
-	if (str.empty())
-		return false;
-
-	vector<string> vecStr = CheckTool::Splite(str, "|");
-
-	vector<OperPermission> vOperPerTmp;
-	for (vector<string>::iterator iter = vecStr.begin();iter != vecStr.end(); iter++)
-	{
-		if (iter->empty() || !CheckTool::CheckStringByValid(*iter, "0~9"))
-			return false;
-		
-		int iValue = atoi(iter->c_str());
-		vOperPerTmp.push_back((OperPermission)iValue);
-	}
-
-	m_vOperPer.insert(m_vOperPer.end(), vOperPerTmp.begin(), vOperPerTmp.end());
-
-	return true;
-}

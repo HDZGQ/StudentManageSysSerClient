@@ -1,6 +1,7 @@
 #include "BaseProc.h"
 #include "ProcMgr.h"
 #include "TCPHandle.h"
+#include "UserInfoMgr.h"
 
 
 BaseProc::BaseProc(ProcDef nProcDef) : m_MyProcDef(nProcDef)
@@ -42,7 +43,7 @@ void BaseProc::StartProc()
 	int iCount = 0;
 	for (map<int, ChooseData>::iterator iter = m_mChoose.begin(); iter != m_mChoose.end(); iter++)
 	{
-		if (iter->second.OperPer != OPER_PER_INVALID && !ProcMgr::GetInstance()->CheckOperPerValid(iter->second.OperPer))
+		if (iter->second.OperPer != OPER_PER_INVALID && !UserInfoMgr::GetInstance()->CheckOperPerValid(iter->second.OperPer))
 			continue;	
 
 		if (iCount != 0 && iCount % 2 == 0)
@@ -207,7 +208,7 @@ int BaseProc::GetRealChooseByUserChoose(int iChoose)
 
 	for (map<int, ChooseData>::iterator iter = m_mChoose.begin(); iter != m_mChoose.end(); iter++)
 	{
-		if (iter->second.OperPer != OPER_PER_INVALID && !ProcMgr::GetInstance()->CheckOperPerValid(iter->second.OperPer))
+		if (iter->second.OperPer != OPER_PER_INVALID && !UserInfoMgr::GetInstance()->CheckOperPerValid(iter->second.OperPer))
 			continue;	
 
 		iCount++;
@@ -225,7 +226,7 @@ int BaseProc::GetUserMaxChoose()
 
 	for (map<int, ChooseData>::iterator iter = m_mChoose.begin(); iter != m_mChoose.end(); iter++)
 	{
-		if (iter->second.OperPer != OPER_PER_INVALID && !ProcMgr::GetInstance()->CheckOperPerValid(iter->second.OperPer))
+		if (iter->second.OperPer != OPER_PER_INVALID && !UserInfoMgr::GetInstance()->CheckOperPerValid(iter->second.OperPer))
 			continue;
 
 		iCount++;
@@ -242,6 +243,7 @@ void BaseProc::ExitSys()
 	CS_MSG_EXIT_SYS SendReq;
 	SendReq.bExit = true;
 	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS);
+
 
 	system("pause");
 	exit(0);

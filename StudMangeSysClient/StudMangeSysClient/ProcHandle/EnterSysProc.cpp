@@ -2,6 +2,7 @@
 #include "ProcMgr.h"
 #include "CheckTool.h"
 #include "TCPHandle.h"
+#include "UserInfoMgr.h"
 
 EnterSysProc::EnterSysProc(ProcDef nProcDef) : BaseProc(nProcDef)
 {
@@ -193,12 +194,15 @@ bool EnterSysProc::LoginRecvHandle(void* vpData, unsigned int DataLen)
 	CS_MSG_LOGIN_ACK* RecvMSG = (CS_MSG_LOGIN_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
-		if (!ProcMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
+		if (!UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
 		{
 			printf("操作权限设置失败！\n");
 			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 			return false;
 		}
+
+		UserInfoMgr::GetInstance()->SetSomeInfo(RecvMSG->cName, RecvMSG->cAccount, RecvMSG->iUserId, RecvMSG->sIdent, RecvMSG->sSex);
+
 		printf(">>>登录系统成功，欢迎您<<<！\n");
 	}
 	else
@@ -226,12 +230,15 @@ bool EnterSysProc::RegisterRecvHandle(void* vpData, unsigned int DataLen)
 	CS_MSG_REGISTER_ACK* RecvMSG = (CS_MSG_REGISTER_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
-		if (!ProcMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
+		if (!UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
 		{
 			printf("操作权限设置失败！\n");
 			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 			return false;
 		}
+
+		UserInfoMgr::GetInstance()->SetSomeInfo(RecvMSG->cName, RecvMSG->cAccount, RecvMSG->iUserId, RecvMSG->sIdent, RecvMSG->sSex);
+
 		printf(">>>注册成功，欢迎您进入系统！<<<\n");
 	}
 	else

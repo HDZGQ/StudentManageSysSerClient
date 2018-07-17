@@ -95,27 +95,24 @@ void MysqlMgr::MsgQueueHandle()
 
 		int iRes=mysql_query(&m_MysqlCont, recvMsgData.strMysql.c_str());  //执行
 
-		if (!iRes)
-		{
-			if (recvMsgData.mysqlOper > MYSQL_OPER_START && recvMsgData.mysqlOper < MYSQL_OPER_END)
-			{
-				m_MysqlRes = NULL;
-				if (MYSQL_OPER_SELECT == recvMsgData.mysqlOper)
-				{
-					m_MysqlRes=mysql_store_result(&m_MysqlCont);  //保存查询到的数据到m_MysqlRes，查询失败m_MysqlRes为NULL
-				}
+		if (iRes)
+			printf("Execute mysql failed : %s\n", recvMsgData.strMysql.c_str());
 
-				ProcMgr::GetInstance()->GetReplyHandleMoniter().DispatchEvent((OperPermission)recvMsgData.operPer, (SOCKET)recvMsgData.SocketId, m_MysqlRes, iRes);
-			}
-			else
+		if (recvMsgData.mysqlOper > MYSQL_OPER_START && recvMsgData.mysqlOper < MYSQL_OPER_END)
+		{
+			m_MysqlRes = NULL;
+			if (MYSQL_OPER_SELECT == recvMsgData.mysqlOper)
 			{
-				printf("mysql operator type error : [%d]\n", recvMsgData.mysqlOper);
+				m_MysqlRes=mysql_store_result(&m_MysqlCont);  //保存查询到的数据到m_MysqlRes，查询失败m_MysqlRes为NULL
 			}
+
+			ProcMgr::GetInstance()->GetReplyHandleMoniter().DispatchEvent((OperPermission)recvMsgData.operPer, (SOCKET)recvMsgData.SocketId, m_MysqlRes, iRes);
 		}
 		else
 		{
-			printf("Execute mysql failed : %s\n", recvMsgData.strMysql.c_str());
+			printf("mysql operator type error : [%d]\n", recvMsgData.mysqlOper);
 		}
+
 
 
 		MysqlMsgLock::GetInstance()->Lock();

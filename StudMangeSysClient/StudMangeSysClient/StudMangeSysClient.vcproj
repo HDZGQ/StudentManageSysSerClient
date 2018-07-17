@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\Tools;.\Common;.\NetSys;.\ProcHandle;.\ProcRun"
+				AdditionalIncludeDirectories=".\UserInfo;.\Tools;.\Common;.\NetSys;.\ProcHandle;.\ProcRun"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -211,6 +211,30 @@
 			Name="ProcHandle"
 			>
 			<File
+				RelativePath=".\ProcHandle\AddScoreSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\AddScoreSysProc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\AlterSubjectsSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\AlterSubjectsSysProc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\AuthoritySysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\AuthoritySysProc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProcHandle\BaseProc.cpp"
 				>
 			</File>
@@ -224,6 +248,14 @@
 			</File>
 			<File
 				RelativePath=".\ProcHandle\CommonSysProc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\DeleteScoreSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\DeleteScoreSysProc.h"
 				>
 			</File>
 			<File
@@ -242,6 +274,38 @@
 				RelativePath=".\ProcHandle\ProcMgr.h"
 				>
 			</File>
+			<File
+				RelativePath=".\ProcHandle\ScoreSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\ScoreSysProc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\SelectScoreSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\SelectScoreSysProc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\UpdateScoreSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\UpdateScoreSysProc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\UserInfoSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\UserInfoSysProc.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Tools"
@@ -252,6 +316,18 @@
 			</File>
 			<File
 				RelativePath=".\Tools\CheckTool.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="UserInfo"
+			>
+			<File
+				RelativePath=".\UserInfo\UserInfoMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UserInfo\UserInfoMgr.h"
 				>
 			</File>
 		</Filter>

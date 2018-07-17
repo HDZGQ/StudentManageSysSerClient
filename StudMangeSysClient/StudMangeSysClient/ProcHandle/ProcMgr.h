@@ -6,6 +6,14 @@
 #include "xSingleton.h"
 #include "EnterSysProc.h"
 #include "CommonSysProc.h"
+#include "ScoreSysProc.h"
+#include "UserInfoSysProc.h"
+#include "AuthoritySysProc.h"
+#include "AddScoreSysProc.h"
+#include "UpdateScoreSysProc.h"
+#include "SelectScoreSysProc.h"
+#include "DeleteScoreSysProc.h"
+#include "AlterSubjectsSysProc.h"
 
 
 class ProcMgr : public xSingleton<ProcMgr>
@@ -22,14 +30,19 @@ public:
 
 	bool Notify();
 
-	bool CheckOperPerValid(OperPermission OperPer);
-	bool SetVOperPer(string str);
 protected:
 	map<ProcDef, BaseProc*> m_mProcMgr;
 
-	vector<OperPermission> m_vOperPer;
 private:
 	EnterSysProc m_EnterSysProc;
 	CommonSysProc m_CommonSysProc;
+	ScoreSysProc m_ScoreSysProc;
+	UserInfoSysProc m_UserInfoSysProc;
+	AuthoritySysProc m_AuthoritySysProc;
+	AddScoreSysProc m_AddScoreSysProc;
+	UpdateScoreSysProc m_UpdateScoreSysProc;
+	SelectScoreSysProc m_SelectScoreSysProc;
+	DeleteScoreSysProc m_DeleteScoreSysProc;
+	AlterSubjectsSysProc m_AlterSubjectsSysProc;
 };
 #endif

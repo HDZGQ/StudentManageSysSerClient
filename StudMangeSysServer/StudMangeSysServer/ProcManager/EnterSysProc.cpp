@@ -34,7 +34,7 @@ void EnterSysProc::LoginRecvHandle(SOCKET SocketId, void* vpData, unsigned int D
 
 	char strMysql[512];
 	memset(strMysql, 0, sizeof(strMysql));
-	sprintf_s(strMysql, sizeof(strMysql), "select a.userID as userID, a.account as account, b.Authority as Authority from userInfo as a, userAuthority as b where a.account='%s' and a.password='%s' and a.userID=b.userID", RecvMsg->cAccount, RecvMsg->cPWD);
+	sprintf_s(strMysql, sizeof(strMysql), "select a.userID as userID, a.account as account, a.Ident as Ident, b.Authority as Authority, a.name as name, a.sex as sex  from userInfo as a, userAuthority as b where a.account='%s' and a.password='%s' and a.userID=b.userID", RecvMsg->cAccount, RecvMsg->cPWD);
 
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, OPER_PER_LOGIN, SocketId);
 }
@@ -58,10 +58,11 @@ void EnterSysProc::RegisterRecvHandle(SOCKET SocketId, void* vpData, unsigned in
 	memset(strMysql, 0, sizeof(strMysql));
 	sprintf_s(strMysql, sizeof(strMysql), "insert into userInfo(account, name, password, sex, Ident) values('%s', '%s', '%s', %s, %s)", RecvMsg->cAccount, RecvMsg->cName, RecvMsg->cPWD, RecvMsg->cSex, RecvMsg->cIdent);
 
-	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_INSERT, OPER_PER_REGISTER, SocketId);
-
 	UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 1); //标记注册需要涉及的数据库操作进行一次了
 	UserInfoMgr::GetInstance()->SetAccountBySocketId(SocketId, RecvMsg->cAccount); //先记录下账号
+	UserInfoMgr::GetInstance()->SetIdentBySocketId(SocketId, (short)atoi(RecvMsg->cIdent)); //先记下用户身份标识
+
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_INSERT, OPER_PER_REGISTER, SocketId);
 }
 
 void EnterSysProc::ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
@@ -86,31 +87,42 @@ void EnterSysProc::ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int
 
 void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int iRes)
 {
+	bool bExecute = true;
 	if (NULL == MysqlRes || 0 != iRes)
 	{
 		printf("%s  数据库语句执行失败\n", __FUNCTION__);
-		return;
+		bExecute = false;
 	}
 
 	CS_MSG_LOGIN_ACK sendMsg;
 	unsigned rowsNum = (unsigned)mysql_num_rows(MysqlRes);
-	if (1 == rowsNum)
+	if (1 == rowsNum && bExecute)
 	{
 		sendMsg.bSucceed = true;
 
 		MYSQL_ROW sql_row;
 		int j = mysql_num_fields(MysqlRes);
 		sql_row=mysql_fetch_row(MysqlRes);
-		if (3 == j)
+		if (6 == j)
 		{
 			unsigned userid = (unsigned)atoi(sql_row[0]);
 			string strAccount = sql_row[1];
-			string strAuthority = sql_row[2];
+			short Ident = (short)atoi(sql_row[2]);
+			string strAuthority = sql_row[3];
+			string sName = sql_row[4];
+			short sSex = (short)atoi(sql_row[5]);
 
 			UserInfoMgr::GetInstance()->SetUserIdBySocketId(SocketId, userid);
 			UserInfoMgr::GetInstance()->SetAccountBySocketId(SocketId, strAccount);
+			UserInfoMgr::GetInstance()->SetIdentBySocketId(SocketId, Ident);
 			UserInfoMgr::GetInstance()->SetAuthorityBySocketId(SocketId, strAuthority);
+
+			strcpy_s(sendMsg.cName, sizeof(sendMsg.cName), sName.c_str());
+			strcpy_s(sendMsg.cAccount, sizeof(sendMsg.cAccount), strAccount.c_str());
 			strcpy_s(sendMsg.cOperPer, sizeof(sendMsg.cOperPer), strAuthority.c_str());
+			sendMsg.iUserId = userid;
+			sendMsg.sIdent = Ident;
+			sendMsg.sSex = sSex;
 
 			printf("%s  userid[%u]登录系统！\n", __FUNCTION__, userid);
 		}
@@ -130,12 +142,12 @@ void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int iR
 
 void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int iRes)
 {
+	short sRegNeedCount = UserInfoMgr::GetInstance()->GetRegNeedCountBySocketId(SocketId);
 	if (0 != iRes)
 	{
 		printf("%s  数据库语句执行失败\n", __FUNCTION__);
-		return;
+		sRegNeedCount = -1;
 	}
-	short sRegNeedCount = UserInfoMgr::GetInstance()->GetRegNeedCountBySocketId(SocketId);
 	switch(sRegNeedCount)
 	{
 	case 1:
@@ -144,9 +156,9 @@ void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int
 			memset(strMysql, 0, sizeof(strMysql));
 			sprintf_s(strMysql, sizeof(strMysql), "select userID, Ident from userInfo where account='%s'", UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId).c_str());
 
-			MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, OPER_PER_REGISTER, SocketId);
-
 			UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 2); //标记注册需要涉及的数据库操作进行2次了
+
+			MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, OPER_PER_REGISTER, SocketId);
 			break;
 		}
 	case 2:
@@ -174,9 +186,9 @@ void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int
 					memset(strMysql, 0, sizeof(strMysql));
 					sprintf_s(strMysql, sizeof(strMysql), "insert into userAuthority(userID, Authority) values(%u, '%s')", userid, strAuthority.c_str());
 
-					MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_INSERT, OPER_PER_REGISTER, SocketId);
-
 					UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 3); //标记注册需要涉及的数据库操作进行3次了
+
+					MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_INSERT, OPER_PER_REGISTER, SocketId);
 				}
 				else
 				{
@@ -192,9 +204,51 @@ void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int
 		}
 	case 3:
 		{
+			char strMysql[512];
+			memset(strMysql, 0, sizeof(strMysql));
+			sprintf_s(strMysql, sizeof(strMysql), "select account, Ident, name, sex from userInfo where userID=%u", UserInfoMgr::GetInstance()->GetUserIdBySocketId(SocketId));
+
+			UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 4); //标记注册需要涉及的数据库操作进行4次了
+
+			MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, OPER_PER_REGISTER, SocketId);
+			break;
+		}
+	case 4:
+		{
 			CS_MSG_REGISTER_ACK sendMsg;
-			sendMsg.bSucceed = true;
-			strcpy_s(sendMsg.cOperPer, sizeof(sendMsg.cOperPer), UserInfoMgr::GetInstance()->GetAuthorityBySocketId(SocketId).c_str());
+			unsigned rowsNum = (unsigned)mysql_num_rows(MysqlRes);
+			if (1 == rowsNum)
+			{
+				sendMsg.bSucceed = true;
+
+				MYSQL_ROW sql_row;
+				int j = mysql_num_fields(MysqlRes);
+				sql_row=mysql_fetch_row(MysqlRes);
+				if (4 == j)
+				{
+					string strAccount = sql_row[0];
+					short Ident = (short)atoi(sql_row[1]);
+					string sName = sql_row[2];
+					short sSex = (short)atoi(sql_row[3]);
+
+					strcpy_s(sendMsg.cOperPer, sizeof(sendMsg.cOperPer), UserInfoMgr::GetInstance()->GetAuthorityBySocketId(SocketId).c_str());
+					strcpy_s(sendMsg.cName, sizeof(sendMsg.cName), sName.c_str());
+					strcpy_s(sendMsg.cAccount, sizeof(sendMsg.cAccount), strAccount.c_str());
+					sendMsg.iUserId = UserInfoMgr::GetInstance()->GetUserIdBySocketId(SocketId);
+					sendMsg.sIdent = Ident;
+					sendMsg.sSex = sSex;
+
+					printf("%s  userid[%u]登录系统！\n", __FUNCTION__, sendMsg.iUserId);
+				}
+				else
+				{
+					sendMsg.bSucceed = false;
+				}
+			}
+			else
+			{
+				sendMsg.bSucceed = false;
+			}
 
 			PackData packData = MsgPackageMgr::Pack(&sendMsg, sizeof(sendMsg), ASSIST_ID_REGISTER_ACK);
 			MsgPackageMgr::Send(SocketId, packData);

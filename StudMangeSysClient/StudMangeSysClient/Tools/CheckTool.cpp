@@ -60,6 +60,29 @@ vector<string> CheckTool::Splite(string str, string strSpl)
 	return vecStr;
 }
 
+string CheckTool::CombVecToStr(vector<OperPermission> vecOper)
+{
+	string strRes = "";
+	if (vecOper.empty())
+		return strRes;
+
+	for (unsigned i=0 ; i<vecOper.size(); i++)
+	{
+		if (i != 0)
+		{
+			strRes += "|";
+		}
+
+		char ch[11];
+		memset(ch, 0, sizeof(ch));
+		sprintf_s(ch, sizeof(ch), "%d", (int)vecOper.at(i));
+		strRes += ch;
+	}
+
+	return strRes;
+}
+
+
 bool CheckTool::CheckStringByValid(string str, string validStr)
 {
 	if (validStr.empty())

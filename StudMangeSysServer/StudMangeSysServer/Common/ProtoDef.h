@@ -63,6 +63,11 @@ struct SC_MSG_LOGIN_REQ
 struct CS_MSG_LOGIN_ACK
 {
 	bool bSucceed;
+	unsigned int iUserId;
+	char cAccount[31];
+	char cName[31];
+	short sIdent;
+	short sSex;
 	char cOperPer[150];
 
 	CS_MSG_LOGIN_ACK()
@@ -91,6 +96,11 @@ struct SC_MSG_REGISTER_REQ
 struct CS_MSG_REGISTER_ACK
 {
 	bool bSucceed;
+	unsigned int iUserId;
+	char cAccount[31];
+	char cName[31];
+	short sIdent;
+	short sSex;
 	char cOperPer[150];
 
 	CS_MSG_REGISTER_ACK()

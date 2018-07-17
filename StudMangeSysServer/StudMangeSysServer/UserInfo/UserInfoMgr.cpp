@@ -183,6 +183,34 @@ string UserInfoMgr::GetAccountBySocketId(unsigned __int64 socketId)
 	return ""; 
 }
 
+bool UserInfoMgr::SetIdentBySocketId(unsigned __int64 socketId, short sIdent)
+{
+	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
+	if (iter != m_mUserInfo.end())
+	{
+		UserInfoLock::GetInstance()->Lock();
+		m_mUserInfo[socketId].sIdent = sIdent;
+		UserInfoLock::GetInstance()->Unlock();
+
+		return true;
+	}
+
+	return false;
+}
+
+short UserInfoMgr::GetIdentBySocketId(unsigned __int64 socketId)
+{
+	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
+	if (iter != m_mUserInfo.end())
+	{
+		UserInfoLock::GetInstance()->Lock();
+		return m_mUserInfo[socketId].sIdent;
+		UserInfoLock::GetInstance()->Unlock();
+	}
+
+	return 0; //·Ç·¨Öµ
+}
+
 bool UserInfoMgr::SetRegNeedCountBySocketId(unsigned __int64 socketId, short sRegNeedCount)
 {
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);

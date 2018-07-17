@@ -29,6 +29,9 @@ public:
 	bool SetAccountBySocketId(unsigned __int64 socketId, string strAccount);
 	string GetAccountBySocketId(unsigned __int64 socketId);
 
+	bool SetIdentBySocketId(unsigned __int64 socketId, short sIdent);
+	short GetIdentBySocketId(unsigned __int64 socketId);
+
 	bool SetRegNeedCountBySocketId(unsigned __int64 socketId, short sRegNeedCount);
 	short GetRegNeedCountBySocketId(unsigned __int64 socketId);
 
