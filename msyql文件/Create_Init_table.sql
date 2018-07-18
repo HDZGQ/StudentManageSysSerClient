@@ -1,4 +1,7 @@
+delimiter //
 create database StudMangeSystem;
+use StudMangeSystem
+//
 
 create table userInfo (
 	userID int not null auto_increment,
@@ -10,8 +13,9 @@ create table userInfo (
 	major varchar(40), -- 专业
 	grade varchar(30), -- 年级
 	primary key(userID)
-) engine=innodb auto_increment=10001 ;
+) engine=innodb auto_increment=10000 ;
 -- insert into userInfo(account, password, name, sex, Ident, major, grade) values ('aaaaa','123456', '张三', 0, 1, '自动化', '自动化11-1');
+//
 
 -- 后续开设可增减科目功能
 create table studScore (
@@ -24,6 +28,7 @@ create table studScore (
 -- alter table studScore drop foreign key(fk_scoreUserId);
 -- alter table StudScore add Chinese tinyint;
 -- alter table StudScore drop Chinese;
+//
 
 -- 操作权限
 create table userAuthority (
@@ -32,3 +37,11 @@ create table userAuthority (
 	constraint fk_AuthorityUserId foreign key(userID) references userInfo(userID)
 );
 -- alter table userAuthority drop foreign key(fk_AuthorityUserId);
+//
+
+-- 插入管理员账号信息
+insert into userInfo(account, password, name, sex, Ident) values('admin', '123456', 'admin', 0, 3);
+insert into userAuthority(userID, Authority) values(10000, '1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30');
+//
+
+delimiter ;
