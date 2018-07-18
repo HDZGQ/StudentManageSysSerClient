@@ -219,6 +219,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProcHandle\AddUserInfoSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\AddUserInfoSysProc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProcHandle\AlterSubjectsSysProc.cpp"
 				>
 			</File>
@@ -259,6 +267,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProcHandle\DeleteUserInfoSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\DeleteUserInfoSysProc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProcHandle\EnterSysProc.cpp"
 				>
 			</File>
@@ -291,11 +307,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProcHandle\SelectUserInfoSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\SelectUserInfoSysProc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProcHandle\UpdateScoreSysProc.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\ProcHandle\UpdateScoreSysProc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\UpdateUserInfoSysProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcHandle\UpdateUserInfoSysProc.h"
 				>
 			</File>
 			<File

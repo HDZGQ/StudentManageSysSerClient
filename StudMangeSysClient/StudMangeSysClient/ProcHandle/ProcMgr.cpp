@@ -11,7 +11,11 @@ ProcMgr::ProcMgr() :
 		m_UpdateScoreSysProc(PROC_DEF_UPDATESCORESYSPROC),
 		m_SelectScoreSysProc(PROC_DEF_SELECTSCORESYSPROC),
 		m_DeleteScoreSysProc(PROC_DEF_DELETESCORESYSPROC),
-		m_AlterSubjectsSysProc(PROC_DEF_ALTERSUBJECTSSYSPROC)
+		m_AlterSubjectsSysProc(PROC_DEF_ALTERSUBJECTSSYSPROC),
+		m_AddUserInfoSysProc(PROC_DEF_ADDUSERINFOSYSPROC),
+		m_UpdateUserInfoSysProc(PROC_DEF_UPDATEUSERINFOSYSPROC),
+		m_SelectUserInfoSysProc(PROC_DEF_SELECTUSERINFOSYSPROC),
+		m_DeleteUserInfoSysProc(PROC_DEF_DELETEUSERINFOSYSPROC)
 {
 	
 }
@@ -32,6 +36,10 @@ bool ProcMgr::initProc()
 	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_SELECTSCORESYSPROC, &m_SelectScoreSysProc));
 	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_DELETESCORESYSPROC, &m_DeleteScoreSysProc));
 	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_ALTERSUBJECTSSYSPROC, &m_AlterSubjectsSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_ADDUSERINFOSYSPROC, &m_AddUserInfoSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_UPDATEUSERINFOSYSPROC, &m_UpdateUserInfoSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_SELECTUSERINFOSYSPROC, &m_SelectUserInfoSysProc));
+	m_mProcMgr.insert(pair<ProcDef, BaseProc*>(PROC_DEF_DELETEUSERINFOSYSPROC, &m_DeleteUserInfoSysProc));
 
 	return true;
 }

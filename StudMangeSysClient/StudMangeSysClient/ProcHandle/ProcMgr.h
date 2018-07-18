@@ -14,6 +14,10 @@
 #include "SelectScoreSysProc.h"
 #include "DeleteScoreSysProc.h"
 #include "AlterSubjectsSysProc.h"
+#include "AddUserInfoSysProc.h"
+#include "UpdateUserInfoSysProc.h"
+#include "SelectUserInfoSysProc.h"
+#include "DeleteUserInfoSysProc.h"
 
 
 class ProcMgr : public xSingleton<ProcMgr>
@@ -44,5 +48,9 @@ private:
 	SelectScoreSysProc m_SelectScoreSysProc;
 	DeleteScoreSysProc m_DeleteScoreSysProc;
 	AlterSubjectsSysProc m_AlterSubjectsSysProc;
+	AddUserInfoSysProc m_AddUserInfoSysProc;
+	UpdateUserInfoSysProc m_UpdateUserInfoSysProc;
+	SelectUserInfoSysProc m_SelectUserInfoSysProc;
+	DeleteUserInfoSysProc m_DeleteUserInfoSysProc;
 };
 #endif
