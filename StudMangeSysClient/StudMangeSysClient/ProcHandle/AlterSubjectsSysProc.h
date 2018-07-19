@@ -19,6 +19,15 @@ public:
 	virtual void SwitchToOper(OperPermission CurOper);
 
 
+	//选择操作处理
+	void AddSubjectChooseHandle();
+	void DeleteSubjectChooseHandle();
+
+	//返回结果处理
+	bool AlterSubjectRecvHandle(void* vpData, unsigned int DataLen);
+
+protected:
+	int ShowSubjects(map<int, string> mIStr);
 };
 
 #endif

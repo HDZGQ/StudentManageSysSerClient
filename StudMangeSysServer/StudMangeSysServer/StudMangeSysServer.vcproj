@@ -321,6 +321,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UserInfo\SubjectsMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UserInfo\SubjectsMgr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\UserInfo\UserInfoMgr.cpp"
 				>
 			</File>

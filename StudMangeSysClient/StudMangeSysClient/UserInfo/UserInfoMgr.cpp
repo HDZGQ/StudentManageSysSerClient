@@ -3,19 +3,35 @@
 
 UserInfoMgr::UserInfoMgr()
 {
-	m_vOperPer.push_back(OPER_PER_LOGIN);
-	m_vOperPer.push_back(OPER_PER_REGISTER);
+	initAllSubjects();
+
+	InitVOperPer();
 
 	sName = "";
 	sAccount = "";
 	iUserId = 0;
 	sIdent = 1;
 	sSex = 0;
+
+	sMark = 0;
 }
 
 UserInfoMgr::~UserInfoMgr()
 {
 
+}
+
+void UserInfoMgr::initAllSubjects()
+{
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_CHINESE, SubjectsData("chinese", "语文")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_MATH, SubjectsData("math", "数学")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_ENGLISH, SubjectsData("english", "英语")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_PHYSICS, SubjectsData("physics", "物理")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_CHEMISTRY, SubjectsData("chemistry", "化学")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_BIOLOGY, SubjectsData("biology", "生物")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_HISTORY, SubjectsData("history", "历史")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_POLITICS, SubjectsData("politics", "政治")));
+	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_GEOGRAPHY, SubjectsData("geography", "地理")));
 }
 
 void UserInfoMgr::SetSomeInfo(string name, string sAccount, unsigned int userId, short sIdent, short sSex)
@@ -77,6 +93,16 @@ short UserInfoMgr::GetUserSex()
 	return sSex;
 }
 
+void UserInfoMgr::SetUserMark(short sMark)
+{
+	this->sMark = sMark;
+}
+
+short UserInfoMgr::GetUserMark()
+{
+	return sMark;
+}
+
 bool UserInfoMgr::CheckOperPerValid(OperPermission OperPer)
 {
 	vector<OperPermission>::iterator iter = m_vOperPer.begin();
@@ -87,6 +113,16 @@ bool UserInfoMgr::CheckOperPerValid(OperPermission OperPer)
 	}
 
 	return false;
+}
+
+bool UserInfoMgr::InitVOperPer()
+{
+	m_vOperPer.clear();
+
+	m_vOperPer.push_back(OPER_PER_LOGIN);
+	m_vOperPer.push_back(OPER_PER_REGISTER);
+
+	return true;
 }
 
 bool UserInfoMgr::SetVOperPer(string str)
@@ -123,6 +159,26 @@ bool UserInfoMgr::SetVOperPer(string str)
 	}
 
 	m_vOperPer.insert(m_vOperPer.end(), vOperPerTmp.begin(), vOperPerTmp.end());
+
+	return true;
+}
+
+string UserInfoMgr::GetChineseNameByType(SubjectsType sType)
+{
+	if (sType <= SUBJECTS_TYPE_START || sType >= SUBJECTS_TYPE_END)
+	{
+		return "";
+	}
+
+	return m_mAllSubjects[sType].strChineseName;
+}
+
+bool UserInfoMgr::CanFindSubjectsType(SubjectsType sType)
+{
+	if (sType <= SUBJECTS_TYPE_START || sType >= SUBJECTS_TYPE_END || m_mAllSubjects.find(sType) == m_mAllSubjects.end())
+	{
+		return false;
+	}
 
 	return true;
 }

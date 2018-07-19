@@ -3,7 +3,9 @@
 
 #include "xSingleton.h"
 #include "EventMonitor.h"
+#include "SubjectsMgr.h"
 #include "EnterSysProc.h"
+#include "ScoreProc.h"
 #include "PublicDef.h"
 //#include "NetDef.h"
 
@@ -16,13 +18,14 @@ public:
 	bool InitMoniter();
 
 	CEventProxy<Assist_ID, SOCKET, void*, unsigned int>& GetRecvHandleMoniter();
-	CEventProxy<OperPermission, SOCKET, MYSQL_RES*, int>& GetReplyHandleMoniter();
+	CEventProxy<Assist_ID, SOCKET, MYSQL_RES*, string>& GetReplyHandleMoniter();
 
 private:
 	CEventProxy<Assist_ID, SOCKET, void*, unsigned int> m_RecvHandleMoniter;
-	CEventProxy<OperPermission, SOCKET, MYSQL_RES*, int> m_ReplyHandleMoniter;
+	CEventProxy<Assist_ID, SOCKET, MYSQL_RES*, string> m_ReplyHandleMoniter;
 
 	EnterSysProc m_EnterSysProc;
+	ScoreProc m_ScoreProc;
 };
 
 

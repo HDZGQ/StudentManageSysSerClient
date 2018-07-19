@@ -7,6 +7,7 @@
 #include <Windows.h> 
 #include <mysql.h>
 #include "MysqlDef.h"
+#include "ProtoDef.h"
 
 class MysqlMgr : public xSingleton<MysqlMgr>
 {
@@ -16,7 +17,7 @@ public:
 
 	bool MysqlConn();
 
-	void InputMsgQueue(string strMysql, MysqlOper mysqlOper, OperPermission operPer, unsigned __int64 SocketId);
+	void InputMsgQueue(string strMysql, MysqlOper mysqlOper, Assist_ID AssistId, unsigned __int64 SocketId, string strRecord="");
 	void MsgQueueHandle();
 private:
 	queue<MysqlMsgData> m_MysqlMsgQueue;

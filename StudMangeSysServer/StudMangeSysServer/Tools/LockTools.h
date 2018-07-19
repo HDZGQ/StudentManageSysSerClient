@@ -52,4 +52,11 @@ public:
 	~MysqlMsgLock(){}
 };
 
+class ExistSubjectsLock : public BaseLock, public xSingleton<ExistSubjectsLock>
+{
+public:
+	ExistSubjectsLock(){}
+	~ExistSubjectsLock(){}
+};
+
 #endif

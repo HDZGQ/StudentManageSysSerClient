@@ -50,7 +50,7 @@ void EnterSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*
 		bRes = RegisterRecvHandle(vpData, DataLen);
 		break;
 	default:
-		printf("iAssistId[%d] error\n", iAssistId);
+		printf("%s iAssistId[%d] error\n", __FUNCTION__, iAssistId);
 		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 		break;
 	}
@@ -194,7 +194,7 @@ bool EnterSysProc::LoginRecvHandle(void* vpData, unsigned int DataLen)
 	CS_MSG_LOGIN_ACK* RecvMSG = (CS_MSG_LOGIN_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
-		if (!UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
+		if (!UserInfoMgr::GetInstance()->InitVOperPer() || !UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
 		{
 			printf("操作权限设置失败！\n");
 			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
@@ -230,7 +230,7 @@ bool EnterSysProc::RegisterRecvHandle(void* vpData, unsigned int DataLen)
 	CS_MSG_REGISTER_ACK* RecvMSG = (CS_MSG_REGISTER_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
-		if (!UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
+		if (!UserInfoMgr::GetInstance()->InitVOperPer() || !UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
 		{
 			printf("操作权限设置失败！\n");
 			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册

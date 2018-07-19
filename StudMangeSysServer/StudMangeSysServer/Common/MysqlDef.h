@@ -26,8 +26,9 @@ typedef struct
 {
 	string strMysql;
 	MysqlOper mysqlOper;
-	int operPer; //权限操作类型
+	int AssistId; //协议辅助id
 	unsigned __int64 SocketId;
+	string strRecord;
 } MysqlMsgData, *PtrMysqlMsgData;
 
 

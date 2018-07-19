@@ -1,13 +1,13 @@
 #ifndef __ENTERSYSPROC_H__
 #define __ENTERSYSPROC_H__
 
-
+#include <string>
 #include <WinSock2.h>
 #include <mysql.h>
 #include <Windows.h>
 #include "ProtoDef.h"
 
-
+using namespace std;
 
 class EnterSysProc
 {
@@ -23,10 +23,10 @@ public:
 	void ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen);
 
 	/*
-	* 回复消息处理。iRes为0为正常执行sql语句
+	* 回复消息处理。strRecord需要从前面操作中带到返回函数的数据
 	*/
-	void LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int iRes);
-	void RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, int iRes);
+	void LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord);
+	void RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord);
 };
 
 #endif

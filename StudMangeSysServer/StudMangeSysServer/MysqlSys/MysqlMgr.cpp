@@ -1,5 +1,6 @@
 #include "MysqlMgr.h"
 #include "LockTools.h"
+#include "CheckTool.h"
 
 
 MysqlMgr::MysqlMgr() : 
@@ -56,7 +57,7 @@ bool MysqlMgr::MysqlConn()
 	return bRes;
 }
 
-void MysqlMgr::InputMsgQueue(string strMysql, MysqlOper mysqlOper, OperPermission operPer, unsigned __int64 SocketId)
+void MysqlMgr::InputMsgQueue(string strMysql, MysqlOper mysqlOper, Assist_ID AssistId, unsigned __int64 SocketId, string strRecord)
 {
 	if (strMysql.empty())
 	{
@@ -68,9 +69,9 @@ void MysqlMgr::InputMsgQueue(string strMysql, MysqlOper mysqlOper, OperPermissio
 		printf("数据库操作类型错误[%d] error\n", mysqlOper);
 		return;
 	}
-	if (operPer <= OPER_PER_START || operPer >= OPER_PER_END)
+	if (AssistId <= ASSIST_ID_SPECIAL_START || (AssistId >= ASSIST_ID_SPECIAL_END && AssistId <= ASSIST_ID_START) || AssistId >= ASSIST_ID_END)
 	{
-		printf("权限操作类型错误[%d] error\n", operPer);
+		printf("Assistid类型错误[%d] error\n", AssistId);
 		return;
 	}
 
@@ -78,8 +79,9 @@ void MysqlMgr::InputMsgQueue(string strMysql, MysqlOper mysqlOper, OperPermissio
 	MysqlMsgData mysqlMsgData;
 	mysqlMsgData.strMysql = strMysql;
 	mysqlMsgData.mysqlOper = mysqlOper;
-	mysqlMsgData.operPer = operPer;
+	mysqlMsgData.AssistId = AssistId;
 	mysqlMsgData.SocketId = SocketId;
+	mysqlMsgData.strRecord = strRecord;
 
 	MysqlMsgLock::GetInstance()->Lock();
 	m_MysqlMsgQueue.push(mysqlMsgData);
@@ -106,7 +108,13 @@ void MysqlMgr::MsgQueueHandle()
 				m_MysqlRes=mysql_store_result(&m_MysqlCont);  //保存查询到的数据到m_MysqlRes，查询失败m_MysqlRes为NULL
 			}
 
-			ProcMgr::GetInstance()->GetReplyHandleMoniter().DispatchEvent((OperPermission)recvMsgData.operPer, (SOCKET)recvMsgData.SocketId, m_MysqlRes, iRes);
+			string strRecord = CheckTool::NumberToStr(iRes);
+			if (!recvMsgData.strRecord.empty())
+			{
+				strRecord += "|" + recvMsgData.strRecord;
+			}
+
+			ProcMgr::GetInstance()->GetReplyHandleMoniter().DispatchEvent((Assist_ID)recvMsgData.AssistId, (SOCKET)recvMsgData.SocketId, m_MysqlRes, strRecord);
 		}
 		else
 		{

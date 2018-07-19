@@ -60,7 +60,7 @@ vector<string> CheckTool::Splite(string str, string strSpl)
 	return vecStr;
 }
 
-string CheckTool::CombVecToStr(vector<OperPermission> vecOper)
+string CheckTool::CombVecToStr(vector<OperPermission> vecOper, string strCom)
 {
 	string strRes = "";
 	if (vecOper.empty())
@@ -70,12 +70,34 @@ string CheckTool::CombVecToStr(vector<OperPermission> vecOper)
 	{
 		if (i != 0)
 		{
-			strRes += "|";
+			strRes += strCom;
 		}
 
 		char ch[11];
 		memset(ch, 0, sizeof(ch));
 		sprintf_s(ch, sizeof(ch), "%d", (int)vecOper.at(i));
+		strRes += ch;
+	}
+
+	return strRes;
+}
+
+string CheckTool::CombVecToStr(vector<int> vec, string strCom)
+{
+	string strRes = "";
+	if (vec.empty())
+		return strRes;
+
+	for (unsigned i=0 ; i<vec.size(); i++)
+	{
+		if (i != 0)
+		{
+			strRes += strCom;
+		}
+
+		char ch[11];
+		memset(ch, 0, sizeof(ch));
+		sprintf_s(ch, sizeof(ch), "%d", vec.at(i));
 		strRes += ch;
 	}
 
@@ -102,6 +124,43 @@ bool CheckTool::CheckStringByValid(string str, string validStr)
 	return true;
 }
 
+string CheckTool::ToLowercase(string strSrc)
+{
+	string strRes = strSrc;
+	if (strSrc.empty())
+	{
+		return strRes;
+	}
+
+	for (unsigned i = 0; i < strSrc.size(); i++)
+	{
+		if (strSrc.at(i) >= 'A' && strSrc.at(i) <= 'Z')
+		{
+			strRes.at(i) = strRes.at(i)+32;
+		}
+	}
+
+	return strRes;
+}
+
+string CheckTool::ToUppecase(string strSrc)
+{
+	string strRes = strSrc;
+	if (strSrc.empty())
+	{
+		return strRes;
+	}
+
+	for (unsigned i = 0; i < strSrc.size(); i++)
+	{
+		if (strSrc.at(i) >= 'a' && strSrc.at(i) <= 'z')
+		{
+			strRes.at(i) = strRes.at(i)-32;
+		}
+	}
+
+	return strRes;
+}
 
 bool CheckTool::CheckValidString(vector<string> strVec)
 {

@@ -27,7 +27,7 @@ void BaseProc::OnStart(bool bChooseAgain)
 {
 	m_IsShow = true;
 	m_IsChooseAgain = bChooseAgain;
-
+	m_iOperInputErrorLimit = 0;
 }
 
 
@@ -80,6 +80,7 @@ void BaseProc::StartProc()
 		}
 		else if (PROC_DEF_INVALID != GetProcDefByRealChoose(iRealChoose))
 		{
+			EndRecv();
 			ProcMgr::GetInstance()->ProcSwitch(GetProcDefByRealChoose(iRealChoose));
 		}
 		else
@@ -99,13 +100,14 @@ void BaseProc::StartProc()
 void BaseProc::EndProc()
 {
 	//printf("%s\n", __FUNCTION__);
-	m_iOperInputErrorLimit = 0;
+	
 }
 
 void BaseProc::EndRecv()
 {
 	//printf("%s\n", __FUNCTION__);
 
+	m_iOperInputErrorLimit = 0;
 	m_IsRunning = false;
 	m_iMyChoose = -1;
 
@@ -240,9 +242,9 @@ void BaseProc::ExitSys()
 	cout<<"退出系统中..."<<endl;
 
 	//发送服务端
-	CS_MSG_EXIT_SYS SendReq;
+	CS_MSG_EXIT_SYS_REQ SendReq;
 	SendReq.bExit = true;
-	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS);
+	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS_REQ);
 
 
 	system("pause");
@@ -253,8 +255,8 @@ void BaseProc::OperInputErrorHandle()
 {
 	if (++m_iOperInputErrorLimit >= OPERINPUTERRORMAXLIMIT)
 	{
-		m_iOperInputErrorLimit = 0;
-		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);  //重新登录注册
+		EndRecv();
+		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);  
 	}
 	else
 	{

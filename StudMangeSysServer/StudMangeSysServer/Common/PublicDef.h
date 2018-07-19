@@ -3,6 +3,7 @@
 
 //#define WIN32_LEAN_AND_MEAN
 //#include <WinSock2.h>  
+#include <string>
 
 
 //操作权限宏 与服务端对应  登录和注册操作权限，每个玩家都拥有
@@ -117,6 +118,22 @@ enum IdentType
 	IDENT_TYPE_END                    //有效值终止值
 };
 
+
+struct SubjectsData
+{
+	std::string strEnglishName;
+	std::string strChineseName;
+	SubjectsData()
+	{
+		strEnglishName = "";
+		strChineseName = "";
+	}
+	SubjectsData(std::string strEName, std::string strCName)
+	{
+		strEnglishName = strEName;
+		strChineseName = strCName;
+	}
+};
 
 
 #endif

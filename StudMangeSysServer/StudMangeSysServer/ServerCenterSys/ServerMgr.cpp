@@ -3,6 +3,7 @@
 #include "MsgHandle.h"
 #include "MysqlMgr.h"
 #include "NetSysMgr.h"
+#include "SubjectsMgr.h"
 
 ServerMgr::ServerMgr()
 {
@@ -30,6 +31,7 @@ void ServerMgr::ServerRun()
 		system("pause");
 		exit(0);
 	}
+	SubjectsMgr::GetInstance()->GetExistSubjectHandle();
 
 	//初始化socket等相关接口和数据结构。主线程监控客户端连接，工作线程处理系统接收好的消息
 	NetSysMgr::GetInstance()->StartNet();

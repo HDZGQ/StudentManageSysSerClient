@@ -55,4 +55,20 @@ struct ChooseData
 	}
 };
 
+struct SubjectsData
+{
+	std::string strEnglishName;
+	std::string strChineseName;
+	SubjectsData()
+	{
+		strEnglishName = "";
+		strChineseName = "";
+	}
+	SubjectsData(std::string strEName, std::string strCName)
+	{
+		strEnglishName = strEName;
+		strChineseName = strCName;
+	}
+};
+
 #endif
