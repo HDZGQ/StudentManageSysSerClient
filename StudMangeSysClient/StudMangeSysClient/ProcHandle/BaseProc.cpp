@@ -2,6 +2,7 @@
 #include "ProcMgr.h"
 #include "TCPHandle.h"
 #include "UserInfoMgr.h"
+#include "CheckTool.h"
 
 
 BaseProc::BaseProc(ProcDef nProcDef) : m_MyProcDef(nProcDef)
@@ -9,6 +10,7 @@ BaseProc::BaseProc(ProcDef nProcDef) : m_MyProcDef(nProcDef)
 	m_IsShow = false;
 	m_IsRunning = false;
 	m_CurOper = OPER_PER_INVALID;
+	m_iEndFlag = 0;
 	m_iMyChoose = -1;
 
 	m_iMinRealChoose = 1;
@@ -27,15 +29,15 @@ void BaseProc::OnStart(bool bChooseAgain)
 {
 	m_IsShow = true;
 	m_IsChooseAgain = bChooseAgain;
-	m_iOperInputErrorLimit = 0;
 }
 
 
 void BaseProc::StartProc()
 {
 	m_IsShow = false;
-
 	m_IsRunning = true;
+	m_iEndFlag = 0;
+	m_iOperInputErrorLimit = 0;
 
 	printf("-------------------------------\n");
 
@@ -67,7 +69,16 @@ void BaseProc::StartProc()
 		cout << "请重新选择：" << endl;
 		m_IsChooseAgain = false;
 	}
-	cin >> m_iMyChoose;
+	string strInput;
+	cin >> strInput;
+	if (!CheckTool::CheckStringByValid(strInput, "0~9"))
+	{
+		m_iMyChoose = m_iMinRealChoose - 1; //弄成非法
+	}
+	else
+	{
+		m_iMyChoose = (int)atoi(strInput.c_str());
+	}
 
 	//用户选择处理
 	int iRealChoose = GetRealChooseByUserChoose(m_iMyChoose);
@@ -80,6 +91,7 @@ void BaseProc::StartProc()
 		}
 		else if (PROC_DEF_INVALID != GetProcDefByRealChoose(iRealChoose))
 		{
+			SetIEndFlag(1); //正常结束
 			EndRecv();
 			ProcMgr::GetInstance()->ProcSwitch(GetProcDefByRealChoose(iRealChoose));
 		}
@@ -103,9 +115,24 @@ void BaseProc::EndProc()
 	
 }
 
+void BaseProc::SetIEndFlag(int iEndFlag)
+{
+	m_iEndFlag = iEndFlag;
+}
+
+int BaseProc::GetIEndFlag()
+{
+	return m_iEndFlag;
+}
+
 void BaseProc::EndRecv()
 {
 	//printf("%s\n", __FUNCTION__);
+	if (0 == m_iEndFlag)
+	{
+	//	printf("%s  进程标识[%d]还没有结束\n", __FUNCTION__, (int)GetMyProcDef());
+		return;
+	}
 
 	m_iOperInputErrorLimit = 0;
 	m_IsRunning = false;
@@ -251,10 +278,16 @@ void BaseProc::ExitSys()
 	exit(0);
 }
 
-void BaseProc::OperInputErrorHandle()
+void BaseProc::OperInputErrorHandle(bool bFlag)
 {
 	if (++m_iOperInputErrorLimit >= OPERINPUTERRORMAXLIMIT)
 	{
+		SetIEndFlag(-1);
+
+		if (!bFlag)	 //recv过程的选择错误，进程结束的操作交给recv函数最后统一处理
+			return;
+
+		//进程开始的选择错误
 		EndRecv();
 		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);  
 	}

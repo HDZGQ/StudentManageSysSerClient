@@ -17,6 +17,7 @@ public:
 	SubjectsMgr();
 	~SubjectsMgr();
 
+	string GetStrEnglishNameByStrType(string strType, string strSpl="|"); //通过strSpl分隔的strType字符串科目类型，从对应的英文名，组成以strSpl分隔符分隔的字符串返回
 	string GetEnglishNameByType(SubjectsType sType); 
 	string GetChineseNameByType(SubjectsType sType);
 	SubjectsType GetTypeByEnglishName(string strName);

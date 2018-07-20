@@ -32,7 +32,7 @@ bool MysqlMgr::MysqlConn()
 	}
 
 	bool bRes = false;
-	if(mysql_real_connect(&m_MysqlCont, m_sHost.c_str(), m_sUser.c_str() ,m_sPswd.c_str(), m_sDB.c_str(), MysqlConnPort, NULL, 0))
+	if(mysql_real_connect(&m_MysqlCont, m_sHost.c_str(), m_sUser.c_str() ,m_sPswd.c_str(), m_sDB.c_str(), MysqlConnPort, NULL, CLIENT_MULTI_STATEMENTS)) //想要使用存储过程，最后一个参数必须要CLIENT_MULTI_STATEMENTS，而不能为0
 	{
 		printf("mysql connect succeed!\n");
 		m_IsConn = true;

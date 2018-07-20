@@ -26,6 +26,28 @@ void SubjectsMgr::init()
 	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_GEOGRAPHY, SubjectsData("geography", "µÿ¿Ì")));
 }
 
+string SubjectsMgr::GetStrEnglishNameByStrType(string strType, string strSpl)
+{
+	if (strSpl.empty())
+	{
+		return strType;
+	}
+
+	vector<string> vStrType = CheckTool::Splite(strType, strSpl);
+	vector<string> vStrRes;
+	for (unsigned i=0; i<vStrType.size(); i++)
+	{
+		string sEName = GetEnglishNameByType((SubjectsType)atoi(vStrType.at(i).c_str()));
+		if (!sEName.empty())
+		{
+			vStrRes.push_back(sEName);
+		}
+	}
+
+	string sRes = CheckTool::CombVecToStr(vStrRes, strSpl);
+	return sRes;
+}
+
 string SubjectsMgr::GetEnglishNameByType(SubjectsType sType)
 {
 	if (sType <= SUBJECTS_TYPE_START || sType >= SUBJECTS_TYPE_END)

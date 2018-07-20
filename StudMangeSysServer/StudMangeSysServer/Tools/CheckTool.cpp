@@ -104,6 +104,25 @@ string CheckTool::CombVecToStr(vector<int> vec, string strCom)
 	return strRes;
 }
 
+string CheckTool::CombVecToStr(vector<string> vec, string strCom)
+{
+	string strRes = "";
+	if (vec.empty())
+		return strRes;
+
+	for (unsigned i=0 ; i<vec.size(); i++)
+	{
+		if (i != 0)
+		{
+			strRes += strCom;
+		}
+
+		strRes += vec.at(i);
+	}
+
+	return strRes;
+}
+
 
 bool CheckTool::CheckStringByValid(string str, string validStr)
 {
@@ -170,6 +189,33 @@ string CheckTool::NumberToStr(int n)
 
 	string str = ch;
 	return str;
+}
+
+string CheckTool::CombToSqlUpdateSetStr(string strField, string strValue, string strSpl)
+{
+	string strRes = "";
+
+	vector<string> vecField = Splite(strField, strSpl);
+	vector<string> vecValue = Splite(strValue, strSpl);
+
+	if (vecField.size() == 0 || vecValue.size() == 0 || vecField.size() != vecValue.size())
+	{
+		return strRes;
+	}
+
+	char ch[30];
+	for (unsigned i=0; i<vecField.size(); i++)
+	{
+		memset(ch, 0, sizeof(ch));
+		sprintf_s(ch, sizeof(ch), "%s=%s", vecField.at(i).c_str(), vecValue.at(i).c_str());
+		if (!strRes.empty())
+		{
+			strRes += ",";
+		}
+		strRes += ch;
+	}
+
+	return strRes;
 }
 
 

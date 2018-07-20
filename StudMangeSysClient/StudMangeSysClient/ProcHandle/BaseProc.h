@@ -23,9 +23,12 @@ public:
 	virtual void StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId) = 0;
 	virtual void EndRecv();
 
+	void SetIEndFlag(int iEndFlag);
+	int GetIEndFlag();
+
 	virtual bool initMapChoose() = 0;
 
-	virtual void SwitchToOper(OperPermission CurOper); //进程内部操作切换，适用于有操作的界面，操作是指增删查改等这些操作
+	virtual void SwitchToOper(OperPermission CurOper); //进程内部操作切换，适用于有操作的界面，操作是指增删查改等这些操作 （结束当前进程，切换其他（包括当前）进程。调用时候一并要调用EndRecv清除数据）
 
 	OperPermission GetCurOper();
 	void SetCurOper(OperPermission CurOper);
@@ -48,7 +51,7 @@ public:
 
 	void ExitSys();
 
-	void OperInputErrorHandle(); //多次输入操作错误处理
+	void OperInputErrorHandle(bool bFlag=true); //多次输入操作错误处理 要考虑只在请求处选择错误和到了返回结果处选择错误，bFlag标记用于控制是否需要使用该函数的切换进程
 protected:
 	//key就是realChoose
 	map<int, ChooseData> m_mChoose;
@@ -62,6 +65,7 @@ private:
 	bool m_IsShow;
 	bool m_IsRunning; //接受消息时，检测到运行的进程，就把这个消息投递到对应进程的StartRecv，各StartRecv再根据协议id区分取出消息  --其实感觉这样子不是很好。一般都是先根据协议id区分再做其他事
 	OperPermission m_CurOper; //进行的操作
+	int m_iEndFlag; //0没结束 1正常结束  -1不正常结束  为了防止不是一次请求一次接受进程就完成而设计的，现在适应所有情况
 
 	//m_mChoose的key值的最大最小值
 	int m_iMinRealChoose;

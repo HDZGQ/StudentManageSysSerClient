@@ -41,10 +41,12 @@ enum Assist_ID
 	ASSIST_ID_REGISTER_REQ							 =   10003, //注册请求
 	ASSIST_ID_REGISTER_ACK							 =   10004, //注册回复
 	ASSIST_ID_EXIT_SYS_REQ							 =   10005, //退出系统
-	ASSIST_ID_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_REQ =   10006, //增减科目前请求可增减的科目请求
-	ASSIST_ID_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_ACK =   10007, //增减科目前请求可增减的科目回复
+	ASSIST_ID_GET_SUBJECTS_REQ						 =   10006, //获取剩余和现有科目请求
+	ASSIST_ID_GET_SUBJECTS_ACK						 =   10007, //获取剩余和现有科目回复
 	ASSIST_ID_ALTER_SUBJECTS_REQ					 =   10008, //增减科目请求
 	ASSIST_ID_ALTER_SUBJECTS_ACK					 =   10009, //增减科目回复
+	ASSIST_ID_ADD_SINGLE_SCORE_REQ					 =   10010, //单条添加成绩请求
+	ASSIST_ID_ADD_SINGLE_SCORE_ACK					 =   10011, //单条添加成绩回复
 
 
 	ASSIST_ID_END												//有效值终止值
@@ -138,25 +140,25 @@ struct CS_MSG_EXIT_SYS_REQ
 	}
 };
 
-//增减科目前请求可增减的科目请求   assist[10006]
-struct CS_MSG_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_REQ
+//获取剩余和现有科目请求   assist[10006]
+struct CS_MSG_GET_SUBJECTS_REQ
 {
-	short sGetType; //1增加科目前获取  2删除科目前获取
-	CS_MSG_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_REQ()
+	short sGetType; //1剩余科目（未增加）  2现有科目
+	CS_MSG_GET_SUBJECTS_REQ()
 	{
-		memset(this, 0, sizeof(CS_MSG_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_REQ));
+		memset(this, 0, sizeof(CS_MSG_GET_SUBJECTS_REQ));
 	}
 };
 
-//增减科目前请求可增减的科目回复   assist[10007]
-struct CS_MSG_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_ACK
+//获取剩余和现有科目回复   assist[10007]
+struct CS_MSG_GET_SUBJECTS_ACK
 {
 	bool bSucceed;
-	short sGetType; //1增加科目前获取  2删除科目前获取
+	short sGetType; //1剩余科目（未添加）  2现有科目
 	char cCanAlterSubjects[60];
-	CS_MSG_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_ACK()
+	CS_MSG_GET_SUBJECTS_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_GET_CAN_ALTER_AFTER_ALTER_SUBJECTS_ACK));
+		memset(this, 0, sizeof(CS_MSG_GET_SUBJECTS_ACK));
 	}
 };
 
@@ -182,5 +184,31 @@ struct CS_MSG_ALTER_SUBJECTS_ACK
 		memset(this, 0, sizeof(CS_MSG_ALTER_SUBJECTS_ACK));
 	}
 };
+
+//单条添加成绩请求   assist[10010]
+struct CS_MSG_ADD_SINGLE_SCORE_REQ
+{
+	short sType; //1单科单条增加成绩 2现有所有科目单条增加成绩
+	char cAccount[31]; //通过账号添加成绩  如果数据库没有这个账号，就得创建新的账号。所以不能通过userid，userid是自动增加的
+	char sSubjectId[60]; //每个ID使用分隔符|隔开
+	char sScore[90]; //每科分数使用分隔符|隔开
+	CS_MSG_ADD_SINGLE_SCORE_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_SINGLE_SCORE_REQ));
+	}
+};
+
+//单条添加成绩回复   assist[10011]
+struct CS_MSG_ADD_SINGLE_SCORE_ACK
+{
+	bool bSucceed;
+	short sType; //1单科单条增加成绩 2现有所有科目单条增加成绩
+	char cAccount[31];
+	CS_MSG_ADD_SINGLE_SCORE_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_SINGLE_SCORE_ACK));
+	}
+};
+
 
 #endif

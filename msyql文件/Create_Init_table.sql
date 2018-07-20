@@ -1,5 +1,8 @@
 delimiter //
+drop database if exists school;
+//
 create database StudMangeSystem;
+//
 use StudMangeSystem
 //
 

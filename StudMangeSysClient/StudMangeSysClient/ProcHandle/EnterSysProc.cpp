@@ -51,15 +51,22 @@ void EnterSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*
 		break;
 	default:
 		printf("%s iAssistId[%d] error\n", __FUNCTION__, iAssistId);
-		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+		//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
 		break;
 	}
 
 
-	if (bRes)
+// 	if (bRes)
+// 		ProcMgr::GetInstance()->ProcSwitch(GetNextProc()); //处理成功，切换到下一个界面
+	if (GetIEndFlag() == -1)
+	{
+		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);
+	}
+	else if (GetIEndFlag() == 1)
+	{
 		ProcMgr::GetInstance()->ProcSwitch(GetNextProc()); //处理成功，切换到下一个界面
-
-	EndRecv();
+	}
+	EndRecv();//有使用GetNextProc()就要先切换再清空数据  但是可能这样做会有问题，如果切换回来同一个界面
 }
 
 void EnterSysProc::EndRecv()
@@ -80,7 +87,7 @@ void EnterSysProc::SwitchToOper(OperPermission CurOper)
 		RegisterChooseHandle();
 		break;
 	default:
-		cout<<"没有该操作！"<<endl;
+		printf("%s 没有该操作！\n", __FUNCTION__);
 		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);  //重新登录注册
 		break;
 	}
@@ -184,11 +191,13 @@ bool EnterSysProc::LoginRecvHandle(void* vpData, unsigned int DataLen)
 	if (OPER_PER_LOGIN != GetCurOper())
 	{
 		printf("不是进行该操作[%d]，当前进行的操作是[%d] error\n", OPER_PER_LOGIN, GetCurOper());
+		SetIEndFlag(-1);
 		return false;
 	}
 	if (DataLen != sizeof(CS_MSG_LOGIN_ACK))
 	{
 		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_LOGIN_ACK));
+		SetIEndFlag(-1);
 		return false;
 	}
 	CS_MSG_LOGIN_ACK* RecvMSG = (CS_MSG_LOGIN_ACK*) vpData;
@@ -197,18 +206,21 @@ bool EnterSysProc::LoginRecvHandle(void* vpData, unsigned int DataLen)
 		if (!UserInfoMgr::GetInstance()->InitVOperPer() || !UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
 		{
 			printf("操作权限设置失败！\n");
-			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+			//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+			SetIEndFlag(-1);
 			return false;
 		}
 
 		UserInfoMgr::GetInstance()->SetSomeInfo(RecvMSG->cName, RecvMSG->cAccount, RecvMSG->iUserId, RecvMSG->sIdent, RecvMSG->sSex);
 
 		printf(">>>登录系统成功，欢迎您<<<！\n");
+		SetIEndFlag(1);
 	}
 	else
 	{
 		printf("***登录系统失败***\n");
-		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+		//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+		SetIEndFlag(-1);
 		return false;
 	}
 
@@ -220,11 +232,13 @@ bool EnterSysProc::RegisterRecvHandle(void* vpData, unsigned int DataLen)
 	if (OPER_PER_REGISTER != GetCurOper())
 	{
 		printf("不是进行该操作[%d]，当前进行的操作是[%d] error\n", OPER_PER_REGISTER, GetCurOper());
+		SetIEndFlag(-1);
 		return false;
 	}
 	if (DataLen != sizeof(CS_MSG_REGISTER_ACK))
 	{
 		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_REGISTER_ACK));
+		SetIEndFlag(-1);
 		return false;
 	}
 	CS_MSG_REGISTER_ACK* RecvMSG = (CS_MSG_REGISTER_ACK*) vpData;
@@ -233,18 +247,21 @@ bool EnterSysProc::RegisterRecvHandle(void* vpData, unsigned int DataLen)
 		if (!UserInfoMgr::GetInstance()->InitVOperPer() || !UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
 		{
 			printf("操作权限设置失败！\n");
-			ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+			//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+			SetIEndFlag(-1);
 			return false;
 		}
 
 		UserInfoMgr::GetInstance()->SetSomeInfo(RecvMSG->cName, RecvMSG->cAccount, RecvMSG->iUserId, RecvMSG->sIdent, RecvMSG->sSex);
 
 		printf(">>>注册成功，欢迎您进入系统！<<<\n");
+		SetIEndFlag(1);
 	}
 	else
 	{
 		printf("***注册失败***\n");
-		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+		//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+		SetIEndFlag(-1);
 		return false;
 	}
 

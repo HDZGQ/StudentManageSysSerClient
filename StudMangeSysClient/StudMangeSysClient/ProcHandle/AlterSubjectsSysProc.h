@@ -18,12 +18,16 @@ public:
 
 	virtual void SwitchToOper(OperPermission CurOper);
 
+	//主页选择操作 操作前请求处理
+	void GetSubjectsAfterAddSubjectChooseHandle();
+	void GetSubjectsAfterDeleteSubjectChooseHandle();
 
 	//选择操作处理
-	void AddSubjectChooseHandle();
-	void DeleteSubjectChooseHandle();
+	void AddSubjectChooseHandle(char* pCanAlterSubjects);
+	void DeleteSubjectChooseHandle(char* pCanAlterSubjects);
 
 	//返回结果处理
+	bool GetSubjectsAfterAlterSubjectRecvHandle(void* vpData, unsigned int DataLen);
 	bool AlterSubjectRecvHandle(void* vpData, unsigned int DataLen);
 
 protected:
