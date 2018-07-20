@@ -1,7 +1,7 @@
 #include "SubjectsMgr.h"
 #include "MysqlMgr.h"
-#include "CheckTool.h"
 #include "LockTools.h"
+#include "StringTool.h"
 
 SubjectsMgr::SubjectsMgr()
 {
@@ -33,7 +33,7 @@ string SubjectsMgr::GetStrEnglishNameByStrType(string strType, string strSpl)
 		return strType;
 	}
 
-	vector<string> vStrType = CheckTool::Splite(strType, strSpl);
+	vector<string> vStrType = StringTool::Splite(strType, strSpl);
 	vector<string> vStrRes;
 	for (unsigned i=0; i<vStrType.size(); i++)
 	{
@@ -44,7 +44,7 @@ string SubjectsMgr::GetStrEnglishNameByStrType(string strType, string strSpl)
 		}
 	}
 
-	string sRes = CheckTool::CombVecToStr(vStrRes, strSpl);
+	string sRes = StringTool::CombVecToStr(vStrRes, strSpl);
 	return sRes;
 }
 
@@ -73,7 +73,7 @@ SubjectsType SubjectsMgr::GetTypeByEnglishName(string strName)
 	map<SubjectsType, SubjectsData>::iterator iter = m_mAllSubjects.begin();
 	for (; iter != m_mAllSubjects.end(); iter++)
 	{
-		if (CheckTool::ToLowercase(iter->second.strEnglishName) == CheckTool::ToLowercase(strName))
+		if (StringTool::ToLowercase(iter->second.strEnglishName) == StringTool::ToLowercase(strName))
 		{
 			return iter->first;
 		}
@@ -87,7 +87,7 @@ SubjectsType SubjectsMgr::GetTypeByChineseName(string strName)
 	map<SubjectsType, SubjectsData>::iterator iter = m_mAllSubjects.begin();
 	for (; iter != m_mAllSubjects.end(); iter++)
 	{
-		if (CheckTool::ToLowercase(iter->second.strChineseName) == CheckTool::ToLowercase(strName))
+		if (StringTool::ToLowercase(iter->second.strChineseName) == StringTool::ToLowercase(strName))
 		{
 			return iter->first;
 		}
@@ -187,7 +187,7 @@ void SubjectsMgr::GetExistSubjectHandle()
 
 void SubjectsMgr::GetExistSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	vector<string> vStrRecord= CheckTool::Splite(strRecord);
+	vector<string> vStrRecord= StringTool::Splite(strRecord);
 	if (NULL == MysqlRes || (vStrRecord.size() > 0 && (int)atoi(vStrRecord.at(0).c_str()) != 0))
 	{
 		printf("%s  数据库语句执行失败\n", __FUNCTION__);
@@ -207,7 +207,7 @@ void SubjectsMgr::GetExistSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRe
 		{
 			memset(column, 0, sizeof(column));
 			strcpy_s(column, sizeof(column), fd->name);
-			string str = CheckTool::ToLowercase(string(column));
+			string str = StringTool::ToLowercase(string(column));
 			if (str == string("userid")) //过滤不需要的字段
 			{
 				continue;

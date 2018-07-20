@@ -1,6 +1,6 @@
 #include "MysqlMgr.h"
 #include "LockTools.h"
-#include "CheckTool.h"
+#include "StringTool.h"
 
 
 MysqlMgr::MysqlMgr() : 
@@ -108,7 +108,7 @@ void MysqlMgr::MsgQueueHandle()
 				m_MysqlRes=mysql_store_result(&m_MysqlCont);  //保存查询到的数据到m_MysqlRes，查询失败m_MysqlRes为NULL
 			}
 
-			string strRecord = CheckTool::NumberToStr(iRes);
+			string strRecord = StringTool::NumberToStr(iRes);
 			if (!recvMsgData.strRecord.empty())
 			{
 				strRecord += "|" + recvMsgData.strRecord;

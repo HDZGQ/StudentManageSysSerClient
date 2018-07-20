@@ -5,7 +5,7 @@
 #include "UserInfoMgr.h"
 #include "MsgPackageMgr.h"
 #include "AuthorityMgr.h"
-#include "CheckTool.h"
+#include "StringTool.h"
 
 EnterSysProc::EnterSysProc()
 {
@@ -87,7 +87,7 @@ void EnterSysProc::ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int
 
 void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	vector<string> vStrRecord= CheckTool::Splite(strRecord);
+	vector<string> vStrRecord= StringTool::Splite(strRecord);
 	bool bExecute = true;
 	if (NULL == MysqlRes || (vStrRecord.size() > 0 && (int)atoi(vStrRecord.at(0).c_str()) != 0))
 	{
@@ -143,7 +143,7 @@ void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string
 
 void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	vector<string> vStrRecord= CheckTool::Splite(strRecord);
+	vector<string> vStrRecord= StringTool::Splite(strRecord);
 	short sRegNeedCount = UserInfoMgr::GetInstance()->GetRegNeedCountBySocketId(SocketId);
 	if (vStrRecord.size() > 0 && (int)atoi(vStrRecord.at(0).c_str()) != 0)
 	{
@@ -181,7 +181,7 @@ void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, str
 					//根据身份使用默认权限
 					vector<OperPermission> vecOper;
 					AuthorityMgr::GetDefaultAuthorityByIdent((IdentType)Ident, vecOper);
-					string strAuthority = CheckTool::CombVecToStr(vecOper);
+					string strAuthority = StringTool::CombVecToStr(vecOper);
 					UserInfoMgr::GetInstance()->SetAuthorityBySocketId(SocketId, strAuthority);
 
 					char strMysql[512];

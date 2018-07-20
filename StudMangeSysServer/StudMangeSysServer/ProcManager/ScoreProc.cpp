@@ -1,11 +1,11 @@
 #include "ScoreProc.h"
 #include "SubjectsMgr.h"
-#include "CheckTool.h"
 #include "MsgPackageMgr.h"
 #include "MysqlMgr.h"
 #include "UserInfoMgr.h"
 #include "SubjectsMgr.h"
 #include "AuthorityMgr.h"
+#include "StringTool.h"
 
 ScoreProc::ScoreProc()
 {
@@ -58,7 +58,7 @@ void ScoreProc::CheckCanAlterSubjectRecvHandle(SOCKET SocketId, void* vpData, un
 		viSubjectsTmp.push_back((int)(*iter));
 	}
 
-	string strSubjectsTmp = CheckTool::CombVecToStr(viSubjectsTmp);
+	string strSubjectsTmp = StringTool::CombVecToStr(viSubjectsTmp);
 	strcpy_s(SendMsg.cCanAlterSubjects, sizeof(SendMsg.cCanAlterSubjects), strSubjectsTmp.c_str());
 
 	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_GET_SUBJECTS_ACK);
@@ -104,7 +104,7 @@ void ScoreProc::AlterSubjectRecvHandle(SOCKET SocketId, void* vpData, unsigned i
 	memset(strMysql, 0, sizeof(strMysql));
 	sprintf_s(strMysql, sizeof(strMysql), "alter table studScore %s", strSqlTmp.c_str());
 
-	string  strRecord = CheckTool::NumberToStr((int)RecvMsg->sGetType) + "|" + CheckTool::NumberToStr((int)RecvMsg->sSubjectId);
+	string  strRecord = StringTool::NumberToStr((int)RecvMsg->sGetType) + "|" + StringTool::NumberToStr((int)RecvMsg->sSubjectId);
 
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_ALTER, ASSIST_ID_ALTER_SUBJECTS_ACK, SocketId, strRecord);
 }
@@ -130,7 +130,7 @@ void ScoreProc::AddSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned
 	sprintf_s(strMysql, sizeof(strMysql), "select userID from userInfo where account='%s'", RecvMsg->cAccount);
 	
 	string strRecord = "~";
-	strRecord += CheckTool::NumberToStr(RecvMsg->sType) + "~" + RecvMsg->cAccount + "~" + RecvMsg->sSubjectId + "~" + RecvMsg->sScore;
+	strRecord += StringTool::NumberToStr(RecvMsg->sType) + "~" + RecvMsg->cAccount + "~" + RecvMsg->sSubjectId + "~" + RecvMsg->sScore;
 	UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 101); //标记
 
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_ADD_SINGLE_SCORE_ACK, SocketId, strRecord);
@@ -138,7 +138,7 @@ void ScoreProc::AddSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned
 
 void ScoreProc::AlterSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	vector<string> vStrRecord= CheckTool::Splite(strRecord);
+	vector<string> vStrRecord= StringTool::Splite(strRecord);
 
 	CS_MSG_ALTER_SUBJECTS_ACK SendMsg;
 	SendMsg.bSucceed = true;
@@ -179,7 +179,7 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 		short sRegNeedCount = UserInfoMgr::GetInstance()->GetRegNeedCountBySocketId(SocketId);
 		if (sRegNeedCount == 101)
 		{
-			vector<string> vStrRecord= CheckTool::Splite(strRecord, "~");
+			vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
 			if (vStrRecord.size() != 5)
 			{
 				printf("%s  数据库语句执行失败，sRegNeedCount[%d]\n", __FUNCTION__,sRegNeedCount);
@@ -187,14 +187,14 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 				break;
 			}
 
-			vector<string> vStrRes = CheckTool::Splite(vStrRecord.at(0), "|");
-			vector<string> vStrType = CheckTool::Splite(vStrRecord.at(1), "|");
-			vector<string> vStrAccount = CheckTool::Splite(vStrRecord.at(2), "|");
-			//vector<string> vStrSubjectId = CheckTool::Splite(vStrRecord.at(3), "|");
-			vector<string> vStrScore = CheckTool::Splite(vStrRecord.at(4), "|");
+			vector<string> vStrRes = StringTool::Splite(vStrRecord.at(0), "|");
+			vector<string> vStrType = StringTool::Splite(vStrRecord.at(1), "|");
+			vector<string> vStrAccount = StringTool::Splite(vStrRecord.at(2), "|");
+			//vector<string> vStrSubjectId = StringTool::Splite(vStrRecord.at(3), "|");
+			vector<string> vStrScore = StringTool::Splite(vStrRecord.at(4), "|");
 
 			string strEnglishName = SubjectsMgr::GetInstance()->GetStrEnglishNameByStrType(vStrRecord.at(3), "|");
-			vector<string> vStrSubjectEnglishName = CheckTool::Splite(strEnglishName, "|");
+			vector<string> vStrSubjectEnglishName = StringTool::Splite(strEnglishName, "|");
 
 			if (vStrRes.size() < 1 || (int)atoi(vStrRes.at(0).c_str()) != 0)
 			{
@@ -205,9 +205,9 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 
 			if (vStrType.size() > 0 && vStrAccount.size() > 0 && vStrSubjectEnglishName.size() > 0 && vStrScore.size() > 0 && vStrSubjectEnglishName.size()==vStrScore.size())
 			{
-				string strSubjectEnglishName = CheckTool::CombVecToStr(vStrSubjectEnglishName, ",");
-				string strScore = CheckTool::CombVecToStr(vStrScore, ",");
-				string strUpdateSet = CheckTool::CombToSqlUpdateSetStr(strSubjectEnglishName, strScore, ",");
+				string strSubjectEnglishName = StringTool::CombVecToStr(vStrSubjectEnglishName, ",");
+				string strScore = StringTool::CombVecToStr(vStrScore, ",");
+				string strUpdateSet = StringTool::CombToSqlUpdateSetStr(strSubjectEnglishName, strScore, ",");
 
 				unsigned rowsNum = (unsigned)mysql_num_rows(MysqlRes);
 				if (1 == rowsNum) //玩家已经注册
@@ -226,7 +226,7 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 
 						UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 102); //标记，玩家已经注册情况下插入成绩表
 						string strRecordTmp = "";
-						strRecordTmp += CheckTool::NumberToStr((int)atoi(vStrType.at(0).c_str())) + "|" + vStrAccount.at(0);
+						strRecordTmp += StringTool::NumberToStr((int)atoi(vStrType.at(0).c_str())) + "|" + vStrAccount.at(0);
 
 						MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_INSERT, ASSIST_ID_ADD_SINGLE_SCORE_ACK, SocketId, strRecordTmp);
 					}
@@ -250,7 +250,7 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 					//根据身份使用默认权限
 					vector<OperPermission> vecOper;
 					AuthorityMgr::GetDefaultAuthorityByIdent((IdentType)atoi(strIdent.c_str()), vecOper);
-					string strAuthority = CheckTool::CombVecToStr(vecOper);
+					string strAuthority = StringTool::CombVecToStr(vecOper);
 
 					char strMysql[512];
 					memset(strMysql, 0, sizeof(strMysql));
@@ -260,9 +260,9 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 					UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 102); //标记，玩家已经注册情况下插入成绩表
 
 // 					string strRecordTmp = "";
-// 					strRecordTmp += CheckTool::NumberToStr((int)atoi(vStrType.at(0).c_str())) + "|" + vStrAccount.at(0) + "|" + strSubjectEnglishName + "|" + strScore;
+// 					strRecordTmp += StringTool::NumberToStr((int)atoi(vStrType.at(0).c_str())) + "|" + vStrAccount.at(0) + "|" + strSubjectEnglishName + "|" + strScore;
 					string strRecordTmp = "";
-					strRecordTmp += CheckTool::NumberToStr((int)atoi(vStrType.at(0).c_str())) + "|" + vStrAccount.at(0);
+					strRecordTmp += StringTool::NumberToStr((int)atoi(vStrType.at(0).c_str())) + "|" + vStrAccount.at(0);
 
 					MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_INSERT, ASSIST_ID_ADD_SINGLE_SCORE_ACK, SocketId, strRecordTmp);
 				}
@@ -283,7 +283,7 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 		}
 		else if (sRegNeedCount == 102)
 		{
-			vector<string> vStrRecord= CheckTool::Splite(strRecord);
+			vector<string> vStrRecord= StringTool::Splite(strRecord);
 			if (vStrRecord.size() < 3 || (int)atoi(vStrRecord.at(0).c_str()) != 0)
 			{
 				printf("%s  数据库语句执行失败，sRegNeedCount[%d]\n", __FUNCTION__,sRegNeedCount);
@@ -303,7 +303,7 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 		}
 // 		else if (sRegNeedCount == 103)
 // 		{
-// 			vector<string> vStrRecord= CheckTool::Splite(strRecord);
+// 			vector<string> vStrRecord= StringTool::Splite(strRecord);
 // 			if (vStrRecord.size() < 5 || (int)atoi(vStrRecord.at(0).c_str()) != 0)
 // 			{
 // 				printf("%s  数据库语句执行失败，sRegNeedCount[%d]\n", __FUNCTION__,sRegNeedCount);

@@ -1,5 +1,6 @@
 #include "UserInfoMgr.h"
 #include "CheckTool.h"
+#include "StringTool.h"
 
 UserInfoMgr::UserInfoMgr()
 {
@@ -130,7 +131,7 @@ bool UserInfoMgr::SetVOperPer(string str)
 	if (str.empty())
 		return false;
 
-	vector<string> vecStr = CheckTool::Splite(str, "|");
+	vector<string> vecStr = StringTool::Splite(str, "|");
 
 	vector<OperPermission> vOperPerTmp;
 	for (vector<string>::iterator iter = vecStr.begin();iter != vecStr.end(); iter++)

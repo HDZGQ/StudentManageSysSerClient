@@ -3,6 +3,7 @@
 #include "TCPHandle.h"
 #include "CheckTool.h"
 #include "UserInfoMgr.h"
+#include "StringTool.h"
 
 AddScoreSysProc::AddScoreSysProc(ProcDef nProcDef) : BaseProc(nProcDef)
 {
@@ -107,7 +108,7 @@ void AddScoreSysProc::AddSingleScoreByOneSubjectChooseHandle(char* pStrExistSubj
 		return;
 	}
 
-	vector<string> vecStrTmp = CheckTool::Splite(pStrExistSubjects, "|");
+	vector<string> vecStrTmp = StringTool::Splite(pStrExistSubjects, "|");
 	map<int, string> mStrShowTmp; //显示的科目
 	for (unsigned i=0; i<vecStrTmp.size(); i++)
 	{
@@ -172,7 +173,7 @@ void AddScoreSysProc::AddSingleScoreBySubjectsChooseHandle(char* pStrExistSubjec
 		return;
 	}
 
-	vector<string> vecStrTmp = CheckTool::Splite(pStrExistSubjects, "|");
+	vector<string> vecStrTmp = StringTool::Splite(pStrExistSubjects, "|");
 	vector<int> vecSubjectId;
 	map<int, string> mStrShowTmp; //显示的科目
 	for (unsigned i=0; i<vecStrTmp.size(); i++)
@@ -214,7 +215,7 @@ void AddScoreSysProc::AddSingleScoreBySubjectsChooseHandle(char* pStrExistSubjec
 	CS_MSG_ADD_SINGLE_SCORE_REQ SendReq;
 	SendReq.sType = 2;
 	strcpy_s(SendReq.cAccount, sizeof(SendReq.cAccount), strAccount.c_str());
-	strcpy_s(SendReq.sSubjectId, sizeof(SendReq.sSubjectId), CheckTool::CombVecToStr(vecSubjectId).c_str());
+	strcpy_s(SendReq.sSubjectId, sizeof(SendReq.sSubjectId), StringTool::CombVecToStr(vecSubjectId).c_str());
 	strcpy_s(SendReq.sScore, sizeof(SendReq.sScore), strScore.c_str());
 
 	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), /*MAIN_ID_LOGINREGISTER,*/ ASSIST_ID_ADD_SINGLE_SCORE_REQ);
@@ -345,7 +346,7 @@ bool AddScoreSysProc::CheckScore(string sScore)
 		return true;
 	}
 
-	vector<string> vScore = CheckTool::Splite(sScore, "|");
+	vector<string> vScore = StringTool::Splite(sScore, "|");
 
 	for (unsigned i=0; i < vScore.size(); i++)
 	{	

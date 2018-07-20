@@ -3,6 +3,7 @@
 #include "TCPHandle.h"
 #include "UserInfoMgr.h"
 #include "CheckTool.h"
+#include "StringTool.h"
 
 AlterSubjectsSysProc::AlterSubjectsSysProc(ProcDef nProcDef) : BaseProc(nProcDef)
 {
@@ -110,7 +111,7 @@ void AlterSubjectsSysProc::AddSubjectChooseHandle(char* pCanAlterSubjects)
 		return;
 	}
 
-	vector<string> vecStrTmp = CheckTool::Splite(pCanAlterSubjects, "|");
+	vector<string> vecStrTmp = StringTool::Splite(pCanAlterSubjects, "|");
 	map<int, string> mStrShowTmp; //显示的科目
 	for (unsigned i=0; i<vecStrTmp.size(); i++)
 	{
@@ -160,7 +161,7 @@ void AlterSubjectsSysProc::DeleteSubjectChooseHandle(char* pCanAlterSubjects)
 		return;
 	}
 
-	vector<string> vecStrTmp = CheckTool::Splite(pCanAlterSubjects, "|");
+	vector<string> vecStrTmp = StringTool::Splite(pCanAlterSubjects, "|");
 	map<int, string> mStrShowTmp; //显示的科目
 	for (unsigned i=0; i<vecStrTmp.size(); i++)
 	{
