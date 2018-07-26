@@ -126,7 +126,7 @@ void AddScoreSysProc::AddSingleScoreByOneSubjectChooseHandle(char* pStrExistSubj
 		return;
 	}
 
-	cout<<"请添加分数对象的用户名："<<endl;
+	cout<<"请输入添加分数对象的用户名："<<endl;
 	string strAccount;
 	cin>>strAccount;
 	if (!(CheckTool::CheckStringLen(strAccount, 30) && CheckTool::CheckStringByValid(strAccount, "A~Z|a~z|0~9")))

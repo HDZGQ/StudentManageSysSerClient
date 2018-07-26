@@ -29,6 +29,8 @@ public:
 	bool DeleteOneExistSubject(SubjectsType sType);
 	bool AddOneExistSubject(SubjectsType sType);
 
+	bool IsInExistSubjects(SubjectsType sType); //是否在现有科目里面
+	bool IsInAllSubjects(SubjectsType sType); //是否在科目总纲里面
 
 	//服务端开启就调用
 	void GetExistSubjectHandle();

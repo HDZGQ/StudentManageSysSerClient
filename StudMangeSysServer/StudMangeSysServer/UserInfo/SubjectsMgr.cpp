@@ -129,7 +129,7 @@ vector<SubjectsType> SubjectsMgr::GetVNotExistSubjects()
 
 bool SubjectsMgr::DeleteOneExistSubject(SubjectsType sType)
 {
-	if (sType <= SUBJECTS_TYPE_START || sType >= SUBJECTS_TYPE_END || m_mAllSubjects.find(sType) == m_mAllSubjects.end())
+	if (!IsInAllSubjects(sType))
 	{
 		return false;
 	}
@@ -151,7 +151,7 @@ bool SubjectsMgr::DeleteOneExistSubject(SubjectsType sType)
 
 bool SubjectsMgr::AddOneExistSubject(SubjectsType sType)
 {
-	if (sType <= SUBJECTS_TYPE_START || sType >= SUBJECTS_TYPE_END || m_mAllSubjects.find(sType) == m_mAllSubjects.end())
+	if (!IsInAllSubjects(sType))
 	{
 		return false;
 	}
@@ -175,6 +175,35 @@ bool SubjectsMgr::AddOneExistSubject(SubjectsType sType)
 
 	return true;
 }
+
+bool SubjectsMgr::IsInExistSubjects(SubjectsType sType)
+{
+	if (!IsInAllSubjects(sType))
+	{
+		return false;
+	}
+
+	for (unsigned i=0; i<m_vExistSubjects.size(); i++)
+	{
+		if (sType == m_vExistSubjects.at(i))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool SubjectsMgr::IsInAllSubjects(SubjectsType sType)
+{
+	if (sType <= SUBJECTS_TYPE_START || sType >= SUBJECTS_TYPE_END || m_mAllSubjects.find(sType) == m_mAllSubjects.end())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 
 void SubjectsMgr::GetExistSubjectHandle()
 {

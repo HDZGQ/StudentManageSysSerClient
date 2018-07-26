@@ -20,6 +20,8 @@ bool ProcMgr::InitMoniter()
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_GET_SUBJECTS_REQ, &m_ScoreProc, &ScoreProc::CheckCanAlterSubjectRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_ALTER_SUBJECTS_REQ, &m_ScoreProc, &ScoreProc::AlterSubjectRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_ADD_SINGLE_SCORE_REQ, &m_ScoreProc, &ScoreProc::AddSingleScoreRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_SINGLE_SCORE_REQ, &m_ScoreProc, &ScoreProc::SelectSingleScoreRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_UPDATE_SINGLE_SCORE_REQ, &m_ScoreProc, &ScoreProc::UpdateSingleScoreRecvHandle);
 
 
 	/*
@@ -30,6 +32,8 @@ bool ProcMgr::InitMoniter()
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_REGISTER_ACK, &m_EnterSysProc, &EnterSysProc::RegisterReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_ALTER_SUBJECTS_ACK, &m_ScoreProc, &ScoreProc::AlterSubjectReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_ADD_SINGLE_SCORE_ACK, &m_ScoreProc, &ScoreProc::AddSingleScoreReplyHandle);
+	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_SINGLE_SCORE_ACK, &m_ScoreProc, &ScoreProc::SelectSingleScoreReplyHandle);
+	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_UPDATE_SINGLE_SCORE_ACK, &m_ScoreProc, &ScoreProc::UpdateSingleScoreReplyHandle);
 
 	return true;
 }

@@ -1,5 +1,5 @@
 delimiter //
-drop database if exists school;
+drop database if exists StudMangeSystem;
 //
 create database StudMangeSystem;
 //
@@ -31,6 +31,7 @@ create table studScore (
 -- alter table studScore drop foreign key(fk_scoreUserId);
 -- alter table StudScore add Chinese tinyint;
 -- alter table StudScore drop Chinese;
+-- select @curRank := @curRank + 1 AS rank,u.userid,u.account,u.name,u.grade,s.chinese,s.math,s.english,(s.chinese+s.math+s.english) as SSum, floor((s.chinese+s.math+s.english)/3) as average from userinfo u,studscore s,(SELECT @curRank := 0) q where s.chinese>=50 and s.chinese <=100 and s.math>=50 and s.math <=100 and s.english>=50 and s.english<=100 and u.userid=s.userid and u.grade='机电11-1' order by SSum desc;
 //
 
 -- 操作权限

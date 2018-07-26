@@ -108,6 +108,25 @@ string StringTool::CombVecToStr(vector<string> vec, string strCom)
 	return strRes;
 }
 
+string StringTool::CombArrayToStr(unsigned char *upArr, unsigned iLen, string strCom)
+{
+	string strRes = "";
+	if (0 == iLen)
+		return strRes;
+
+	for (unsigned i=0 ; i<iLen; i++)
+	{
+		if (i != 0)
+		{
+			strRes += strCom;
+		}
+
+		strRes += NumberToStr((int)upArr[i]);
+	}
+
+	return strRes;
+}
+
 string StringTool::ToLowercase(string strSrc)
 {
 	string strRes = strSrc;
@@ -181,4 +200,21 @@ string StringTool::CombToSqlUpdateSetStr(string strField, string strValue, strin
 	}
 
 	return strRes;
+}
+
+bool StringTool::StrSpliteToIntArray(unsigned char *arr, unsigned int iLen, string str, string strSpl)
+{
+	if (NULL == arr || 0 == iLen || str.empty())
+	{
+		return false;
+	}
+
+	vector<string> vecStr = StringTool::Splite(str, strSpl);
+
+	for (unsigned i = 0; i < vecStr.size() && i < iLen; i++)
+	{
+		arr[i] = (unsigned char)atoi(vecStr.at(i).c_str());
+	}
+
+	return true;
 }

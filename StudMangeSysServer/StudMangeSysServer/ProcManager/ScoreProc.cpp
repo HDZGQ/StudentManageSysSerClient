@@ -136,6 +136,98 @@ void ScoreProc::AddSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_ADD_SINGLE_SCORE_ACK, SocketId, strRecord);
 }
 
+void ScoreProc::SelectSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_SELECT_SINGLE_SCORE_REQ))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_SELECT_SINGLE_SCORE_REQ));
+		return;
+	}
+
+	CS_MSG_SELECT_SINGLE_SCORE_REQ* RecvMsg = (CS_MSG_SELECT_SINGLE_SCORE_REQ*)vpData;
+	if (RecvMsg->bSubjectCount == 0)
+	{
+		CS_MSG_SELECT_SINGLE_SCORE_ACK SendMsg;
+		SendMsg.bResCode = 3;
+		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_SINGLE_SCORE_ACK);
+		MsgPackageMgr::Send(SocketId, packData);
+		return;
+	}
+
+	string strSubjectField;
+	for (unsigned char i=0; i<RecvMsg->bSubjectCount; i++)
+	{
+		if (SubjectsMgr::GetInstance()->IsInAllSubjects((SubjectsType)RecvMsg->sSubjectId[i]))
+		{
+			strSubjectField += ",";
+			strSubjectField += "s." + SubjectsMgr::GetInstance()->GetEnglishNameByType((SubjectsType)RecvMsg->sSubjectId[i]);
+		}
+	}
+
+	char strMysql[512];
+	memset(strMysql, 0, sizeof(strMysql));
+	sprintf_s(strMysql, sizeof(strMysql), "select u.userID,u.name,u.grade %s from userinfo u,studscore s where u.userID=s.userID and u.account='%s'", strSubjectField.c_str(), RecvMsg->cAccount);
+
+	string strRecord = "~";
+	strRecord += StringTool::NumberToStr(RecvMsg->sType) + "~" + RecvMsg->cAccount + "~" + StringTool::CombArrayToStr(RecvMsg->sSubjectId, (unsigned)RecvMsg->bSubjectCount)  + "~" + StringTool::NumberToStr((int)RecvMsg->bSubjectCount);
+
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_SELECT_SINGLE_SCORE_ACK, SocketId, strRecord);
+}
+
+void ScoreProc::UpdateSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_UPDATE_SINGLE_SCORE_REQ))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_UPDATE_SINGLE_SCORE_REQ));
+		return;
+	}
+
+	CS_MSG_UPDATE_SINGLE_SCORE_REQ* RecvMsg = (CS_MSG_UPDATE_SINGLE_SCORE_REQ*)vpData;
+	if (RecvMsg->bSubjectCount == 0)
+	{
+		CS_MSG_UPDATE_SINGLE_SCORE_ACK SendMsg;
+		SendMsg.bSucceed = false;
+		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_UPDATE_SINGLE_SCORE_ACK);
+		MsgPackageMgr::Send(SocketId, packData);
+		return;
+	}
+
+	string strUpdateSet;
+	for (unsigned char i=0; i<RecvMsg->bSubjectCount; i++)
+	{
+		string strEnglishName = SubjectsMgr::GetInstance()->GetEnglishNameByType((SubjectsType)RecvMsg->sSubjectId[i]);
+		if (!strEnglishName.empty())
+		{
+			if (!strUpdateSet.empty())
+			{
+				strUpdateSet += ",";
+			}
+
+			strUpdateSet += " s." + strEnglishName + "=" + StringTool::NumberToStr((int)RecvMsg->bScore[i]);
+		}
+	}
+
+	char strMysql[512];
+	memset(strMysql, 0, sizeof(strMysql));
+	sprintf_s(strMysql, sizeof(strMysql), "update studscore s inner join (select userID,account from userinfo where account='%s') u on u.userID=s.userID set %s", RecvMsg->cAccount, strUpdateSet.c_str());
+
+	string strRecord = "~";
+	strRecord += StringTool::NumberToStr(RecvMsg->sType) + "~" + RecvMsg->cAccount ;
+
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_UPDATE, ASSIST_ID_UPDATE_SINGLE_SCORE_ACK, SocketId, strRecord);
+}
+
+
 void ScoreProc::AlterSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
 	vector<string> vStrRecord= StringTool::Splite(strRecord);
@@ -346,4 +438,162 @@ void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, 
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_ADD_SINGLE_SCORE_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
 	}
+}
+
+void ScoreProc::SelectSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
+{
+	CS_MSG_SELECT_SINGLE_SCORE_ACK SendMsg;
+	SendMsg.bResCode = 0;
+	do 
+	{
+		vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
+		if (vStrRecord.size() != 5)
+		{
+			printf("%s  数据项数量[%u] 记录内数据项数量有错strRecord[%s]\n", __FUNCTION__, vStrRecord.size(), strRecord.c_str());
+			SendMsg.bResCode = 3;
+			break;
+		}
+		if ((int)atoi(vStrRecord.at(0).c_str()) != 0)
+		{
+			printf("%s  数据库操作错误\n", __FUNCTION__);
+			SendMsg.bResCode = 1;
+			break;
+		}
+
+		unsigned rowsNum = (unsigned)mysql_num_rows(MysqlRes);
+		if (1 == rowsNum) 
+		{
+			MYSQL_ROW sql_row;
+			MYSQL_FIELD *fd = NULL;
+			char chTmp[52];
+			int j = mysql_num_fields(MysqlRes);
+			sql_row=mysql_fetch_row(MysqlRes);
+			if (j > 3)
+			{
+				vector<string> vecStrField;
+				for(int i=0; fd=mysql_fetch_field(MysqlRes);i++)
+				{
+					memset(chTmp, 0, sizeof(chTmp));
+					strcpy_s(chTmp, sizeof(chTmp), fd->name);
+					vecStrField.push_back(chTmp);
+				}
+				if (vecStrField.size() != j)
+				{
+					printf("%s  返回结果字段处理后字段数量有误\n", __FUNCTION__);
+					SendMsg.bResCode = 3;
+					break;
+				}
+
+				SendMsg.bSubjectCount = 0;
+				unsigned char bNullSubjectCount = 0;
+				for (unsigned i=0; i<vecStrField.size(); i++)
+				{
+					if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("userID")))
+					{
+						if (sql_row[i])
+						{
+							SendMsg.uUserid = (unsigned)atoi(sql_row[i]);
+						}
+					}
+					else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("name")))
+					{
+						if (sql_row[i])
+						{
+							strcpy_s(SendMsg.cName, sizeof(SendMsg.cName), sql_row[i]);
+						}
+						else
+						{
+							strcpy_s(SendMsg.cName, sizeof(SendMsg.cName), "NULL");
+						}
+					}
+					else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("grade")))
+					{
+						if (sql_row[i])
+						{
+							strcpy_s(SendMsg.cGrade, sizeof(SendMsg.cGrade), sql_row[i]);
+						}
+						else
+						{
+							strcpy_s(SendMsg.cGrade, sizeof(SendMsg.cGrade), "NULL");
+						}
+					}
+					else if (SUBJECTS_TYPE_INVALID != SubjectsMgr::GetInstance()->GetTypeByEnglishName(StringTool::ToLowercase(vecStrField.at(i))))
+					{
+						if (sql_row[i])
+						{
+							SendMsg.bScore[SendMsg.bSubjectCount] = (unsigned char)atoi(sql_row[i]);
+						}
+						else
+						{
+							SendMsg.bScore[SendMsg.bSubjectCount] = 0;
+							bNullSubjectCount++;
+						}
+						
+						SendMsg.bSubjectId[SendMsg.bSubjectCount] = (unsigned char)SubjectsMgr::GetInstance()->GetTypeByEnglishName(StringTool::ToLowercase(vecStrField.at(i)));
+						SendMsg.bSubjectCount++;
+					}
+					else
+					{
+						printf("%s  没有的字段项[%s]\n", __FUNCTION__, vecStrField.at(i).c_str());
+						memset(&SendMsg, 0, sizeof(SendMsg));
+						SendMsg.bResCode = 3;
+						break;
+					}
+				}
+				SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+				strcpy_s(SendMsg.cAccount, sizeof(SendMsg.cAccount), vStrRecord.at(2).c_str());
+				if (SendMsg.bSubjectCount == bNullSubjectCount)
+				{
+					printf("%s  没有成绩信息\n", __FUNCTION__);
+					memset(&SendMsg, 0, sizeof(SendMsg));
+					SendMsg.bResCode = 2;
+					break;
+				}
+			}
+			else
+			{
+				printf("%s  数据库返回结果错误，列数错误\n", __FUNCTION__);
+				SendMsg.bResCode = 3;
+				break;
+			}
+		}
+		else
+		{
+			printf("%s  数据库返回数据记录不正确，现记录数为[%u]（0表示数据库没有对应数据记录，大于1表示数据库记录信息异常）\n", __FUNCTION__,rowsNum);
+			SendMsg.bResCode = 2;
+			break;
+		}
+	} while (false);
+
+	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_SINGLE_SCORE_ACK);
+	MsgPackageMgr::Send(SocketId, packData);
+}
+
+void ScoreProc::UpdateSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
+{
+	CS_MSG_UPDATE_SINGLE_SCORE_ACK SendMsg;
+	SendMsg.bSucceed = true;
+	do 
+	{
+		vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
+		if (vStrRecord.size() != 3)
+		{
+			printf("%s  数据项数量[%u] 记录内数据项数量有错strRecord[%s]\n", __FUNCTION__, vStrRecord.size(), strRecord.c_str());
+			SendMsg.bSucceed = false;
+			break;
+		}
+		if ((int)atoi(vStrRecord.at(0).c_str()) != 0)
+		{
+			printf("%s  数据库操作错误\n", __FUNCTION__);
+			SendMsg.bSucceed = false;
+			break;
+		}
+
+		SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+		strcpy_s(SendMsg.cAccount, sizeof(SendMsg.cAccount), vStrRecord.at(2).c_str());
+
+	} while(false);
+
+	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_UPDATE_SINGLE_SCORE_ACK);
+	MsgPackageMgr::Send(SocketId, packData);
 }

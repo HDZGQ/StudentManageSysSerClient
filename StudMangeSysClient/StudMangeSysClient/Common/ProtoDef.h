@@ -13,6 +13,11 @@
 //发送数据长度 客户端给服务端发送的数据一般不大
 #define  DefaultSendMSGLen  2048
 
+//最大科目数
+#define MAXSUBJECTSCOUNT 20
+//批量查询单次最大返回记录数
+#define MAXBATCHSELECTACKCOUNT 10
+
 //操作权限宏 与服务端对应  登录和注册操作权限，每个玩家都拥有
 enum OperPermission
 {
@@ -142,6 +147,15 @@ enum Assist_ID
 	ASSIST_ID_ALTER_SUBJECTS_ACK					 =   10009, //增减科目回复
 	ASSIST_ID_ADD_SINGLE_SCORE_REQ					 =   10010, //单条添加成绩请求
 	ASSIST_ID_ADD_SINGLE_SCORE_ACK					 =   10011, //单条添加成绩回复
+	ASSIST_ID_SELECT_SINGLE_SCORE_REQ			     =   10012, //单条查询成绩请求
+	ASSIST_ID_SELECT_SINGLE_SCORE_ACK			     =   10013, //单条查询成绩回复
+	ASSIST_ID_SELECT_BATCH_SCORE_REQ			     =   10014, //批量查询成绩请求
+	ASSIST_ID_SELECT_BATCH_SCORE_ACK			     =   10015, //批量查询成绩回复
+	ASSIST_ID_UPDATE_SINGLE_SCORE_REQ			     =   10016, //单条更新成绩请求
+	ASSIST_ID_UPDATE_SINGLE_SCORE_ACK			     =   10017, //单条更新成绩回复
+	ASSIST_ID_DELETE_SCORE_REQ					     =   10018, //删除成绩请求
+	ASSIST_ID_DELETE_SCORE_ACK					     =   10019, //删除成绩回复
+
 
 
 	ASSIST_ID_END												//有效值终止值
@@ -199,7 +213,7 @@ struct SC_MSG_REGISTER_REQ
 	char cAccount[31];
 	char cPWD[31];
 	char cSex[3];
-	char cIdent[3];
+	char cIdent[3]; //只能注册学生和老师。 1学生 2老师
 //	int  OperPerId;
 
 	SC_MSG_REGISTER_REQ()
@@ -303,6 +317,122 @@ struct CS_MSG_ADD_SINGLE_SCORE_ACK
 	CS_MSG_ADD_SINGLE_SCORE_ACK()
 	{
 		memset(this, 0, sizeof(CS_MSG_ADD_SINGLE_SCORE_ACK));
+	}
+};
+
+//单条查询成绩请求   assist[10012]
+struct CS_MSG_SELECT_SINGLE_SCORE_REQ
+{
+	short sType; //1单科单条查询成绩 2现有所有科目单条查询成绩
+	char cAccount[31]; //通过账号查询成绩  userid是自动增加的，所以不能用userid
+	unsigned char sSubjectId[MAXSUBJECTSCOUNT]; //每个科目ID
+	unsigned char bSubjectCount; //科目数
+	CS_MSG_SELECT_SINGLE_SCORE_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_SELECT_SINGLE_SCORE_REQ));
+	}
+};
+
+//单条查询成绩回复   assist[10013]
+struct CS_MSG_SELECT_SINGLE_SCORE_ACK
+{
+	short sType; //1单科单条查询成绩 2现有所有科目单条查询成绩
+	unsigned int uUserid; //用户id
+	char cName[31]; //姓名
+	char cAccount[31]; //账号
+	char cGrade[31]; //班级
+	unsigned char bSubjectId[MAXSUBJECTSCOUNT]; //每个科目ID
+	unsigned char bScore[MAXSUBJECTSCOUNT]; //每科分数
+	unsigned char bSubjectCount; //科目数
+	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息或者没有成绩信息 3其他异常
+	CS_MSG_SELECT_SINGLE_SCORE_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_SELECT_SINGLE_SCORE_ACK));
+	}
+};
+
+//批量查询成绩请求   assist[10014]
+struct CS_MSG_SELECT_BATCH_SCORE_REQ
+{
+	short sType; //1单科批量查询成绩 2现有所有科目批量查询成绩
+	char cGrade[31]; //班级 -- 为空则查询所有班级
+	unsigned char sSubjectId[MAXSUBJECTSCOUNT]; //每个科目ID
+	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件  -- 单科批量只有排序和分数范围查询这两种条件
+	unsigned char bRankFlag; //0没有排序 1升序 2降序
+	unsigned char bScoreRange[3]; //分数范围，第三个元素为0数据没设置，为1设置数据了
+	CS_MSG_SELECT_BATCH_SCORE_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_SELECT_BATCH_SCORE_REQ));
+	}
+};
+
+//批量查询成绩回复 -- 每次10组数据   assist[10015]
+struct CS_MSG_SELECT_BATCH_SCORE_ACK
+{
+	short sType; //1单科批量查询成绩 2现有所有科目批量查询成绩
+	unsigned int uUserid[MAXBATCHSELECTACKCOUNT]; //用户id
+	char cName[MAXBATCHSELECTACKCOUNT][31]; //姓名
+	char cAccount[MAXBATCHSELECTACKCOUNT][31]; //账号 
+	char cGrade[MAXBATCHSELECTACKCOUNT][31]; //班级 
+	short sRank[MAXBATCHSELECTACKCOUNT]; //排名
+	unsigned short bSum[MAXBATCHSELECTACKCOUNT]; //总分
+	unsigned char bAverage[MAXBATCHSELECTACKCOUNT]; //平均分
+	unsigned char bSubjectId[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //每个科目ID
+	unsigned char bScore[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //每科分数
+	unsigned char bSubjectCount; //科目数
+	unsigned char bEndFalg; //发送完毕标志。0没有完毕 1完毕
+	CS_MSG_SELECT_BATCH_SCORE_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_SELECT_BATCH_SCORE_ACK));
+	}
+};
+
+//单条更新成绩请求   assist[10016]
+struct CS_MSG_UPDATE_SINGLE_SCORE_REQ
+{
+	short sType; //1单科单条更新成绩 2现有所有科目单条更新成绩
+	char cAccount[31]; //通过账号更改成绩  userid是自动增加的，所以不能用userid
+	unsigned char sSubjectId[MAXSUBJECTSCOUNT]; //每个科目ID
+	unsigned char bScore[MAXSUBJECTSCOUNT]; //每科分数
+	unsigned char bSubjectCount; //科目数
+	CS_MSG_UPDATE_SINGLE_SCORE_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_UPDATE_SINGLE_SCORE_REQ));
+	}
+};
+
+//单条更新成绩回复   assist[10017]
+struct CS_MSG_UPDATE_SINGLE_SCORE_ACK
+{
+	bool bSucceed;
+	short sType; //1单科单条更新成绩 2现有所有科目单条更新成绩
+	char cAccount[31]; //通过账号更改成绩 
+	CS_MSG_UPDATE_SINGLE_SCORE_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_UPDATE_SINGLE_SCORE_ACK));
+	}
+};
+
+//删除成绩请求   assist[10018]
+struct CS_MSG_DELETE_SCORE_REQ
+{
+	short sType; //1单条删除成绩 2批量删除成绩
+	char cAccount[31]; //单条通过账号删除成绩  userid是自动增加的，所以不能用userid
+	unsigned int uUserid[3]; //用户id范围，用于批量删除，第三个元素为0数据没设置，为1设置数据了
+	CS_MSG_DELETE_SCORE_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_DELETE_SCORE_REQ));
+	}
+};
+
+//删除成绩回复   assist[10019]
+struct CS_MSG_DELETE_SCORE_ACK
+{
+	bool bSucceed;
+	short sType; //1单条删除成绩 2批量删除成绩
+	CS_MSG_DELETE_SCORE_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_DELETE_SCORE_ACK));
 	}
 };
 
