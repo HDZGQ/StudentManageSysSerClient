@@ -31,6 +31,12 @@ public:
 	static string CombToSqlUpdateSetStr(string strField, string strValue, string strSpl="|");
 
 	static bool StrSpliteToIntArray(unsigned char *arr, unsigned int iLen, string str, string strSpl="|");
+
+	/*
+	* 功能：设置字符串域宽，不足用别的字符填充（字节算）
+	* 参数描述：str被操作字符串；iWidth宽度；fillChar填充字符，域宽长度刚好或者过长，不填充；dirFlag填充方式，0右填充，1左填充
+	*/
+	static string SetStringFieldWidth(string str, unsigned iWidth, char fillChar=' ', unsigned char dirFlag=0); 
 };
 
 #endif

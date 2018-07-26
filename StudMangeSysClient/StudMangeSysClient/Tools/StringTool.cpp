@@ -218,3 +218,36 @@ bool StringTool::StrSpliteToIntArray(unsigned char *arr, unsigned int iLen, stri
 
 	return true;
 }
+
+string StringTool::SetStringFieldWidth(string str, unsigned iWidth, char fillChar, unsigned char dirFlag)
+{
+	string strRes = str;
+	if (strRes.empty() || 0 == iWidth || (dirFlag!=0 && dirFlag!=1))
+	{
+		return strRes;
+	}
+
+	unsigned strLen = strRes.size();
+	if (strLen >= iWidth)
+	{
+		return strRes;
+	}
+
+	unsigned needLen = iWidth - strLen;
+	string fillString;
+	for (unsigned i=0; i<needLen; i++)
+	{
+		fillString.append(1, fillChar);
+	}
+
+	if (0 == dirFlag)
+	{
+		strRes += fillString;
+	}
+	else
+	{
+		strRes = fillString + strRes;
+	}
+
+	return strRes;
+}

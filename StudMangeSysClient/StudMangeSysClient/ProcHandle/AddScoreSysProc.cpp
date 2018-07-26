@@ -108,18 +108,18 @@ void AddScoreSysProc::AddSingleScoreByOneSubjectChooseHandle(char* pStrExistSubj
 		return;
 	}
 
-	vector<string> vecStrTmp = StringTool::Splite(pStrExistSubjects, "|");
-	map<int, string> mStrShowTmp; //显示的科目
-	for (unsigned i=0; i<vecStrTmp.size(); i++)
+	vector<string> vecStrSubjectId = StringTool::Splite(pStrExistSubjects, "|");
+	map<int, string> mStrChineseNameShow; //显示的科目
+	for (unsigned i=0; i<vecStrSubjectId.size(); i++)
 	{
-		int sId = (int)atoi(vecStrTmp.at(i).c_str());
+		int sId = (int)atoi(vecStrSubjectId.at(i).c_str());
 		if (UserInfoMgr::GetInstance()->CanFindSubjectsType((SubjectsType)sId))
 		{
-			mStrShowTmp.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
+			mStrChineseNameShow.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
 		}
 	}
 
-	if (mStrShowTmp.empty())
+	if (mStrChineseNameShow.empty())
 	{
 		printf("没有科目，请先添加科目\n");
 		SetIEndFlag(1);
@@ -136,10 +136,10 @@ void AddScoreSysProc::AddSingleScoreByOneSubjectChooseHandle(char* pStrExistSubj
 	}
 
 	printf("请选择要添加分数的科目ID：\n");
-	ShowSubjects(mStrShowTmp);
+	ShowSubjects(mStrChineseNameShow);
 	string iChooseTmp;
 	cin>>iChooseTmp;
-	if (!CheckTool::CheckStringByValid(iChooseTmp, "0~9") || mStrShowTmp.find((int)atoi(iChooseTmp.c_str())) == mStrShowTmp.end())
+	if (!CheckTool::CheckStringByValid(iChooseTmp, "0~9") || mStrChineseNameShow.find((int)atoi(iChooseTmp.c_str())) == mStrChineseNameShow.end())
 	{
 		OperInputErrorHandle(false);
 		return;
@@ -173,20 +173,20 @@ void AddScoreSysProc::AddSingleScoreBySubjectsChooseHandle(char* pStrExistSubjec
 		return;
 	}
 
-	vector<string> vecStrTmp = StringTool::Splite(pStrExistSubjects, "|");
+	vector<string> vecStrSubjectId = StringTool::Splite(pStrExistSubjects, "|");
 	vector<int> vecSubjectId;
-	map<int, string> mStrShowTmp; //显示的科目
-	for (unsigned i=0; i<vecStrTmp.size(); i++)
+	map<int, string> mStrChineseNameShow; //显示的科目
+	for (unsigned i=0; i<vecStrSubjectId.size(); i++)
 	{
-		int sId = (int)atoi(vecStrTmp.at(i).c_str());
+		int sId = (int)atoi(vecStrSubjectId.at(i).c_str());
 		if (UserInfoMgr::GetInstance()->CanFindSubjectsType((SubjectsType)sId))
 		{
-			mStrShowTmp.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
+			mStrChineseNameShow.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
 			vecSubjectId.push_back(sId);
 		}
 	}
 
-	if (mStrShowTmp.empty())
+	if (mStrChineseNameShow.empty())
 	{
 		printf("没有科目，请先添加科目\n");
 		SetIEndFlag(1);
@@ -203,7 +203,7 @@ void AddScoreSysProc::AddSingleScoreBySubjectsChooseHandle(char* pStrExistSubjec
 	}
 	
 	printf("按照从左到右和从上到下的顺序输入对应科目分数（格式为 XX|XX|XX）：\n");
-	ShowSubjects(mStrShowTmp, 5);
+	ShowSubjects(mStrChineseNameShow, 5);
 	string strScore;
 	cin>>strScore;
 	if (!(CheckTool::CheckStringLen(strScore, 90) && CheckScore(strScore)))

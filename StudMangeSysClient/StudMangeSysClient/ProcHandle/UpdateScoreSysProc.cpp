@@ -118,10 +118,10 @@ void UpdateScoreSysProc::GetSubjectsScoreAfterUpdateSingleScoreChooseHandle(char
 	}
 	strcpy_s(SendReq.cAccount, sizeof(SendReq.cAccount), strAccount.c_str());
 
-	vector<string> vecStrTmp = StringTool::Splite(pStrExistSubjects, "|");
-	for (unsigned i=0, j=0; i<vecStrTmp.size()&&j<MAXSUBJECTSCOUNT; i++)
+	vector<string> vecStrSubjectId = StringTool::Splite(pStrExistSubjects, "|");
+	for (unsigned i=0, j=0; i<vecStrSubjectId.size()&&j<MAXSUBJECTSCOUNT; i++)
 	{
-		unsigned char sId = (unsigned char)atoi(vecStrTmp.at(i).c_str());
+		unsigned char sId = (unsigned char)atoi(vecStrSubjectId.at(i).c_str());
 		if (UserInfoMgr::GetInstance()->CanFindSubjectsType((SubjectsType)sId))
 		{	
 			SendReq.sSubjectId[j] = sId;

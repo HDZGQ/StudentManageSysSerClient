@@ -358,7 +358,7 @@ struct CS_MSG_SELECT_BATCH_SCORE_REQ
 	char cGrade[31]; //班级 -- 为空则查询所有班级
 	unsigned char sSubjectId[MAXSUBJECTSCOUNT]; //每个科目ID
 	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件  -- 单科批量只有排序和分数范围查询这两种条件
-	unsigned char bRankFlag; //0没有排序 1升序 2降序
+	unsigned char bRankFlag; //0没有排序 1升序 2降序 全科根据总分（没选总分这条件也是这样）排序，单科根据这科目排序
 	unsigned char bScoreRange[3]; //分数范围，第三个元素为0数据没设置，为1设置数据了
 	CS_MSG_SELECT_BATCH_SCORE_REQ()
 	{
@@ -370,6 +370,8 @@ struct CS_MSG_SELECT_BATCH_SCORE_REQ
 struct CS_MSG_SELECT_BATCH_SCORE_ACK
 {
 	short sType; //1单科批量查询成绩 2现有所有科目批量查询成绩
+	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件  -- 单科批量只有排序和分数范围查询这两种条件
+	unsigned char bRankFlag; //0没有排序 1升序 2降序 全科根据总分（没选总分这条件也是这样）排序，单科根据这科目排序
 	unsigned int uUserid[MAXBATCHSELECTACKCOUNT]; //用户id
 	char cName[MAXBATCHSELECTACKCOUNT][31]; //姓名
 	char cAccount[MAXBATCHSELECTACKCOUNT][31]; //账号 

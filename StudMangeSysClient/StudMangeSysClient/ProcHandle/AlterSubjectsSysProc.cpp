@@ -111,18 +111,18 @@ void AlterSubjectsSysProc::AddSubjectChooseHandle(char* pCanAlterSubjects)
 		return;
 	}
 
-	vector<string> vecStrTmp = StringTool::Splite(pCanAlterSubjects, "|");
-	map<int, string> mStrShowTmp; //显示的科目
-	for (unsigned i=0; i<vecStrTmp.size(); i++)
+	vector<string> vecStrSubjectId = StringTool::Splite(pCanAlterSubjects, "|");
+	map<int, string> mStrChineseNameShow; //显示的科目
+	for (unsigned i=0; i<vecStrSubjectId.size(); i++)
 	{
-		int sId = (int)atoi(vecStrTmp.at(i).c_str());
+		int sId = (int)atoi(vecStrSubjectId.at(i).c_str());
 		if (UserInfoMgr::GetInstance()->CanFindSubjectsType((SubjectsType)sId))
 		{
-			mStrShowTmp.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
+			mStrChineseNameShow.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
 		}
 	}
 
-	if (mStrShowTmp.empty())
+	if (mStrChineseNameShow.empty())
 	{
 		printf("没有可增加的科目\n");
 		SetIEndFlag(1);
@@ -130,11 +130,11 @@ void AlterSubjectsSysProc::AddSubjectChooseHandle(char* pCanAlterSubjects)
 	}
 
 	printf("请选择要增加的科目ID：\n");
-	ShowSubjects(mStrShowTmp);
+	ShowSubjects(mStrChineseNameShow);
 	
 	string iChooseTmp;
 	cin>>iChooseTmp;
-	if (!CheckTool::CheckStringByValid(iChooseTmp, "0~9") || mStrShowTmp.find((int)atoi(iChooseTmp.c_str())) == mStrShowTmp.end())
+	if (!CheckTool::CheckStringByValid(iChooseTmp, "0~9") || mStrChineseNameShow.find((int)atoi(iChooseTmp.c_str())) == mStrChineseNameShow.end())
 	{
 		OperInputErrorHandle(false);
 		return;
@@ -161,18 +161,18 @@ void AlterSubjectsSysProc::DeleteSubjectChooseHandle(char* pCanAlterSubjects)
 		return;
 	}
 
-	vector<string> vecStrTmp = StringTool::Splite(pCanAlterSubjects, "|");
-	map<int, string> mStrShowTmp; //显示的科目
-	for (unsigned i=0; i<vecStrTmp.size(); i++)
+	vector<string> vecStrSubjectId = StringTool::Splite(pCanAlterSubjects, "|");
+	map<int, string> mStrChineseNameShow; //显示的科目
+	for (unsigned i=0; i<vecStrSubjectId.size(); i++)
 	{
-		int sId = (int)atoi(vecStrTmp.at(i).c_str());
+		int sId = (int)atoi(vecStrSubjectId.at(i).c_str());
 		if (UserInfoMgr::GetInstance()->CanFindSubjectsType((SubjectsType)sId))
 		{
-			mStrShowTmp.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
+			mStrChineseNameShow.insert(pair<int, string>(sId, UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)sId)));
 		}
 	}
 
-	if (mStrShowTmp.empty())
+	if (mStrChineseNameShow.empty())
 	{
 		printf("没有可删除的科目\n");
 		SetIEndFlag(1);
@@ -180,11 +180,11 @@ void AlterSubjectsSysProc::DeleteSubjectChooseHandle(char* pCanAlterSubjects)
 	}
 
 	printf("请选择要删除的科目ID：\n");
-	ShowSubjects(mStrShowTmp);
+	ShowSubjects(mStrChineseNameShow);
 	
 	string iChooseTmp;
 	cin>>iChooseTmp;
-	if (!CheckTool::CheckStringByValid(iChooseTmp, "0~9") || mStrShowTmp.find((int)atoi(iChooseTmp.c_str())) == mStrShowTmp.end())
+	if (!CheckTool::CheckStringByValid(iChooseTmp, "0~9") || mStrChineseNameShow.find((int)atoi(iChooseTmp.c_str())) == mStrChineseNameShow.end())
 	{
 		OperInputErrorHandle(false);
 		return;
