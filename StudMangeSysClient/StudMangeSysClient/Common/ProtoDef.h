@@ -27,7 +27,7 @@ enum OperPermission
 	OPER_PER_REGISTER                         =    2,
 
 	OPER_PER_ADDBATCHSCOREBYONESUBJECT        =    3, //单科批量增加成绩 -- 不是班级性也可以 （管理员和老师）
-	OPER_PER_ADDBATCHSCOREBYSUBJECTS          =    4, //现有所有科目批量增加成绩 -- 不是班级性也可以 （管理员和老师）
+	OPER_PER_ADDBATCHSCOREBYSUBJECTS          =    4, //现有所有科目（或者多科）批量增加成绩 -- 不是班级性也可以 （管理员和老师）
 	OPER_PER_ADDSINGLESCOREBYONESUBJECT       =    5, //单科单条增加成绩 （管理员和老师）
 	OPER_PER_ADDSINGLESCOREBYSUBJECTS         =    6, //现有所有科目单条增加成绩 （管理员和老师）
 	OPER_PER_UPDATEBATCHSCOREBYONESUBJECT     =    7, //单科批量更改成绩 -- 班级性，可选哪个班级；操作前，还要先把班级列出来 （管理员和老师）
@@ -155,7 +155,8 @@ enum Assist_ID
 	ASSIST_ID_UPDATE_SINGLE_SCORE_ACK			     =   10017, //单条更新成绩回复
 	ASSIST_ID_DELETE_SCORE_REQ					     =   10018, //删除成绩请求
 	ASSIST_ID_DELETE_SCORE_ACK					     =   10019, //删除成绩回复
-
+	ASSIST_ID_ADD_BATCH_SCORE_REQ					 =   10020, //批量添加成绩请求
+	ASSIST_ID_ADD_BATCH_SCORE_ACK					 =   10021, //批量添加成绩回复
 
 
 	ASSIST_ID_END												//有效值终止值
@@ -440,5 +441,32 @@ struct CS_MSG_DELETE_SCORE_ACK
 	}
 };
 
+//批量添加成绩请求 -- 每次10组数据    assist[10020]
+struct CS_MSG_ADD_BATCH_SCORE_REQ
+{
+	short sType; //1批量单科增加成绩 2现有所有（或者多科）科目批量增加成绩
+	char cAccount[MAXBATCHSELECTACKCOUNT][31]; //通过账号添加成绩  如果数据库没有这个账号，就得创建新的账号。所以不能通过userid，userid是自动增加的
+	unsigned char bSubjectId[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //科目id
+	unsigned char bScore[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //科目分数
+	unsigned char bSubjectCount; //科目数
+	unsigned char bRecordCount; //成绩数据记录数量，要小于等于MAXBATCHSELECTACKCOUNT
+	unsigned char bRecordNO; //发送批次
+	unsigned char bEnd; //0没有发送完毕 1完毕
+	CS_MSG_ADD_BATCH_SCORE_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_SCORE_REQ));
+	}
+};
+
+//批量添加成绩回复  assist[10021]
+struct CS_MSG_ADD_BATCH_SCORE_ACK
+{
+	bool bSucceed; //客户端接收到返回成功，才继续发剩下的数据给服务端
+	short sType; //1批量单科增加成绩 2现有所有科目批量增加成绩
+	CS_MSG_ADD_BATCH_SCORE_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_SCORE_ACK));
+	}
+};
 
 #endif

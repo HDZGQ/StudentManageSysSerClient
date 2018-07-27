@@ -37,6 +37,11 @@ public:
 	* 参数描述：str被操作字符串；iWidth宽度；fillChar填充字符，域宽长度刚好或者过长，不填充；dirFlag填充方式，0右填充，1左填充
 	*/
 	static string SetStringFieldWidth(string str, unsigned iWidth, char fillChar=' ', unsigned char dirFlag=0); 
+
+	/*
+	* 参数描述：跳过含strFilter字符串的字符串处理
+	*/
+	static bool StrVecToStr2Vec(vector<vector<string>>& vvStrDes, vector<string> vecStrSrc, string strSpl="\t", string strFilter="\\\\");
 };
 
 #endif

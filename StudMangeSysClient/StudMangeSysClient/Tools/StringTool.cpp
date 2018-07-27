@@ -251,3 +251,20 @@ string StringTool::SetStringFieldWidth(string str, unsigned iWidth, char fillCha
 
 	return strRes;
 }
+
+bool StringTool::StrVecToStr2Vec(vector<vector<string>>& vvStrDes, vector<string> vecStrSrc, string strSpl, string strFilter)
+{
+	vvStrDes.clear();
+	
+	for (unsigned i=0; i<vecStrSrc.size(); i++)
+	{
+		string str = vecStrSrc.at(i);
+		if (str.find(strFilter) != string::npos)
+			continue;
+
+		vector<string> strVec = Splite(str, strSpl);
+		vvStrDes.push_back(strVec);
+	}
+
+	return true;
+}

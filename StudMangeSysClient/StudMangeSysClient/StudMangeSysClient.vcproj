@@ -351,6 +351,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Tools\FileTool.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Tools\FileTool.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Tools\StringTool.cpp"
 				>
 			</File>

@@ -15,7 +15,7 @@ enum OperPermission
 	OPER_PER_REGISTER                         =    2,
 
 	OPER_PER_ADDBATCHSCOREBYONESUBJECT        =    3, //单科批量增加成绩 -- 不是班级性也可以 （管理员和老师）
-	OPER_PER_ADDBATCHSCOREBYSUBJECTS          =    4, //现有所有科目批量增加成绩 -- 不是班级性也可以 （管理员和老师）
+	OPER_PER_ADDBATCHSCOREBYSUBJECTS          =    4, //现有所有科目（或者多科）批量增加成绩 -- 不是班级性也可以 （管理员和老师）
 	OPER_PER_ADDSINGLESCOREBYONESUBJECT       =    5, //单科单条增加成绩 （管理员和老师）
 	OPER_PER_ADDSINGLESCOREBYSUBJECTS         =    6, //现有所有科目单条增加成绩 （管理员和老师）
 	OPER_PER_UPDATEBATCHSCOREBYONESUBJECT     =    7, //单科批量更改成绩 -- 班级性，可选哪个班级；操作前，还要先把班级列出来 （管理员和老师）

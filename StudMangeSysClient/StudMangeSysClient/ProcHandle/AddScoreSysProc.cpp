@@ -4,6 +4,7 @@
 #include "CheckTool.h"
 #include "UserInfoMgr.h"
 #include "StringTool.h"
+#include "FileTool.h"
 
 AddScoreSysProc::AddScoreSysProc(ProcDef nProcDef) : BaseProc(nProcDef)
 {
@@ -37,6 +38,9 @@ void AddScoreSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianI
 	bool bRes = false;
 	switch(iAssistId)
 	{
+	case ASSIST_ID_ADD_BATCH_SCORE_ACK:
+		bRes = AddBatchScoreRecvHandle(vpData, DataLen);
+		break;
 	case ASSIST_ID_GET_SUBJECTS_ACK:
 		bRes = GetSubjectsAfterAddSingleScoreRecvHandle(vpData, DataLen);
 		break;
@@ -75,8 +79,8 @@ void AddScoreSysProc::SwitchToOper(OperPermission CurOper)
 	switch(CurOper)
 	{
 	case OPER_PER_ADDBATCHSCOREBYONESUBJECT: //单科批量增加成绩
-		break;
-	case OPER_PER_ADDBATCHSCOREBYSUBJECTS: //现有所有科目批量增加成绩
+	case OPER_PER_ADDBATCHSCOREBYSUBJECTS: //现有所有科目（或者多科）批量增加成绩
+		AddBatchScoreChooseHandle();
 		break;
 	case OPER_PER_ADDSINGLESCOREBYONESUBJECT: //单科单条增加成绩  操作前请求处理
 	case OPER_PER_ADDSINGLESCOREBYSUBJECTS: //现有所有科目单条增加成绩  操作前请求处理
@@ -233,6 +237,27 @@ void AddScoreSysProc::AddSingleScoreBySubjectsChooseHandle(char* pStrExistSubjec
 	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), /*MAIN_ID_LOGINREGISTER,*/ ASSIST_ID_ADD_SINGLE_SCORE_REQ);
 }
 
+void AddScoreSysProc::AddBatchScoreChooseHandle()
+{
+	if (OPER_PER_ADDBATCHSCOREBYONESUBJECT != GetCurOper() && OPER_PER_ADDBATCHSCOREBYSUBJECTS != GetCurOper())
+	{
+		printf("不是进行该操作[%d | %d]，当前进行的操作是[%d] error\n", OPER_PER_ADDBATCHSCOREBYONESUBJECT, OPER_PER_ADDBATCHSCOREBYSUBJECTS, GetCurOper());
+		SetIEndFlag(-1);
+		return;
+	}
+
+	m_vvFileScoreData.clear();
+	vector<string> vecStr;
+	if (OPER_PER_ADDBATCHSCOREBYONESUBJECT == GetCurOper())
+	{
+		FileTool::ReadFileToStrVec(vecStr, "AddBatchScoreText/AddBatchScoreByOneSubject.txt");
+	}
+	else
+	{
+		FileTool::ReadFileToStrVec(vecStr, "AddBatchScoreText/AddBatchScoreBySubjects.txt");
+	}
+}	
+
 bool AddScoreSysProc::GetSubjectsAfterAddSingleScoreRecvHandle(void* vpData, unsigned int DataLen)
 {
 	if (OPER_PER_ADDSINGLESCOREBYONESUBJECT != GetCurOper() && OPER_PER_ADDSINGLESCOREBYSUBJECTS != GetCurOper())
@@ -321,6 +346,11 @@ bool AddScoreSysProc::AddSingleScoreRecvHandle(void* vpData, unsigned int DataLe
 	return true;
 }
 
+bool AddScoreSysProc::AddBatchScoreRecvHandle(void* vpData, unsigned int DataLen)
+{
+
+	return true;
+}
 
 int AddScoreSysProc::ShowSubjects(map<int, string> mIStr, int iField)
 {
