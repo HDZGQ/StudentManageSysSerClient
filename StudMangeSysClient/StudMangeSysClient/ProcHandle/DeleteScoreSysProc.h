@@ -17,7 +17,12 @@ public:
 	virtual void EndRecv();
 
 	virtual void SwitchToOper(OperPermission CurOper);
+	
+	//选择操作处理
+	void DeleteScoreChooseHandle();
 
+	//返回结果处理
+	bool DeleteScoreRecvHandle(void* vpData, unsigned int DataLen);
 
 };
 

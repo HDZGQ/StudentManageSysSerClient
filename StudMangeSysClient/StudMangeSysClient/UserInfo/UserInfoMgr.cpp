@@ -37,16 +37,16 @@ void UserInfoMgr::initAllSubjects()
 
 void UserInfoMgr::SetSomeInfo(string name, string sAccount, unsigned int userId, short sIdent, short sSex)
 {
-	sName = name;
-	sAccount = sAccount;
-	iUserId = userId;
+	this->sName = name;
+	this->sAccount = sAccount;
+	this->iUserId = userId;
 	this->sIdent = sIdent;
 	this->sSex = sSex;
 }
 
 void UserInfoMgr::SetUserName(string name)
 {
-	sName = name;
+	this->sName = name;
 }
 
 string UserInfoMgr::GetUserName()
@@ -56,7 +56,7 @@ string UserInfoMgr::GetUserName()
 
 void UserInfoMgr::SetUserAccount(string sAccount)
 {
-	sAccount = sAccount;
+	this->sAccount = sAccount;
 }
 
 string UserInfoMgr::GetUserAccount()
@@ -66,7 +66,7 @@ string UserInfoMgr::GetUserAccount()
 
 void UserInfoMgr::SetUserUserId(unsigned int userId)
 {
-	iUserId = userId;
+	this->iUserId = userId;
 }
 
 unsigned int UserInfoMgr::GetUserUserId()

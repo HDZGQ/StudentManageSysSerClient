@@ -310,6 +310,54 @@ void ScoreProc::UpdateSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsig
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_UPDATE, ASSIST_ID_UPDATE_SINGLE_SCORE_ACK, SocketId, strRecord);
 }
 
+void ScoreProc::DeleteScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_DELETE_SCORE_REQ))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_DELETE_SCORE_REQ));
+		return;
+	}
+
+	CS_MSG_DELETE_SCORE_REQ* RecvMsg = (CS_MSG_DELETE_SCORE_REQ*)vpData;
+
+	string strDeleteSql = "delete";
+	char ch[258];
+	if (RecvMsg->sType == 1 && RecvMsg->uUserid[2] == 0)
+	{
+		memset(ch,0,sizeof(ch));
+		sprintf_s(ch, sizeof(ch), " s from studscore s inner join (select userid from userinfo where account='%s') u on s.userid=u.userid", RecvMsg->cAccount);
+		strDeleteSql+= ch;
+	}
+	else if (RecvMsg->sType == 2 && RecvMsg->uUserid[2] == 1)
+	{
+		memset(ch,0,sizeof(ch));
+		strDeleteSql += " from studscore where ";
+		sprintf_s(ch, sizeof(ch), "userID>=%u and userID<=%u", RecvMsg->uUserid[0], RecvMsg->uUserid[1]);
+		strDeleteSql += ch;
+	}
+	else
+	{
+		CS_MSG_DELETE_SCORE_ACK SendMsg;
+		SendMsg.bSucceed = false;
+		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_DELETE_SCORE_ACK);
+		MsgPackageMgr::Send(SocketId, packData);
+		return;
+	}
+
+	char strMysql[512];
+	memset(strMysql, 0, sizeof(strMysql));
+	sprintf_s(strMysql, sizeof(strMysql), "%s", strDeleteSql.c_str());
+
+	string strRecord = "~";
+	strRecord += StringTool::NumberToStr(RecvMsg->sType);
+
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_DELETE, ASSIST_ID_DELETE_SCORE_ACK, SocketId, strRecord);
+}
 
 void ScoreProc::AlterSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
@@ -869,5 +917,32 @@ void ScoreProc::UpdateSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRe
 	} while(false);
 
 	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_UPDATE_SINGLE_SCORE_ACK);
+	MsgPackageMgr::Send(SocketId, packData);
+}
+
+void ScoreProc::DeleteScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
+{
+	CS_MSG_DELETE_SCORE_ACK SendMsg;
+	SendMsg.bSucceed = true;
+	do 
+	{
+		vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
+		if (vStrRecord.size() != 2)
+		{
+			printf("%s  数据项数量[%u] 记录内数据项数量有错strRecord[%s]\n", __FUNCTION__, vStrRecord.size(), strRecord.c_str());
+			SendMsg.bSucceed = false;
+			break;
+		}
+		if ((int)atoi(vStrRecord.at(0).c_str()) != 0)
+		{
+			printf("%s  数据库操作错误\n", __FUNCTION__);
+			SendMsg.bSucceed = false;
+			break;
+		}
+
+		SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+	} while(false);
+
+	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_DELETE_SCORE_ACK);
 	MsgPackageMgr::Send(SocketId, packData);
 }

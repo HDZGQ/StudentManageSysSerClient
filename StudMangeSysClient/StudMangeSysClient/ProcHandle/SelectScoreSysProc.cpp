@@ -132,13 +132,20 @@ void SelectScoreSysProc::SelectSingleScoreByOneSubjectChooseHandle(char* pStrExi
 		return;
 	}
 
-	cout<<"请输入被查询成绩对象的用户名："<<endl;
 	string strAccount;
-	cin>>strAccount;
-	if (!(CheckTool::CheckStringLen(strAccount, 30) && CheckTool::CheckStringByValid(strAccount, "A~Z|a~z|0~9")))
+	if (UserInfoMgr::GetInstance()->GetUserIdent() == 1)
 	{
-		OperInputErrorHandle(false);
-		return;
+		strAccount = UserInfoMgr::GetInstance()->GetUserAccount();
+	}
+	else
+	{
+		cout<<"请输入被查询成绩对象的用户名："<<endl;
+		cin>>strAccount;
+		if (!(CheckTool::CheckStringLen(strAccount, 30) && CheckTool::CheckStringByValid(strAccount, "A~Z|a~z|0~9")))
+		{
+			OperInputErrorHandle(false);
+			return;
+		}
 	}
 
 	printf("请选择要需要查询分数的科目ID：\n");
@@ -196,13 +203,20 @@ void SelectScoreSysProc::SelectSingleScoreBySubjectsChooseHandle(char* pStrExist
 		return;
 	}
 
-	cout<<"请输入被查询成绩对象的用户名："<<endl;
 	string strAccount;
-	cin>>strAccount;
-	if (!(CheckTool::CheckStringLen(strAccount, 30) && CheckTool::CheckStringByValid(strAccount, "A~Z|a~z|0~9")))
+	if (UserInfoMgr::GetInstance()->GetUserIdent() == 1)
 	{
-		OperInputErrorHandle(false);
-		return;
+		strAccount = UserInfoMgr::GetInstance()->GetUserAccount();
+	}
+	else
+	{
+		cout<<"请输入被查询成绩对象的用户名："<<endl;
+		cin>>strAccount;
+		if (!(CheckTool::CheckStringLen(strAccount, 30) && CheckTool::CheckStringByValid(strAccount, "A~Z|a~z|0~9")))
+		{
+			OperInputErrorHandle(false);
+			return;
+		}
 	}
 	strcpy_s(SendReq.cAccount, sizeof(SendReq.cAccount), strAccount.c_str());
 

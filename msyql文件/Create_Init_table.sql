@@ -16,7 +16,7 @@ create table userInfo (
 	major varchar(40), -- 专业
 	grade varchar(30), -- 年级
 	primary key(userID)
-) engine=innodb auto_increment=10000 ;
+) engine=innodb auto_increment=100000 ;
 -- insert into userInfo(account, password, name, sex, Ident, major, grade) values ('aaaaa','123456', '张三', 0, 1, '自动化', '自动化11-1');
 //
 
@@ -45,7 +45,7 @@ create table userAuthority (
 
 -- 插入管理员账号信息
 insert into userInfo(account, password, name, sex, Ident) values('admin', '123456', 'admin', 0, 3);
-insert into userAuthority(userID, Authority) values(10000, '1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30');
+insert into userAuthority(userID, Authority) values(100000, '1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30');
 //
 
 delimiter ;

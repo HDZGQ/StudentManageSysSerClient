@@ -24,6 +24,7 @@ public:
 	void SelectSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条查询成绩（包括单科和全科）请求
 	void SelectBatchScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //批量查询成绩（包括单科和全科）请求
 	void UpdateSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条更改成绩（包括单科和全科）请求
+	void DeleteScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //删除成绩（包括单条和批量）请求
 
 
 	/*
@@ -34,6 +35,7 @@ public:
 	void SelectSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回单条查询成绩（包括单科和全科）结果
 	void SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回批量查询成绩（包括单科和全科）结果
 	void UpdateSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回单条更改成绩（包括单科和全科）结果
+	void DeleteScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回删除成绩（包括单条和批量）结果
 };
 
 #endif
