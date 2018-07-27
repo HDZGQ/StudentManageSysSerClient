@@ -38,7 +38,9 @@ public:
 
 private:
 	int ShowSubjects(map<int, string> mIStr, int iField=2);
-	void ShowSelectSingleScoreResult(vector<string> vSelectFieldShow, vector<string> vSelectResultShow, bool bShowDescribe=false, bool bShowLine=true);
+	void ShowSelectSingleScoreResult(vector<string> vSelectFieldShow, vector<string> vSelectResultShow, bool bShow=true);
+	bool FindOneInArray(unsigned char* pArray, unsigned char iCount, unsigned char iMaxCount, unsigned char Obj);
+	bool CheckStringVaildRemoveSpl(string str, string strSpl, string strVaild);
 };
 
 #endif

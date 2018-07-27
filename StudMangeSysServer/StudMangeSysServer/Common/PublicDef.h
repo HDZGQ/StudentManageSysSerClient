@@ -52,14 +52,14 @@ enum OperPermission
 //批量查询成绩可用条件
 enum SelectScoreCondition
 {
-	SELECT_SCORE_INVALID                      =    0,
-	SELECT_SCORE_START	                      =    0, //有效值起始值
-	SELECT_SCORE_RANK     	                  =    1, //排序 -- 分为升序和降序
-	SELECT_SCORE_RANGE    	                  =    2, //分数范围 -- 起始分数结束分数
-	SELECT_SCORE_TOTAL    	                  =    3, //总分查询
-	SELECT_SCORE_AVERAGE    	              =    4, //平均分查询
+	SELECT_SCORE_CONDITION_INVALID                 =    0,
+	SELECT_SCORE_CONDITION_START	               =    0, //有效值起始值
+	SELECT_SCORE_CONDITION_RANK     	           =    1, //排序 -- 分为升序和降序
+	SELECT_SCORE_CONDITION_RANGE    	           =    2, //分数范围 -- 起始分数结束分数
+	SELECT_SCORE_CONDITION_TOTAL    	           =    3, //总分查询
+	SELECT_SCORE_CONDITION_AVERAGE    	           =    4, //平均分查询
 
-	SELECT_SCORE_END								  //有效值终止值
+	SELECT_SCORE_CONDITION_END							   //有效值终止值
 };
 
 //排序查询成绩升降序条件

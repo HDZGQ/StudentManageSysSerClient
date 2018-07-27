@@ -111,7 +111,7 @@ string StringTool::CombVecToStr(vector<string> vec, string strCom)
 string StringTool::CombArrayToStr(unsigned char *upArr, unsigned iLen, string strCom)
 {
 	string strRes = "";
-	if (0 == iLen)
+	if (0 == iLen || NULL == upArr)
 		return strRes;
 
 	for (unsigned i=0 ; i<iLen; i++)
@@ -202,7 +202,7 @@ string StringTool::CombToSqlUpdateSetStr(string strField, string strValue, strin
 	return strRes;
 }
 
-bool StringTool::StrSpliteToIntArray(unsigned char *arr, unsigned int iLen, string str, string strSpl)
+bool StringTool::StrSpliteToUcArray(unsigned char *arr, unsigned int iLen, string str, string strSpl)
 {
 	if (NULL == arr || 0 == iLen || str.empty())
 	{
@@ -217,4 +217,37 @@ bool StringTool::StrSpliteToIntArray(unsigned char *arr, unsigned int iLen, stri
 	}
 
 	return true;
+}
+
+string StringTool::SetStringFieldWidth(string str, unsigned iWidth, char fillChar, unsigned char dirFlag)
+{
+	string strRes = str;
+	if (strRes.empty() || 0 == iWidth || (dirFlag!=0 && dirFlag!=1))
+	{
+		return strRes;
+	}
+
+	unsigned strLen = strRes.size();
+	if (strLen >= iWidth)
+	{
+		return strRes;
+	}
+
+	unsigned needLen = iWidth - strLen;
+	string fillString;
+	for (unsigned i=0; i<needLen; i++)
+	{
+		fillString.append(1, fillChar);
+	}
+
+	if (0 == dirFlag)
+	{
+		strRes += fillString;
+	}
+	else
+	{
+		strRes = fillString + strRes;
+	}
+
+	return strRes;
 }

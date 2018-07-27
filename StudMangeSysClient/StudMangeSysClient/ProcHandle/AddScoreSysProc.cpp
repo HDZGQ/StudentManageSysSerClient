@@ -121,8 +121,14 @@ void AddScoreSysProc::AddSingleScoreByOneSubjectChooseHandle(char* pStrExistSubj
 
 	if (mStrChineseNameShow.empty())
 	{
-		printf("没有科目，请先添加科目\n");
+		printf("%s 没有科目，请先添加科目\n", __FUNCTION__);
 		SetIEndFlag(1);
+		return;
+	}
+	if (mStrChineseNameShow.size() != vecStrSubjectId.size())
+	{
+		printf("%s 处理过后的科目数量与原科目数量不同\n", __FUNCTION__);
+		SetIEndFlag(-1);
 		return;
 	}
 
@@ -188,8 +194,14 @@ void AddScoreSysProc::AddSingleScoreBySubjectsChooseHandle(char* pStrExistSubjec
 
 	if (mStrChineseNameShow.empty())
 	{
-		printf("没有科目，请先添加科目\n");
+		printf("%s 没有科目，请先添加科目\n", __FUNCTION__);
 		SetIEndFlag(1);
+		return;
+	}
+	if (mStrChineseNameShow.size() != vecStrSubjectId.size())
+	{
+		printf("%s 处理过后的科目数量与原科目数量不同\n", __FUNCTION__);
+		SetIEndFlag(-1);
 		return;
 	}
 

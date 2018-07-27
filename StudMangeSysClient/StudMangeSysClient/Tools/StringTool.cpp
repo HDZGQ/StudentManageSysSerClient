@@ -202,7 +202,7 @@ string StringTool::CombToSqlUpdateSetStr(string strField, string strValue, strin
 	return strRes;
 }
 
-bool StringTool::StrSpliteToIntArray(unsigned char *arr, unsigned int iLen, string str, string strSpl)
+bool StringTool::StrSpliteToUcArray(unsigned char *arr, unsigned int iLen, string str, string strSpl)
 {
 	if (NULL == arr || 0 == iLen || str.empty())
 	{

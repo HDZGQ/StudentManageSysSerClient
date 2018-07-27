@@ -85,7 +85,7 @@ void ScoreProc::AlterSubjectRecvHandle(SOCKET SocketId, void* vpData, unsigned i
 	string strSqlTmp = "";
 	if (RecvMsg->sGetType == 1)
 	{
-		strSqlTmp += " add " + sEnglishName + " tinyint"; 
+		strSqlTmp += " add " + sEnglishName + " tinyint default 0"; 
 	}
 	else if (RecvMsg->sGetType == 2)
 	{
@@ -177,6 +177,89 @@ void ScoreProc::SelectSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsig
 	strRecord += StringTool::NumberToStr(RecvMsg->sType) + "~" + RecvMsg->cAccount + "~" + StringTool::CombArrayToStr(RecvMsg->sSubjectId, (unsigned)RecvMsg->bSubjectCount)  + "~" + StringTool::NumberToStr((int)RecvMsg->bSubjectCount);
 
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_SELECT_SINGLE_SCORE_ACK, SocketId, strRecord);
+}
+
+void ScoreProc::SelectBatchScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_SELECT_BATCH_SCORE_REQ))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_SELECT_BATCH_SCORE_REQ));
+		return;
+	}
+
+	CS_MSG_SELECT_BATCH_SCORE_REQ* RecvMsg = (CS_MSG_SELECT_BATCH_SCORE_REQ*)vpData;
+	if (RecvMsg->bSubjectCount == 0 || (RecvMsg->bScoreRange[2] == 1 && !(RecvMsg->bScoreRange[0]<=RecvMsg->bScoreRange[1] && \
+		RecvMsg->bScoreRange[0]>=0 && RecvMsg->bScoreRange[0]<=100 && RecvMsg->bScoreRange[1]>=0 && RecvMsg->bScoreRange[1]<=100)))
+	{
+		CS_MSG_SELECT_BATCH_SCORE_ACK SendMsg;
+		SendMsg.bResCode = 3;
+		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_SCORE_ACK);
+		MsgPackageMgr::Send(SocketId, packData);
+		return;
+	}
+
+	string strSubjectField;
+	string strSumOrAverage;
+	string strWhere;
+
+	for (unsigned char i=0; i<RecvMsg->bSubjectCount; i++)
+	{
+		if (SubjectsMgr::GetInstance()->IsInAllSubjects((SubjectsType)RecvMsg->sSubjectId[i]))
+		{
+			string strOneSubjectField = "s." + SubjectsMgr::GetInstance()->GetEnglishNameByType((SubjectsType)RecvMsg->sSubjectId[i]);
+			strSubjectField += ",";
+			strSubjectField += strOneSubjectField;
+
+			if (!strSumOrAverage.empty())
+			{
+				strSumOrAverage += "+";
+			}
+			strSumOrAverage += strOneSubjectField;
+
+			if (RecvMsg->bScoreRange[2] == 1)
+			{
+				strWhere += " and " + strOneSubjectField;
+				strWhere += ">=" + StringTool::NumberToStr((int)RecvMsg->bScoreRange[0]);
+				strWhere += " and " + strOneSubjectField;
+				strWhere += "<=" + StringTool::NumberToStr((int)RecvMsg->bScoreRange[1]);
+			}
+		}
+	}
+
+	char ch[128];
+	if (!string(RecvMsg->cGrade).empty())
+	{
+		memset(ch, 0, sizeof(ch));
+		sprintf_s(ch, sizeof(ch), " and u.grade='%s'", RecvMsg->cGrade);
+		strWhere += ch;
+	}
+
+	if (RecvMsg->bRankFlag == 1) //升序
+	{
+		strWhere += " order by SSum asc";
+	}
+	else if (RecvMsg->bRankFlag == 2) //降序
+	{
+		strWhere += " order by SSum desc";
+	}
+	else //默认根据学号排序
+	{
+		strWhere += " order by u.userid asc";
+	}
+
+	char strMysql[1024];
+	memset(strMysql, 0, sizeof(strMysql));
+	sprintf_s(strMysql, sizeof(strMysql), "select @curRank := @curRank + 1 AS rank,u.userid,u.account,u.name,u.grade %s,(%s) as SSum, floor((%s)/3) as average from userinfo u,studscore s,(SELECT @curRank := 0) q where u.userid=s.userid %s", strSubjectField.c_str(), strSumOrAverage.c_str(), strSumOrAverage.c_str(), strWhere.c_str());
+
+	string strRecord = "~";
+	strRecord += StringTool::NumberToStr(RecvMsg->sType) + "~" + StringTool::CombArrayToStr(RecvMsg->cCondition, 5)  + "~" + StringTool::NumberToStr((int)RecvMsg->bRankFlag);
+
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_SELECT_BATCH_SCORE_ACK, SocketId, strRecord);
 }
 
 void ScoreProc::UpdateSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
@@ -566,6 +649,197 @@ void ScoreProc::SelectSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRe
 	} while (false);
 
 	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_SINGLE_SCORE_ACK);
+	MsgPackageMgr::Send(SocketId, packData);
+}
+
+void ScoreProc::SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
+{
+	unsigned int iRecordCount = 0; //总记录数
+	CS_MSG_SELECT_BATCH_SCORE_ACK SendMsg;
+	SendMsg.bResCode = 0;
+	do 
+	{
+		vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
+		if (vStrRecord.size() != 4)
+		{
+			printf("%s  数据项数量[%u] 记录内数据项数量有错strRecord[%s]\n", __FUNCTION__, vStrRecord.size(), strRecord.c_str());
+			SendMsg.bResCode = 3;
+			break;
+		}
+		if ((int)atoi(vStrRecord.at(0).c_str()) != 0)
+		{
+			printf("%s  数据库操作错误\n", __FUNCTION__);
+			SendMsg.bResCode = 1;
+			break;
+		}
+
+		unsigned rowsNum = (unsigned)mysql_num_rows(MysqlRes);
+		if (rowsNum == 0)
+		{
+			printf("%s  数据库查询没有记录\n", __FUNCTION__);
+			SendMsg.bResCode = 2;
+			break;
+		}
+
+		int j = mysql_num_fields(MysqlRes);
+		if (j < 8)
+		{
+			printf("%s  数据库返回结果错误，列数错误\n", __FUNCTION__);
+			memset(&SendMsg, 0, sizeof(SendMsg));
+			SendMsg.bResCode = 3;
+			break;
+		}
+
+		char chTmp[52];
+		MYSQL_FIELD *fd = NULL;
+		vector<string> vecStrField;
+		for(int i=0; fd=mysql_fetch_field(MysqlRes);i++)
+		{
+			memset(chTmp, 0, sizeof(chTmp));
+			strcpy_s(chTmp, sizeof(chTmp), fd->name);
+			vecStrField.push_back(chTmp);
+		}
+		if (vecStrField.size() != j)
+		{
+			printf("%s  返回结果字段处理后字段数量有误\n", __FUNCTION__);
+			SendMsg.bResCode = 3;
+			break;
+		}
+
+		MYSQL_ROW sql_row;
+		while (sql_row=mysql_fetch_row(MysqlRes)) //获取具体的数据
+		{
+			SendMsg.bSubjectCount = 0;
+			unsigned char bNullSubjectCount = 0;
+			for (unsigned i=0; i<vecStrField.size(); i++)
+			{
+				if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("rank")))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.sRank[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("userID")))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.uUserid[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("account")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT]), "NULL");
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("name")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT]), "NULL");
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("grade")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT]), "NULL");
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("SSum")))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.bSum[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("average")))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.bAverage[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+					}
+				}
+				else if (SUBJECTS_TYPE_INVALID != SubjectsMgr::GetInstance()->GetTypeByEnglishName(StringTool::ToLowercase(vecStrField.at(i))))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.bScore[iRecordCount%MAXBATCHSELECTACKCOUNT][SendMsg.bSubjectCount] = (unsigned char)atoi(sql_row[i]);
+					}
+					else
+					{
+						SendMsg.bScore[iRecordCount%MAXBATCHSELECTACKCOUNT][SendMsg.bSubjectCount] = 0;
+						bNullSubjectCount++;
+					}
+
+					SendMsg.bSubjectId[iRecordCount%MAXBATCHSELECTACKCOUNT][SendMsg.bSubjectCount] = (unsigned char)SubjectsMgr::GetInstance()->GetTypeByEnglishName(StringTool::ToLowercase(vecStrField.at(i)));
+					SendMsg.bSubjectCount++;
+				}
+				else
+				{
+					printf("%s  没有的字段项[%s]\n", __FUNCTION__, vecStrField.at(i).c_str());
+					memset(&SendMsg, 0, sizeof(SendMsg));
+					SendMsg.bResCode = 3;
+					break;
+				}
+			}
+			if (SendMsg.bResCode != 0)
+			{
+				break;
+			}
+// 			if (SendMsg.bSubjectCount == bNullSubjectCount)
+// 			{
+// 				printf("%s  没有成绩信息\n", __FUNCTION__);
+// 				memset(&SendMsg, 0, sizeof(SendMsg));
+// 				SendMsg.bResCode = 2;
+// 				break;
+// 			}
+
+			iRecordCount++;
+			if (iRecordCount % MAXBATCHSELECTACKCOUNT == 0) //每到达一定数量发送一次记录
+			{
+				SendMsg.bDataRecord[0] = MAXBATCHSELECTACKCOUNT;
+				SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHSELECTACKCOUNT + 1;
+				SendMsg.bDataRecord[2] = 0;
+
+				PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_SCORE_ACK);
+				MsgPackageMgr::Send(SocketId, packData);
+
+				//清空
+				memset(&SendMsg, 0, sizeof(SendMsg));
+				SendMsg.bResCode = 0;
+			}
+			if (iRecordCount == 1 || iRecordCount % MAXBATCHSELECTACKCOUNT == 0)
+			{
+				SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+				SendMsg.bRankFlag = (unsigned char)atoi(vStrRecord.at(3).c_str());
+				StringTool::StrSpliteToUcArray(SendMsg.cCondition, 5, vStrRecord.at(2));
+			}
+		}
+	} while (false);
+
+	if (SendMsg.bResCode == 0)
+	{
+		SendMsg.bDataRecord[0] = iRecordCount%MAXBATCHSELECTACKCOUNT;
+		SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHSELECTACKCOUNT + 1;
+	}
+	SendMsg.bDataRecord[2] = 1;
+
+	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_SCORE_ACK);
 	MsgPackageMgr::Send(SocketId, packData);
 }
 

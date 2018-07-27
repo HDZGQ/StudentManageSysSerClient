@@ -250,7 +250,7 @@ void UpdateScoreSysProc::UpdateSingleScoreBySubjectsChooseHandle(char* pName, ch
 	}
 
 	unsigned char bScore[MAXSUBJECTSCOUNT];
-	StringTool::StrSpliteToIntArray(bScore, MAXSUBJECTSCOUNT, strScore, "|");
+	StringTool::StrSpliteToUcArray(bScore, MAXSUBJECTSCOUNT, strScore, "|");
 
 	CS_MSG_UPDATE_SINGLE_SCORE_REQ SendReq;
 	SendReq.sType = 2;

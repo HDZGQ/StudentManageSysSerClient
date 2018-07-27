@@ -30,7 +30,7 @@ public:
 
 	static string CombToSqlUpdateSetStr(string strField, string strValue, string strSpl="|");
 
-	static bool StrSpliteToIntArray(unsigned char *arr, unsigned int iLen, string str, string strSpl="|");
+	static bool StrSpliteToUcArray(unsigned char *arr, unsigned int iLen, string str, string strSpl="|");
 
 	/*
 	* 功能：设置字符串域宽，不足用别的字符填充（字节算）

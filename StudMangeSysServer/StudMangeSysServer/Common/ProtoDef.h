@@ -260,8 +260,9 @@ struct CS_MSG_SELECT_BATCH_SCORE_REQ
 	short sType; //1单科批量查询成绩 2现有所有科目批量查询成绩
 	char cGrade[31]; //班级 -- 为空则查询所有班级
 	unsigned char sSubjectId[MAXSUBJECTSCOUNT]; //每个科目ID
-	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件  -- 单科批量只有排序和分数范围查询这两种条件
-	unsigned char bRankFlag; //0没有排序 1升序 2降序 全科根据总分（没选总分这条件也是这样）排序，单科根据这科目排序
+	unsigned char bSubjectCount; //科目数
+	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件 
+	unsigned char bRankFlag; //0没有排序 1升序 2降序 都是根据总分（没选总分这条件也是这样）排序
 	unsigned char bScoreRange[3]; //分数范围，第三个元素为0数据没设置，为1设置数据了
 	CS_MSG_SELECT_BATCH_SCORE_REQ()
 	{
@@ -285,7 +286,8 @@ struct CS_MSG_SELECT_BATCH_SCORE_ACK
 	unsigned char bSubjectId[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //每个科目ID
 	unsigned char bScore[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //每科分数
 	unsigned char bSubjectCount; //科目数
-	unsigned char bEndFalg; //发送完毕标志。0没有完毕 1完毕
+	unsigned char bDataRecord[3]; //[0]查询结果记录数量<= MAXBATCHSELECTACKCOUNT； [1]发送序号，从1开始； [2]发送完毕标志 0没有完毕 1完毕
+	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息或者没有成绩信息 3其他异常
 	CS_MSG_SELECT_BATCH_SCORE_ACK()
 	{
 		memset(this, 0, sizeof(CS_MSG_SELECT_BATCH_SCORE_ACK));

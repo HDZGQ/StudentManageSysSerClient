@@ -23,15 +23,15 @@ create table userInfo (
 -- 后续开设可增减科目功能
 create table studScore (
 	userID int not null,
-	Chinese tinyint,
-	Math tinyint,
-	English tinyint,
+	Chinese tinyint default 0,
+	Math tinyint default 0,
+	English tinyint default 0,
 	constraint fk_scoreUserId foreign key(userID) references userInfo(userID) -- 依赖的父表的该字段必须是主键
 );
 -- alter table studScore drop foreign key(fk_scoreUserId);
--- alter table StudScore add Chinese tinyint;
+-- alter table StudScore add Chinese tinyint default 0;
 -- alter table StudScore drop Chinese;
--- select @curRank := @curRank + 1 AS rank,u.userid,u.account,u.name,u.grade,s.chinese,s.math,s.english,(s.chinese+s.math+s.english) as SSum, floor((s.chinese+s.math+s.english)/3) as average from userinfo u,studscore s,(SELECT @curRank := 0) q where s.chinese>=50 and s.chinese <=100 and s.math>=50 and s.math <=100 and s.english>=50 and s.english<=100 and u.userid=s.userid and u.grade='机电11-1' order by SSum desc;
+-- select @curRank := @curRank + 1 AS rank,u.userid,u.account,u.name,u.grade,s.chinese,s.math,s.english,(s.chinese+s.math+s.english) as SSum, floor((s.chinese+s.math+s.english)/3) as average from userinfo u,studscore s,(SELECT @curRank := 0) q where u.userid=s.userid and s.chinese>=50 and s.chinese <=100 and s.math>=50 and s.math <=100 and s.english>=50 and s.english<=100 and u.grade='机电11-1' order by SSum desc;
 //
 
 -- 操作权限
