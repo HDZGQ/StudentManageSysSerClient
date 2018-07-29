@@ -1,6 +1,6 @@
 delimiter //
 use StudMangeSystem
-//
+
 
 -- 分割字符串存储过程
 drop procedure if exists StudMangeSystem.str_spilt;
@@ -94,6 +94,22 @@ end;
 
 -- call StudMangeSystem.AddSingleScoreNotRegister('''dddd'',''dddd'',''123456'',''0'',''1''', 'dddd', '1|2|13|14|23|24|26', 'Chinese', '60');
 -- call StudMangeSystem.AddSingleScoreNotRegister('''xxxx'',''xxxx'',''123456'',''0'',''1''', 'xxxx', '1|2|13|14|23|24|26', 'Chinese', '60');
+
+
+-- 单条增加成绩
+drop procedure if exists StudMangeSystem.AddSingleScore;
+//
+create procedure StudMangeSystem.AddSingleScore(in strUpdateSet varchar(200), in strInsertInfo varchar(200), in strAccount varchar(31), in strIdent varchar(150), in strEngName varchar(200), in strscore varchar(200))
+begin
+	declare userid int default 0;
+	select s.userID into userid from userInfo s where s.account=strAccount;
+	if userid > 0 then
+		call StudMangeSystem.AddSingleScoreHaveRegister(strEngName, userid, strscore, strUpdateSet);
+	else
+		call StudMangeSystem.AddSingleScoreNotRegister(strInsertInfo, strAccount, strIdent, strEngName, strscore);
+	end if;
+end;
+//
 
 
 delimiter ;

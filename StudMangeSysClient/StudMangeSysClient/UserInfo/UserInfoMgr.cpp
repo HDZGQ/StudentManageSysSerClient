@@ -174,6 +174,20 @@ string UserInfoMgr::GetChineseNameByType(SubjectsType sType)
 	return m_mAllSubjects[sType].strChineseName;
 }
 
+SubjectsType UserInfoMgr::GetTypeByEnglishName(string strName)
+{
+	map<SubjectsType, SubjectsData>::iterator iter = m_mAllSubjects.begin();
+	for (; iter != m_mAllSubjects.end(); iter++)
+	{
+		if (StringTool::ToLowercase(iter->second.strEnglishName) == StringTool::ToLowercase(strName))
+		{
+			return iter->first;
+		}
+	}
+
+	return SUBJECTS_TYPE_INVALID;
+}
+
 bool UserInfoMgr::CanFindSubjectsType(SubjectsType sType)
 {
 	if (sType <= SUBJECTS_TYPE_START || sType >= SUBJECTS_TYPE_END || m_mAllSubjects.find(sType) == m_mAllSubjects.end())

@@ -9,6 +9,7 @@
 AddScoreSysProc::AddScoreSysProc(ProcDef nProcDef) : BaseProc(nProcDef)
 {
 	initMapChoose();
+	m_uAddBatchScoreSumCount = 0;
 }
 
 AddScoreSysProc::~AddScoreSysProc()
@@ -68,6 +69,9 @@ void AddScoreSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianI
 
 void AddScoreSysProc::EndRecv()
 {
+	m_vvAddBatchScoreFileData.clear();
+	m_vecAddBatchScoreFeildData.clear();
+	m_uAddBatchScoreSumCount = 0;
 	__super::EndRecv();
 }
 
@@ -246,16 +250,41 @@ void AddScoreSysProc::AddBatchScoreChooseHandle()
 		return;
 	}
 
-	m_vvFileScoreData.clear();
 	vector<string> vecStr;
+	short sType;
 	if (OPER_PER_ADDBATCHSCOREBYONESUBJECT == GetCurOper())
 	{
+		sType = 1;
 		FileTool::ReadFileToStrVec(vecStr, "AddBatchScoreText/AddBatchScoreByOneSubject.txt");
 	}
 	else
 	{
+		sType = 2;
 		FileTool::ReadFileToStrVec(vecStr, "AddBatchScoreText/AddBatchScoreBySubjects.txt");
 	}
+	StringTool::StrVecToStr2Vec(m_vvAddBatchScoreFileData, vecStr);
+
+	for (vector<vector<string>>::iterator vvIter=m_vvAddBatchScoreFileData.begin(); vvIter!=m_vvAddBatchScoreFileData.end(); vvIter++)
+	{
+		vector<string> vecstrTmp = *vvIter;
+		bool bFlag = false;
+		for (vector<string>::iterator vIter=vecstrTmp.begin(); vIter!=vecstrTmp.end(); vIter++)
+		{
+			if (vIter->find("Account") != string::npos)
+			{
+				bFlag = true;
+				break;
+			}
+		}
+		if (bFlag)
+		{
+			m_vecAddBatchScoreFeildData.assign(vecstrTmp.begin(), vecstrTmp.end());
+			m_vvAddBatchScoreFileData.erase(vvIter);
+			break;
+		}
+	}
+
+	SendAddBatchScoreData(sType);
 }	
 
 bool AddScoreSysProc::GetSubjectsAfterAddSingleScoreRecvHandle(void* vpData, unsigned int DataLen)
@@ -339,7 +368,7 @@ bool AddScoreSysProc::AddSingleScoreRecvHandle(void* vpData, unsigned int DataLe
 	else
 	{
 		SetIEndFlag(-1);
-		printf("添加分数失败");
+		printf("添加分数失败\n");
 		return false;
 	}
 
@@ -348,6 +377,91 @@ bool AddScoreSysProc::AddSingleScoreRecvHandle(void* vpData, unsigned int DataLe
 
 bool AddScoreSysProc::AddBatchScoreRecvHandle(void* vpData, unsigned int DataLen)
 {
+	if (OPER_PER_ADDBATCHSCOREBYONESUBJECT != GetCurOper() && OPER_PER_ADDBATCHSCOREBYSUBJECTS != GetCurOper())
+	{
+		printf("不是进行该操作[%d | %d]，当前进行的操作是[%d] error\n", OPER_PER_ADDBATCHSCOREBYONESUBJECT, OPER_PER_ADDBATCHSCOREBYSUBJECTS, GetCurOper());
+		SetIEndFlag(-1);
+		return false;
+	}
+	if (DataLen != sizeof(CS_MSG_ADD_BATCH_SCORE_ACK))
+	{
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_ADD_BATCH_SCORE_ACK));
+		SetIEndFlag(-1);
+		return false;
+	}
+
+	CS_MSG_ADD_BATCH_SCORE_ACK* RecvMSG = (CS_MSG_ADD_BATCH_SCORE_ACK*) vpData;
+	if (RecvMSG->bSucceed)
+	{
+		if (m_vvAddBatchScoreFileData.empty())
+		{
+			SetIEndFlag(1);
+			printf("批量添加分数成功，一共添加了%u数据记录\n", m_uAddBatchScoreSumCount);
+		}
+		else
+		{
+			//继续向服务端添加记录
+			SendAddBatchScoreData(RecvMSG->sType);
+		}
+	}
+	else
+	{
+		SetIEndFlag(-1);
+		printf("批量添加分数失败，还剩%u条记录没有推送给服务端\n", m_vvAddBatchScoreFileData.size());
+		return false;
+	}
+
+	return true;
+}
+
+bool AddScoreSysProc::SendAddBatchScoreData(short sType)
+{
+	CS_MSG_ADD_BATCH_SCORE_REQ SendReq;
+	SendReq.sType = sType;
+	SendReq.bRecordCount = 0;
+
+	for (vector<vector<string>>::iterator vvIter=m_vvAddBatchScoreFileData.begin() ; vvIter!=m_vvAddBatchScoreFileData.end() && SendReq.bRecordCount<MAXBATCHSELECTACKCOUNT; SendReq.bRecordCount++)
+	{
+		vector<string> vecStrAddOneScoreData = *vvIter;
+		if (vecStrAddOneScoreData.size() != m_vecAddBatchScoreFeildData.size())
+		{
+			SetIEndFlag(-1);
+			printf("单组数据信息数量与字段数不一样\n");
+			return false;
+		}
+
+		SendReq.bSubjectCount = 0;
+		for (unsigned i = 0; i < m_vecAddBatchScoreFeildData.size(); i++)
+		{
+			if (m_vecAddBatchScoreFeildData.at(i) == "Account")
+			{
+				strcpy_s(SendReq.cAccount[SendReq.bRecordCount], sizeof(SendReq.cAccount[SendReq.bRecordCount]), vecStrAddOneScoreData.at(i).c_str());
+			}
+			else if (UserInfoMgr::GetInstance()->GetTypeByEnglishName(m_vecAddBatchScoreFeildData.at(i)) != SUBJECTS_TYPE_INVALID)
+			{
+				SendReq.bSubjectId[SendReq.bRecordCount][SendReq.bSubjectCount] = (unsigned char)UserInfoMgr::GetInstance()->GetTypeByEnglishName(m_vecAddBatchScoreFeildData.at(i));
+				SendReq.bScore[SendReq.bRecordCount][SendReq.bSubjectCount] = (unsigned char)atoi(vecStrAddOneScoreData.at(i).c_str());
+				SendReq.bSubjectCount++;
+			}
+			else
+			{
+				SetIEndFlag(-1);
+				printf("文件中出现不能识别的字段名\n");
+				return false;
+			}
+		}
+
+		vvIter = m_vvAddBatchScoreFileData.erase(vvIter);
+		m_uAddBatchScoreSumCount++;
+	}
+	SendReq.bRecordNO = (m_uAddBatchScoreSumCount>0 ? m_uAddBatchScoreSumCount-1 : 0) / MAXBATCHSELECTACKCOUNT + 1;
+
+	if (m_vvAddBatchScoreFileData.empty())
+	{
+		SendReq.bEnd = 1;
+	}
+
+	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), /*MAIN_ID_LOGINREGISTER,*/ ASSIST_ID_ADD_BATCH_SCORE_REQ);
 
 	return true;
 }
@@ -405,3 +519,4 @@ bool AddScoreSysProc::CheckScore(string sScore)
 
 	return true;
 }
+

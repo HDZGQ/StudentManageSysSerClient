@@ -37,8 +37,12 @@ protected:
 	int ShowSubjects(map<int, string> mIStr, int iField=2);
 	bool CheckScore(string sScore);
 
+	bool SendAddBatchScoreData(short sType);
+
 private:
-	vector<vector<string>> m_vvFileScoreData;//批量添加成绩数据 如果数据太多，每添加一次服务端返回成功才可以继续添加下一次
+	vector<vector<string>> m_vvAddBatchScoreFileData;//批量添加成绩数据 如果数据太多，每添加一次服务端返回成功才可以继续添加下一次
+	vector<string> m_vecAddBatchScoreFeildData; //批量添加成绩字段
+	unsigned m_uAddBatchScoreSumCount; //批量添加的动态记录数
 };
 
 #endif

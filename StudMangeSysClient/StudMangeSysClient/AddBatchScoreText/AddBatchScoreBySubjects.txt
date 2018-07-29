@@ -1,0 +1,5 @@
+//批量全科（或者多科）添加成绩
+Account	chinese	math	english
+xiaoxiao	56	65	74
+tiantian	54	45	87
+mingming	45	78	95

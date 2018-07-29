@@ -4,7 +4,7 @@ drop database if exists StudMangeSystem;
 create database StudMangeSystem;
 //
 use StudMangeSystem
-//
+
 
 create table userInfo (
 	userID int not null auto_increment,

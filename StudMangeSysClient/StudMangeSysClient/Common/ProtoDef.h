@@ -450,7 +450,7 @@ struct CS_MSG_ADD_BATCH_SCORE_REQ
 	unsigned char bScore[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //科目分数
 	unsigned char bSubjectCount; //科目数
 	unsigned char bRecordCount; //成绩数据记录数量，要小于等于MAXBATCHSELECTACKCOUNT
-	unsigned char bRecordNO; //发送批次
+	unsigned char bRecordNO; //发送批次，从1开始
 	unsigned char bEnd; //0没有发送完毕 1完毕
 	CS_MSG_ADD_BATCH_SCORE_REQ()
 	{

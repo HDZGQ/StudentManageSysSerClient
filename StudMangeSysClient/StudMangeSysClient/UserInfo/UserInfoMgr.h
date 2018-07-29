@@ -40,6 +40,7 @@ public:
 	bool SetVOperPer(string str);
 
 	string GetChineseNameByType(SubjectsType sType);
+	SubjectsType GetTypeByEnglishName(string strName);
 	bool CanFindSubjectsType(SubjectsType sType);
 protected:
 	void initAllSubjects();
