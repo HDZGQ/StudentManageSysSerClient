@@ -131,9 +131,7 @@ TCPHandle::TCPHandle()
 
 TCPHandle::~TCPHandle()
 {
-	m_IsConn = false;
-	closesocket(m_SocketId);  
-	WSACleanup();   // 终止对套接字库的使用  
+	TCPDisConn();
 }
 
 bool TCPHandle::TCPConn()
@@ -203,6 +201,17 @@ bool TCPHandle::TCPConn()
 	return true;
 }
 
+bool TCPHandle::TCPDisConn()
+{
+	if (m_IsConn)
+	{
+		closesocket(m_SocketId);  
+		WSACleanup();   // 终止对套接字库的使用 
+		m_IsConn = false;
+	}
+
+	return true;
+}
 
 SOCKET TCPHandle::GetSocketID()
 {

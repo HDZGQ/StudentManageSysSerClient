@@ -17,6 +17,7 @@ enum MysqlOper
 	MYSQL_OPER_SELECT    = 3,  //查
 	MYSQL_OPER_UPDATE    = 4,  //改
 	MYSQL_OPER_ALTER     = 5,  //更改表属性
+	MYSQL_OPER_CALL_PROC = 6,  //调用存储过程
 
 	MYSQL_OPER_END             //有效值终止值
 };

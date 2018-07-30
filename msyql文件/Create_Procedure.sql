@@ -32,6 +32,28 @@ BEGIN
 END;
 //
 
+
+-- 用户注册
+drop procedure if exists StudMangeSystem.UserRegister;
+//
+create procedure StudMangeSystem.UserRegister(in cAccount varchar(31), in cName varchar(31), in cPWD varchar(31), in cSex tinyint, in cIdent tinyint, in strIdent varchar(150), out UserId int)
+begin
+	set UserId = 0;
+	-- 不先做判断是否已经存在用户信息，等语句报错
+	insert into userInfo(account, name, password, sex, Ident) values(cAccount, cName, cPWD, cSex, cIdent);
+	
+	select s.userID into UserId from userInfo s where s.account=cAccount;
+	if UserId > 0 then
+		insert into userAuthority(userID, Authority) values(UserId, strIdent);
+	end if;
+end;
+//
+
+-- call UserRegister('dagou','大狗','123456',0,1,'1|2|13|14|23|24|26',@userid_by_scoket_118);
+-- select @userid_by_scoket_118;
+
+
+
 -- 单条增加成绩，userInfo表已有玩家信息情况下，要判断studScore表是否已有玩家记录，有则使用update，没有才是insert。如果一直insert，会出现多条相同userid记录
 drop procedure if exists StudMangeSystem.AddSingleScoreHaveRegister;
 //
@@ -59,6 +81,7 @@ end;
 -- call StudMangeSystem.AddSingleScoreHaveRegister('Chinese', 10004, '60', 'Chinese=60');
 -- call StudMangeSystem.AddSingleScoreHaveRegister('Chinese,Math', 10004, '60,100', 'Chinese=60,Math=100');
 -- call StudMangeSystem.AddSingleScoreHaveRegister('Chinese,Math', 10006, '60,100', 'Chinese=60,Math=100');
+
 
 -- 单条增加成绩，所增加成绩的对象还没注册，需要先注册，然后初始化权限表，然后再插入分数表
 drop procedure if exists StudMangeSystem.AddSingleScoreNotRegister;
@@ -91,9 +114,9 @@ begin
 	end if;
 end;
 //
-
 -- call StudMangeSystem.AddSingleScoreNotRegister('''dddd'',''dddd'',''123456'',''0'',''1''', 'dddd', '1|2|13|14|23|24|26', 'Chinese', '60');
 -- call StudMangeSystem.AddSingleScoreNotRegister('''xxxx'',''xxxx'',''123456'',''0'',''1''', 'xxxx', '1|2|13|14|23|24|26', 'Chinese', '60');
+
 
 
 -- 单条增加成绩

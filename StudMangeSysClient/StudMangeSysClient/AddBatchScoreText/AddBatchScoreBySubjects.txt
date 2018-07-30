@@ -1,5 +1,5 @@
-//批量全科（或者多科）添加成绩
+//批量全科（或者多科）添加成绩，使用tab符号分割
 Account	chinese	math	english
-xiaoxiao	56	65	74
-tiantian	54	45	87
-mingming	45	78	95
+xiangfang	56	65	74
+jiaojiao	87	98	52
+lisi	75	85	62

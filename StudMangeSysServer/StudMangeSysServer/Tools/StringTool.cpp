@@ -202,6 +202,29 @@ string StringTool::CombToSqlUpdateSetStr(string strField, string strValue, strin
 	return strRes;
 }
 
+string StringTool::CombToSqlUpdateSetStr(vector<string> vecStrField, vector<string> vecStrValue)
+{
+	string strRes = "";
+	if (vecStrField.size() == 0 || vecStrValue.size() == 0 || vecStrField.size() != vecStrValue.size())
+	{
+		return strRes;
+	}
+
+	char ch[30];
+	for (unsigned i=0; i<vecStrField.size(); i++)
+	{
+		memset(ch, 0, sizeof(ch));
+		sprintf_s(ch, sizeof(ch), "%s=%s", vecStrField.at(i).c_str(), vecStrValue.at(i).c_str());
+		if (!strRes.empty())
+		{
+			strRes += ",";
+		}
+		strRes += ch;
+	}
+
+	return strRes;
+}
+
 bool StringTool::StrSpliteToUcArray(unsigned char *arr, unsigned int iLen, string str, string strSpl)
 {
 	if (NULL == arr || 0 == iLen || str.empty())

@@ -28,7 +28,10 @@ public:
 
 	static string NumberToStr(int n);
 
+	//通过分隔符把这两个字符串分割后组合成mysql update 的set语句部分
 	static string CombToSqlUpdateSetStr(string strField, string strValue, string strSpl="|");
+	//把两个vector组合成mysql update 的set语句部分
+	static string CombToSqlUpdateSetStr(vector<string> vecStrField, vector<string> vecStrValue);
 
 	static bool StrSpliteToUcArray(unsigned char *arr, unsigned int iLen, string str, string strSpl="|");
 

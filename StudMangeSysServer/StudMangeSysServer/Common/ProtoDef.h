@@ -45,7 +45,7 @@ enum Assist_ID
 	ASSIST_ID_LOGIN_ACK								 =   10002, //登录回复
 	ASSIST_ID_REGISTER_REQ							 =   10003, //注册请求
 	ASSIST_ID_REGISTER_ACK							 =   10004, //注册回复
-	ASSIST_ID_EXIT_SYS_REQ							 =   10005, //退出系统
+	ASSIST_ID_EXIT_SYS_REQ							 =   10005, //退出系统  -- 用不上这个协议ID
 	ASSIST_ID_GET_SUBJECTS_REQ						 =   10006, //获取剩余和现有科目请求
 	ASSIST_ID_GET_SUBJECTS_ACK						 =   10007, //获取剩余和现有科目回复
 	ASSIST_ID_ALTER_SUBJECTS_REQ					 =   10008, //增减科目请求
@@ -145,7 +145,7 @@ struct CS_MSG_REGISTER_ACK
 	}
 };
 
-//退出系统   assist[10005]
+//退出系统   assist[10005]   -- 用不上这个协议
 struct CS_MSG_EXIT_SYS_REQ
 {
 	bool bExit;

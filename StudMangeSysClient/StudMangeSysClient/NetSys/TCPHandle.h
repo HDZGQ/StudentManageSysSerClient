@@ -17,6 +17,7 @@ public:
 	~TCPHandle();
 
 	bool TCPConn();
+	bool TCPDisConn();
 
 	SOCKET GetSocketID();
 

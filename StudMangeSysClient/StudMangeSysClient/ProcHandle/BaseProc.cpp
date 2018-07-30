@@ -269,10 +269,10 @@ void BaseProc::ExitSys()
 	cout<<"退出系统中..."<<endl;
 
 	//发送服务端
-	CS_MSG_EXIT_SYS_REQ SendReq;
-	SendReq.bExit = true;
-	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS_REQ);
-
+	//CS_MSG_EXIT_SYS_REQ SendReq;
+	//SendReq.bExit = true;
+	//TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS_REQ);
+	TCPHandle::GetInstance()->TCPDisConn();
 
 	system("pause");
 	exit(0);

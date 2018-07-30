@@ -41,7 +41,7 @@ public:
 	/*
 	* 参数描述：跳过含strFilter字符串的字符串处理
 	*/
-	static bool StrVecToStr2Vec(vector<vector<string>>& vvStrDes, vector<string> vecStrSrc, string strSpl="\t", string strFilter="\\\\");
+	static bool StrVecToStr2Vec(vector<vector<string>>& vvStrDes, vector<string> vecStrSrc, string strSpl="\t", string strFilter="//");
 };
 
 #endif

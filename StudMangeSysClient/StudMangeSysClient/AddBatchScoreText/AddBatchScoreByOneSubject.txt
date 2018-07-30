@@ -1,5 +1,5 @@
-//批量单科添加成绩
+//批量单科添加成绩，使用tab符号分割
 Account	math
-xiaofang	85
-tianjin	65
-fanfan	87
+xiaofang	10
+tianjin	10
+jiaojiao	10

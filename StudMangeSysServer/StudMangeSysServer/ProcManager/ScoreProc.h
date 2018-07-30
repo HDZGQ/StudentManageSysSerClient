@@ -21,6 +21,7 @@ public:
 	void CheckCanAlterSubjectRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //获取科目
 	void AlterSubjectRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //接收增减科目请求
 	void AddSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条增加成绩（包括单科和全科）请求
+	void AddBatchScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //批量增加成绩（包括单科和全科或者多科）请求
 	void SelectSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条查询成绩（包括单科和全科）请求
 	void SelectBatchScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //批量查询成绩（包括单科和全科）请求
 	void UpdateSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条更改成绩（包括单科和全科）请求
@@ -32,6 +33,7 @@ public:
 	*/
 	void AlterSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回增减科目结果
 	void AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回单条增加成绩（包括单科和全科）结果
+	void AddBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回批量增加成绩（包括单科和全科或者多科）结果
 	void SelectSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回单条查询成绩（包括单科和全科）结果
 	void SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回批量查询成绩（包括单科和全科）结果
 	void UpdateSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //数据库处理后，返回单条更改成绩（包括单科和全科）结果
