@@ -4,7 +4,6 @@
 #include "NetDef.h"
 #include "UserInfoMgr.h"
 #include "MsgPackageMgr.h"
-#include "AuthorityMgr.h"
 #include "StringTool.h"
 
 EnterSysProc::EnterSysProc()
@@ -55,7 +54,7 @@ void EnterSysProc::RegisterRecvHandle(SOCKET SocketId, void* vpData, unsigned in
 	SC_MSG_REGISTER_REQ* RecvMsg = (SC_MSG_REGISTER_REQ*)vpData;
 
 	vector<OperPermission> vecOper;
-	AuthorityMgr::GetDefaultAuthorityByIdent((IdentType)atoi(RecvMsg->cIdent), vecOper);
+	UserInfoMgr::GetInstance()->GetDefaultAuthorityByIdent((IdentType)atoi(RecvMsg->cIdent), vecOper);
 	string strAuthority = StringTool::CombVecToStr(vecOper);
 
 	char strOutUserid[61];

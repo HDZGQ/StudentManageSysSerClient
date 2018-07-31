@@ -3,8 +3,6 @@
 #include "MsgPackageMgr.h"
 #include "MysqlMgr.h"
 #include "UserInfoMgr.h"
-#include "SubjectsMgr.h"
-#include "AuthorityMgr.h"
 #include "StringTool.h"
 
 ScoreProc::ScoreProc()
@@ -153,7 +151,7 @@ void ScoreProc::AddSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned
 
 	//根据身份使用默认权限
 	vector<OperPermission> vecOper;
-	AuthorityMgr::GetDefaultAuthorityByIdent((IdentType)atoi(strIdent.c_str()), vecOper);
+	UserInfoMgr::GetInstance()->GetDefaultAuthorityByIdent((IdentType)atoi(strIdent.c_str()), vecOper);
 	string strAuthority = StringTool::CombVecToStr(vecOper);
 
 	char strMysql[512];
@@ -226,7 +224,7 @@ void ScoreProc::AddBatchScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned 
 
 		//根据身份使用默认权限
 		vector<OperPermission> vecOper;
-		AuthorityMgr::GetDefaultAuthorityByIdent((IdentType)atoi(strIdent.c_str()), vecOper);
+		UserInfoMgr::GetInstance()->GetDefaultAuthorityByIdent((IdentType)atoi(strIdent.c_str()), vecOper);
 		string strAuthority = StringTool::CombVecToStr(vecOper);
 
 		char strMysql[512];

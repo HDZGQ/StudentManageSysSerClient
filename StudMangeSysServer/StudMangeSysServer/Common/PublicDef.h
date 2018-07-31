@@ -42,8 +42,8 @@ enum OperPermission
 	OPER_PER_DELETEBATCHUSERINFO			  =    27,//批量删除用户信息 -- 班级性，可选哪个班级 （管理员和老师）
 	OPER_PER_DELETESINGLEUSERINFO		      =    28,//单条删除用户信息 （管理员和老师）
 
-	OPER_PER_ADDAUTHORITBYONE		          =    29,//增加某用户一种或者多种权限 （管理员）
-	OPER_PER_DELETEAUTHORITBYONE	          =    30,//删除某用户一种或者多种权限 （管理员）
+	OPER_PER_ADDAUTHORITY					  =    29,//增加某用户一种或者多种权限 （管理员）
+	OPER_PER_DELETEAUTHORITY			      =    30,//删除某用户一种或者多种权限 （管理员）
 
 	OPER_PER_END									  //有效值终止值
 };

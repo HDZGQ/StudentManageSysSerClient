@@ -17,6 +17,8 @@
 #define MAXSUBJECTSCOUNT 20
 //批量查询单次最大返回记录数
 #define MAXBATCHSELECTACKCOUNT 10
+//最大操作权限数目
+#define MAXAUTHORITBYCOUNT 30
 
 //操作权限宏 与服务端对应  登录和注册操作权限，每个玩家都拥有
 enum OperPermission
@@ -54,8 +56,8 @@ enum OperPermission
 	OPER_PER_DELETEBATCHUSERINFO			  =    27,//批量删除用户信息 -- 班级性，可选哪个班级 （管理员和老师）
 	OPER_PER_DELETESINGLEUSERINFO		      =    28,//单条删除用户信息 （管理员和老师）
 
-	OPER_PER_ADDAUTHORITBYONE		          =    29,//增加某用户一种或者多种权限 （管理员）
-	OPER_PER_DELETEAUTHORITBYONE	          =    30,//删除某用户一种或者多种权限 （管理员）
+	OPER_PER_ADDAUTHORITY					  =    29,//增加某用户一种或者多种权限 （管理员）
+	OPER_PER_DELETEAUTHORITY			      =    30,//删除某用户一种或者多种权限 （管理员）
 
 	OPER_PER_END									  //有效值终止值
 };
@@ -157,6 +159,10 @@ enum Assist_ID
 	ASSIST_ID_DELETE_SCORE_ACK					     =   10019, //删除成绩回复
 	ASSIST_ID_ADD_BATCH_SCORE_REQ					 =   10020, //批量添加成绩请求
 	ASSIST_ID_ADD_BATCH_SCORE_ACK					 =   10021, //批量添加成绩回复
+	ASSIST_ID_GET_AUTHORITY_REQ					 =   10022, //获取对象可删除或可增加的权限请求
+	ASSIST_ID_GET_AUTHORITY_ACK					 =   10023, //获取对象可删除或可增加的权限回复
+	ASSIST_ID_EDIT_AUTHORITY_REQ					 =   10024, //删除或增加对象权限请求
+	ASSIST_ID_EDIT_AUTHORITY_ACK					 =   10025, //删除或增加对象权限回复
 
 
 	ASSIST_ID_END												//有效值终止值
@@ -466,6 +472,56 @@ struct CS_MSG_ADD_BATCH_SCORE_ACK
 	CS_MSG_ADD_BATCH_SCORE_ACK()
 	{
 		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_SCORE_ACK));
+	}
+};
+
+//根据账号获取对象可删除或者可增加的权限请求 assist[10022]
+struct CS_MSG_GET_AUTHORITY_REQ
+{
+	unsigned char sType; //1可删除的 2可增加的
+	char cAccount[31]; //操作对象账号
+	CS_MSG_GET_AUTHORITY_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_GET_AUTHORITY_REQ));
+	}
+};
+
+//根据账号获取对象可删除或者可增加的权限回复 assist[10023]
+struct CS_MSG_GET_AUTHORITY_ACK
+{
+	bool bSucceed;
+	unsigned char sType; //1可删除的 2可增加的
+	char cAccount[31]; //操作对象账号
+	unsigned char cAuthority[MAXAUTHORITBYCOUNT]; //操作权限
+	unsigned char cAuthorityCount; //权限数量
+	CS_MSG_GET_AUTHORITY_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_GET_AUTHORITY_ACK));
+	}
+};
+
+//根据账号增或删对象权限请求 assist[10024]
+struct CS_MSG_EDIT_AUTHORITY_REQ
+{
+	unsigned char sType; //1删除权限 2增加权限
+	char cAccount[31]; //操作对象账号
+	unsigned char cAuthority[MAXAUTHORITBYCOUNT]; //增加或删除对象的操作权限
+	unsigned char cAuthorityCount; //权限数量
+	CS_MSG_EDIT_AUTHORITY_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_EDIT_AUTHORITY_REQ));
+	}
+};
+
+//根据账号增或删对象权限回复 assist[10025]
+struct CS_MSG_EDIT_AUTHORITY_ACK
+{
+	bool bSucceed;
+	unsigned char sType; //1删除权限 2增加权限
+	char cAccount[31]; //操作对象账号
+	CS_MSG_EDIT_AUTHORITY_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_EDIT_AUTHORITY_ACK));
 	}
 };
 

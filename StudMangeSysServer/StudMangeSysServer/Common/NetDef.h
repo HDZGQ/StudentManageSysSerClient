@@ -91,8 +91,9 @@ struct UserInfo
 	short sIdent;
 
 
-	//用户动态记录
-	short sRegNeedCount;  //注册需时候有4次数据库操作： 插入客户端传来的信息  查找userid和身份标识  根据身份生成权限再插入数据库 再找出客户端需要的基本信息
+	//用户动态数据记录
+	short sRegNeedCount;  //
+	string strTmpData; //临时数据
 
 	UserInfo()
 	{
@@ -108,6 +109,7 @@ struct UserInfo
 
 
 		sRegNeedCount = 0;
+		strTmpData = "";
 	}
 };
 

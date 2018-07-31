@@ -5,6 +5,7 @@
 UserInfoMgr::UserInfoMgr()
 {
 	initAllSubjects();
+	initAllOperPer();
 
 	InitVOperPer();
 
@@ -34,6 +35,44 @@ void UserInfoMgr::initAllSubjects()
 	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_POLITICS, SubjectsData("politics", "政治")));
 	m_mAllSubjects.insert(pair<SubjectsType, SubjectsData>(SUBJECTS_TYPE_GEOGRAPHY, SubjectsData("geography", "地理")));
 }
+
+void UserInfoMgr::initAllOperPer()
+{
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_LOGIN, "登录权限"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_REGISTER, "注册权限"));
+
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDBATCHSCOREBYONESUBJECT, "单科批量增加成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDBATCHSCOREBYSUBJECTS, "现有所有科目"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDSINGLESCOREBYONESUBJECT, "单科单条增加成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDSINGLESCOREBYSUBJECTS, "现有所有科目单条增加成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATEBATCHSCOREBYONESUBJECT, "单科批量更改成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATEBATCHSCOREBYSUBJECTS, "现有所有科目批量更改成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATESINGLESCOREBYONESUBJECT, "单科单条更改成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATESINGLESCOREBYSUBJECTS, "现有所有科目单条更改成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_SELECTBATCHSCOREBYONESUBJECT, "单科批量查询成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_SELECTBATCHSCOREBYSUBJECTS, "现有所有科目批量查询成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_SELECTSINGLESCOREBYONESUBJECT, "单科单条查询成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_SELECTSINGLESCOREBYSUBJECTS, "现有所有科目单条查询成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_DELETEBATCHSCORE, "批量删除成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_DELETESINGLESCORE, "单条删除成绩"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ALTERADDONESCORESUBJECT, "增加成绩科目"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ALTERDELETEONESCORESUBJECT, "删除成绩科目"));
+
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDBATCHUSERINFO, "批量增加用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDSINGLEUSERINFO, "单条增加用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATEBATCHUSERINFOBYONE, "单个字段批量更改用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATEBATCHUSERINFOBYMORE, "部分固定字段批量更改用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATESINGLEUSERINFOEBYONE, "单个字段单条更改用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_UPDATESINGLEUSERINFOBYMORE, "部分固定字段单条更改用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_SELECTBATCHUSERINFO, "批量查询用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_SELECTSINGLEUSERINFO, "单条查询用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_DELETEBATCHUSERINFO, "批量删除用户信息"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_DELETESINGLEUSERINFO, "单条删除用户信息"));
+
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDAUTHORITY, "增加某用户一种或者多种权限"));
+	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_DELETEAUTHORITY, "删除某用户一种或者多种权限"));
+}
+
 
 void UserInfoMgr::SetSomeInfo(string name, string sAccount, unsigned int userId, short sIdent, short sSex)
 {
@@ -162,6 +201,28 @@ bool UserInfoMgr::SetVOperPer(string str)
 	m_vOperPer.insert(m_vOperPer.end(), vOperPerTmp.begin(), vOperPerTmp.end());
 
 	return true;
+}
+
+bool UserInfoMgr::CanFindInAllOperPer(OperPermission OperPer)
+{
+	map<OperPermission, string>::iterator iter = m_mAllOperPer.begin();
+	for (; iter != m_mAllOperPer.end(); iter++)
+	{
+		if (OperPer == iter->first)
+			return true;
+	}
+
+	return false;
+}
+
+string UserInfoMgr::GetDescByOperPer(OperPermission OperPer)
+{
+	if (OperPer <= OPER_PER_START || OperPer >= OPER_PER_END)
+	{
+		return "";
+	}
+
+	return m_mAllOperPer[OperPer];
 }
 
 string UserInfoMgr::GetChineseNameByType(SubjectsType sType)

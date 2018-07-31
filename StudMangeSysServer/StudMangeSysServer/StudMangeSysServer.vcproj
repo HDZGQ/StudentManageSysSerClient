@@ -249,6 +249,14 @@
 			Name="ProcManager"
 			>
 			<File
+				RelativePath=".\ProcManager\AuthorityProc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcManager\AuthorityProc.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProcManager\EnterSysProc.cpp"
 				>
 			</File>
@@ -320,14 +328,6 @@
 		<Filter
 			Name="UserInfo"
 			>
-			<File
-				RelativePath=".\UserInfo\AuthorityMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\UserInfo\AuthorityMgr.h"
-				>
-			</File>
 			<File
 				RelativePath=".\UserInfo\SubjectsMgr.cpp"
 				>

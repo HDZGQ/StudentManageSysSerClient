@@ -112,7 +112,12 @@ void BaseProc::StartProc()
 void BaseProc::EndProc()
 {
 	//printf("%s\n", __FUNCTION__);
-	
+// 	if (-1 == m_iEndFlag)
+// 	{
+// 		printf("%s  进程标识[%d]意外结束，当前操作[%d]\n", __FUNCTION__, (int)GetMyProcDef(), (int)GetCurOper());
+// 		EndRecv();
+// 		ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);
+// 	}
 }
 
 void BaseProc::SetIEndFlag(int iEndFlag)
@@ -278,9 +283,9 @@ void BaseProc::ExitSys()
 	exit(0);
 }
 
-void BaseProc::OperInputErrorHandle(bool bFlag)
+void BaseProc::OperInputErrorHandle(bool bFlag, int uMaxInputErrorCount)
 {
-	if (++m_iOperInputErrorLimit >= OPERINPUTERRORMAXLIMIT)
+	if (++m_iOperInputErrorLimit >= uMaxInputErrorCount)
 	{
 		SetIEndFlag(-1);
 

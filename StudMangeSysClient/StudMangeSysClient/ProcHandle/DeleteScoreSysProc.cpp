@@ -83,7 +83,7 @@ void DeleteScoreSysProc::DeleteScoreChooseHandle()
 	if (OPER_PER_DELETEBATCHSCORE != GetCurOper() && OPER_PER_DELETESINGLESCORE != GetCurOper())
 	{
 		printf("%s 不是进行该操作[%d | %d]，当前进行的操作是[%d] error\n", __FUNCTION__, OPER_PER_DELETEBATCHSCORE, OPER_PER_DELETESINGLESCORE, GetCurOper());
-		SetIEndFlag(-1);
+		OperInputErrorHandle(true, 1);
 		return;
 	}
 

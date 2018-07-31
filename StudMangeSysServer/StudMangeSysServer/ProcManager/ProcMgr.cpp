@@ -25,6 +25,8 @@ bool ProcMgr::InitMoniter()
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_BATCH_SCORE_REQ, &m_ScoreProc, &ScoreProc::SelectBatchScoreRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_UPDATE_SINGLE_SCORE_REQ, &m_ScoreProc, &ScoreProc::UpdateSingleScoreRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_DELETE_SCORE_REQ, &m_ScoreProc, &ScoreProc::DeleteScoreRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_GET_AUTHORITY_REQ, &m_AuthorityProc, &AuthorityProc::GetAuthoritRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_EDIT_AUTHORITY_REQ, &m_AuthorityProc, &AuthorityProc::EditAuthoritRecvHandle);
 
 
 	/*
@@ -40,6 +42,8 @@ bool ProcMgr::InitMoniter()
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_BATCH_SCORE_ACK, &m_ScoreProc, &ScoreProc::SelectBatchScoreReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_UPDATE_SINGLE_SCORE_ACK, &m_ScoreProc, &ScoreProc::UpdateSingleScoreReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_DELETE_SCORE_ACK, &m_ScoreProc, &ScoreProc::DeleteScoreReplyHandle);
+	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_GET_AUTHORITY_ACK, &m_AuthorityProc, &AuthorityProc::GetAuthoritReplyHandle);
+	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_EDIT_AUTHORITY_ACK, &m_AuthorityProc, &AuthorityProc::EditAuthoritReplyHandle);
 
 	return true;
 }

@@ -51,7 +51,7 @@ public:
 
 	void ExitSys();
 
-	void OperInputErrorHandle(bool bFlag=true); //多次输入操作错误处理 要考虑只在请求处选择错误和到了返回结果处选择错误，bFlag标记用于控制是否需要使用该函数的切换进程
+	void OperInputErrorHandle(bool bFlag=true, int uMaxInputErrorCount=OPERINPUTERRORMAXLIMIT); //多次输入操作错误处理 要考虑只在请求处选择错误和到了返回结果处选择错误，bFlag标记用于控制是否需要使用该函数的切换进程
 protected:
 	//key就是realChoose
 	map<int, ChooseData> m_mChoose;

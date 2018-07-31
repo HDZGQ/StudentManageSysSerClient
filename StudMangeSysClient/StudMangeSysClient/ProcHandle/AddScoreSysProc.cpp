@@ -246,7 +246,7 @@ void AddScoreSysProc::AddBatchScoreChooseHandle()
 	if (OPER_PER_ADDBATCHSCOREBYONESUBJECT != GetCurOper() && OPER_PER_ADDBATCHSCOREBYSUBJECTS != GetCurOper())
 	{
 		printf("不是进行该操作[%d | %d]，当前进行的操作是[%d] error\n", OPER_PER_ADDBATCHSCOREBYONESUBJECT, OPER_PER_ADDBATCHSCOREBYSUBJECTS, GetCurOper());
-		SetIEndFlag(-1);
+		OperInputErrorHandle(true, 1);
 		return;
 	}
 
