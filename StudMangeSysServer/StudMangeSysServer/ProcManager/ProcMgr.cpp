@@ -28,6 +28,7 @@ bool ProcMgr::InitMoniter()
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_GET_AUTHORITY_REQ, &m_AuthorityProc, &AuthorityProc::GetAuthoritRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_EDIT_AUTHORITY_REQ, &m_AuthorityProc, &AuthorityProc::EditAuthoritRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_ADD_SINGLE_USERINFO_REQ, &m_UserInfoProc, &UserInfoProc::AddSingleUserInfoRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_ADD_BATCH_USERINFO_REQ, &m_UserInfoProc, &UserInfoProc::AddBatchUserInfoRecvHandle);
 
 
 	/*
@@ -46,6 +47,7 @@ bool ProcMgr::InitMoniter()
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_GET_AUTHORITY_ACK, &m_AuthorityProc, &AuthorityProc::GetAuthoritReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_EDIT_AUTHORITY_ACK, &m_AuthorityProc, &AuthorityProc::EditAuthoritReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_ADD_SINGLE_USERINFO_ACK, &m_UserInfoProc, &UserInfoProc::AddSingleUserInfoReplyHandle);
+	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_ADD_BATCH_USERINFO_ACK, &m_UserInfoProc, &UserInfoProc::AddBatchUserInfoReplyHandle);
 
 	return true;
 }

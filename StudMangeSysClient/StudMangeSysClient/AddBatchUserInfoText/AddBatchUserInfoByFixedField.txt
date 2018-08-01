@@ -1,0 +1,14 @@
+//批量固定字段添加用户信息，使用tab符号分割
+Account	password	name	sex	Ident	major	grade
+xiaotian	123456	小天	1	1	英语	英语18-1
+xiaomage	123456	小马哥	0	1	数学	数学18-1
+zhanglaoshi	123456	张老师	0	2	自动化	自动化18-1
+xiaoqiao	123456	小桥	1	1	美术	美术18-1
+qiaoqiao	123456	桥桥	1	1	美术	美术18-2
+tianjin	123456	天津	1	1	美术	美术18-1
+tiantian	123456	天天	1	1	音乐	音乐18-1
+lisi	123456	李四	0	1	物理	物理17-1
+zhangsan	123456	张三	0	1	化学	化学16-1
+sansan	123456	三三	0	1	化学	化学16-2
+dasan	123456	大三	0	1	化学	化学16-2
+dada	123456	大大	0	1	化学	化学16-3

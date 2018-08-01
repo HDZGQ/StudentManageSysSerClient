@@ -578,7 +578,8 @@ struct CS_MSG_ADD_BATCH_USERINFO_REQ
 //批量增加用户信息回复 -- 每次10组数据   assist[10029]
 struct CS_MSG_ADD_BATCH_USERINFO_ACK
 {
-	bool bSucceed; //客户端接收到返回成功，才继续发剩下的数据给服务端
+	bool bSucceed; //客户端接收到返回成功，才继续发剩下的数据给服务端 --如果当次全部添加失败，就返回失败，否则还是成功
+	unsigned char bSucceedRecordCount; //本次成功增加到数据库的数量，要小于等于MAXBATCHREQACKCOUNT
 	CS_MSG_ADD_BATCH_USERINFO_ACK()
 	{
 		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_USERINFO_ACK));

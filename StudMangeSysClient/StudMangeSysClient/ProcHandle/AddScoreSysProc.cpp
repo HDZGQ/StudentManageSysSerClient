@@ -69,6 +69,9 @@ void AddScoreSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianI
 
 void AddScoreSysProc::EndRecv()
 {
+	if (0 == GetIEndFlag())
+		return;
+	
 	m_vvAddBatchScoreFileData.clear();
 	m_vecAddBatchScoreFeildData.clear();
 	m_uAddBatchScoreSumCount = 0;
@@ -425,7 +428,15 @@ bool AddScoreSysProc::SendAddBatchScoreData(short sType)
 		vector<string> vecStrAddOneScoreData = *vvIter;
 		if (vecStrAddOneScoreData.size() != m_vecAddBatchScoreFeildData.size())
 		{
-			SetIEndFlag(-1);
+			if (m_uAddBatchScoreSumCount>=MAXBATCHREQACKCOUNT)
+			{
+				SetIEndFlag(-1);
+			}
+			else
+			{
+				OperInputErrorHandle(true, 1);
+			}
+			
 			printf("单组数据信息数量与字段数不一样\n");
 			return false;
 		}
@@ -445,7 +456,14 @@ bool AddScoreSysProc::SendAddBatchScoreData(short sType)
 			}
 			else
 			{
-				SetIEndFlag(-1);
+				if (m_uAddBatchScoreSumCount>=MAXBATCHREQACKCOUNT)
+				{
+					SetIEndFlag(-1);
+				}
+				else
+				{
+					OperInputErrorHandle(true, 1);
+				}
 				printf("文件中出现不能识别的字段名\n");
 				return false;
 			}
