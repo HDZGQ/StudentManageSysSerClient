@@ -178,7 +178,7 @@ void ScoreProc::AddBatchScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned 
 	}
 
 	CS_MSG_ADD_BATCH_SCORE_REQ* RecvMsg = (CS_MSG_ADD_BATCH_SCORE_REQ*)vpData;
-	if (RecvMsg->bRecordCount < 1 || RecvMsg->bRecordCount > MAXBATCHSELECTACKCOUNT)
+	if (RecvMsg->bRecordCount < 1 || RecvMsg->bRecordCount > MAXBATCHREQACKCOUNT)
 	{
 		printf("%s  客户端传过来的成绩记录数不正确RecvMsg->bRecordCount[%u]\n", __FUNCTION__, (unsigned)RecvMsg->bRecordCount);
 		return;
@@ -557,7 +557,7 @@ void ScoreProc::AddBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, s
 
 		if (bSendFlag==0 && vStrRecord.at(4) == "1") //批量增添分数完毕
 		{
-			printf("%s  用户[%s]批量增加了%d条分数记录\n", __FUNCTION__, UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId).c_str(), (int)(atoi(vStrRecord.at(3).c_str())-1)*MAXBATCHSELECTACKCOUNT+atoi(vStrRecord.at(2).c_str()));
+			printf("%s  用户[%s]批量增加了%d条分数记录\n", __FUNCTION__, UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId).c_str(), (int)(atoi(vStrRecord.at(3).c_str())-1)*MAXBATCHREQACKCOUNT+atoi(vStrRecord.at(2).c_str()));
 			break;
 		}
 	} while(false);
@@ -773,76 +773,76 @@ void ScoreProc::SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes
 				{
 					if (sql_row[i])
 					{
-						SendMsg.sRank[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+						SendMsg.sRank[iRecordCount%MAXBATCHREQACKCOUNT] = (unsigned)atoi(sql_row[i]);
 					}
 				}
 				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("userID")))
 				{
 					if (sql_row[i])
 					{
-						SendMsg.uUserid[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+						SendMsg.uUserid[iRecordCount%MAXBATCHREQACKCOUNT] = (unsigned)atoi(sql_row[i]);
 					}
 				}
 				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("account")))
 				{
 					if (sql_row[i])
 					{
-						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT]), sql_row[i]);
+						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
 					}
 					else
 					{
-						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHSELECTACKCOUNT]), "NULL");
+						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
 					}
 				}
 				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("name")))
 				{
 					if (sql_row[i])
 					{
-						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT]), sql_row[i]);
+						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
 					}
 					else
 					{
-						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHSELECTACKCOUNT]), "NULL");
+						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
 					}
 				}
 				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("grade")))
 				{
 					if (sql_row[i])
 					{
-						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT]), sql_row[i]);
+						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
 					}
 					else
 					{
-						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHSELECTACKCOUNT]), "NULL");
+						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
 					}
 				}
 				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("SSum")))
 				{
 					if (sql_row[i])
 					{
-						SendMsg.bSum[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+						SendMsg.bSum[iRecordCount%MAXBATCHREQACKCOUNT] = (unsigned)atoi(sql_row[i]);
 					}
 				}
 				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("average")))
 				{
 					if (sql_row[i])
 					{
-						SendMsg.bAverage[iRecordCount%MAXBATCHSELECTACKCOUNT] = (unsigned)atoi(sql_row[i]);
+						SendMsg.bAverage[iRecordCount%MAXBATCHREQACKCOUNT] = (unsigned)atoi(sql_row[i]);
 					}
 				}
 				else if (SUBJECTS_TYPE_INVALID != SubjectsMgr::GetInstance()->GetTypeByEnglishName(StringTool::ToLowercase(vecStrField.at(i))))
 				{
 					if (sql_row[i])
 					{
-						SendMsg.bScore[iRecordCount%MAXBATCHSELECTACKCOUNT][SendMsg.bSubjectCount] = (unsigned char)atoi(sql_row[i]);
+						SendMsg.bScore[iRecordCount%MAXBATCHREQACKCOUNT][SendMsg.bSubjectCount] = (unsigned char)atoi(sql_row[i]);
 					}
 					else
 					{
-						SendMsg.bScore[iRecordCount%MAXBATCHSELECTACKCOUNT][SendMsg.bSubjectCount] = 0;
+						SendMsg.bScore[iRecordCount%MAXBATCHREQACKCOUNT][SendMsg.bSubjectCount] = 0;
 						bNullSubjectCount++;
 					}
 
-					SendMsg.bSubjectId[iRecordCount%MAXBATCHSELECTACKCOUNT][SendMsg.bSubjectCount] = (unsigned char)SubjectsMgr::GetInstance()->GetTypeByEnglishName(StringTool::ToLowercase(vecStrField.at(i)));
+					SendMsg.bSubjectId[iRecordCount%MAXBATCHREQACKCOUNT][SendMsg.bSubjectCount] = (unsigned char)SubjectsMgr::GetInstance()->GetTypeByEnglishName(StringTool::ToLowercase(vecStrField.at(i)));
 					SendMsg.bSubjectCount++;
 				}
 				else
@@ -866,10 +866,10 @@ void ScoreProc::SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes
 // 			}
 
 			iRecordCount++;
-			if (iRecordCount % MAXBATCHSELECTACKCOUNT == 0) //每到达一定数量发送一次记录
+			if (iRecordCount % MAXBATCHREQACKCOUNT == 0) //每到达一定数量发送一次记录
 			{
-				SendMsg.bDataRecord[0] = MAXBATCHSELECTACKCOUNT;
-				SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHSELECTACKCOUNT + 1;
+				SendMsg.bDataRecord[0] = MAXBATCHREQACKCOUNT;
+				SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHREQACKCOUNT + 1;
 				SendMsg.bDataRecord[2] = 0;
 
 				PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_SCORE_ACK);
@@ -879,7 +879,7 @@ void ScoreProc::SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes
 				memset(&SendMsg, 0, sizeof(SendMsg));
 				SendMsg.bResCode = 0;
 			}
-			if (iRecordCount == 1 || iRecordCount % MAXBATCHSELECTACKCOUNT == 0)
+			if (iRecordCount == 1 || iRecordCount % MAXBATCHREQACKCOUNT == 0)
 			{
 				SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
 				SendMsg.bRankFlag = (unsigned char)atoi(vStrRecord.at(3).c_str());
@@ -890,8 +890,8 @@ void ScoreProc::SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes
 
 	if (SendMsg.bResCode == 0)
 	{
-		SendMsg.bDataRecord[0] = iRecordCount%MAXBATCHSELECTACKCOUNT;
-		SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHSELECTACKCOUNT + 1;
+		SendMsg.bDataRecord[0] = iRecordCount%MAXBATCHREQACKCOUNT;
+		SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHREQACKCOUNT + 1;
 	}
 	SendMsg.bDataRecord[2] = 1;
 

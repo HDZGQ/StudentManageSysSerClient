@@ -27,6 +27,7 @@ bool ProcMgr::InitMoniter()
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_DELETE_SCORE_REQ, &m_ScoreProc, &ScoreProc::DeleteScoreRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_GET_AUTHORITY_REQ, &m_AuthorityProc, &AuthorityProc::GetAuthoritRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_EDIT_AUTHORITY_REQ, &m_AuthorityProc, &AuthorityProc::EditAuthoritRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_ADD_SINGLE_USERINFO_REQ, &m_UserInfoProc, &UserInfoProc::AddSingleUserInfoRecvHandle);
 
 
 	/*
@@ -44,6 +45,7 @@ bool ProcMgr::InitMoniter()
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_DELETE_SCORE_ACK, &m_ScoreProc, &ScoreProc::DeleteScoreReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_GET_AUTHORITY_ACK, &m_AuthorityProc, &AuthorityProc::GetAuthoritReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_EDIT_AUTHORITY_ACK, &m_AuthorityProc, &AuthorityProc::EditAuthoritReplyHandle);
+	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_ADD_SINGLE_USERINFO_ACK, &m_UserInfoProc, &UserInfoProc::AddSingleUserInfoReplyHandle);
 
 	return true;
 }

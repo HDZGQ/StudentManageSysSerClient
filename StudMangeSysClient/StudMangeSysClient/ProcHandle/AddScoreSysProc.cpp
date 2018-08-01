@@ -420,7 +420,7 @@ bool AddScoreSysProc::SendAddBatchScoreData(short sType)
 	SendReq.sType = sType;
 	SendReq.bRecordCount = 0;
 
-	for (vector<vector<string>>::iterator vvIter=m_vvAddBatchScoreFileData.begin() ; vvIter!=m_vvAddBatchScoreFileData.end() && SendReq.bRecordCount<MAXBATCHSELECTACKCOUNT; SendReq.bRecordCount++)
+	for (vector<vector<string>>::iterator vvIter=m_vvAddBatchScoreFileData.begin() ; vvIter!=m_vvAddBatchScoreFileData.end() && SendReq.bRecordCount<MAXBATCHREQACKCOUNT; SendReq.bRecordCount++)
 	{
 		vector<string> vecStrAddOneScoreData = *vvIter;
 		if (vecStrAddOneScoreData.size() != m_vecAddBatchScoreFeildData.size())
@@ -454,7 +454,7 @@ bool AddScoreSysProc::SendAddBatchScoreData(short sType)
 		vvIter = m_vvAddBatchScoreFileData.erase(vvIter);
 		m_uAddBatchScoreSumCount++;
 	}
-	SendReq.bRecordNO = (m_uAddBatchScoreSumCount>0 ? m_uAddBatchScoreSumCount-1 : 0) / MAXBATCHSELECTACKCOUNT + 1;
+	SendReq.bRecordNO = (m_uAddBatchScoreSumCount>0 ? m_uAddBatchScoreSumCount-1 : 0) / MAXBATCHREQACKCOUNT + 1;
 
 	if (m_vvAddBatchScoreFileData.empty())
 	{

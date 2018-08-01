@@ -7,6 +7,7 @@
 #include "EnterSysProc.h"
 #include "ScoreProc.h"
 #include "AuthorityProc.h"
+#include "UserInfoProc.h"
 #include "PublicDef.h"
 //#include "NetDef.h"
 
@@ -28,6 +29,7 @@ private:
 	EnterSysProc m_EnterSysProc;
 	ScoreProc m_ScoreProc;
 	AuthorityProc m_AuthorityProc;
+	UserInfoProc m_UserInfoProc;
 };
 
 

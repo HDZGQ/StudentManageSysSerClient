@@ -18,7 +18,11 @@ public:
 
 	virtual void SwitchToOper(OperPermission CurOper);
 
+	//具体功能选择操作处理
+	void AddSingleUserInfoChooseHandle(); //单条增加用户信息请求
 
+	//返回结果处理
+	bool AddSingleUserInfoRecvHandle(void* vpData, unsigned int DataLen);//单条增加用户信息回复
 };
 
 #endif

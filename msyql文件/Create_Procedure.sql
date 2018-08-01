@@ -135,4 +135,31 @@ end;
 //
 
 
+-- 单条增加用户信息
+drop procedure if exists StudMangeSystem.AddSingleUserInfo;
+//
+create procedure StudMangeSystem.AddSingleUserInfo(in strInsertInfo varchar(200), in strAccount varchar(31), in strIdent varchar(150))
+begin
+	declare v_sql varchar(300);
+	declare userid int default 0;
+	
+	-- 组织insert userInfo的语句
+	set v_sql = concat('insert into userInfo(account, name, password, sex, Ident, major, grade) values(', strInsertInfo, ')');
+	set @v_sql = v_sql;
+	prepare cmd from @v_sql;
+	execute cmd;
+	
+	select s.userID into userid from userInfo s where s.account=strAccount;
+	if userid > 0 then
+		-- 组织insert userAuthority的语句
+		set v_sql = concat('insert into userAuthority(userID, Authority) values(', userid, ',''' ,strIdent, ''')');
+		set @v_sql = v_sql;
+		prepare cmd from @v_sql;
+		execute cmd;
+	end if;
+end;
+//
+
+
+
 delimiter ;

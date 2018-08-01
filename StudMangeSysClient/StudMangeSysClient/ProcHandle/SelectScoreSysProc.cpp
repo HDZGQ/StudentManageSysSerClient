@@ -694,13 +694,13 @@ bool SelectScoreSysProc::SelectBatchScoreRecvHandle(void* vpData, unsigned int D
 		return false;
 	}
 	unsigned char iDataRecordCount = RecvMSG->bDataRecord[0];
-	if (iDataRecordCount > MAXBATCHSELECTACKCOUNT)
+	if (iDataRecordCount > MAXBATCHREQACKCOUNT)
 	{
 		printf("%s 单次数据记录过多\n", __FUNCTION__);
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (RecvMSG->bResCode == 0 && iDataRecordCount == 0 && RecvMSG->bDataRecord[2] == 1) //出现这种情况，一般是刚好达到MAXBATCHSELECTACKCOUNT的倍率条记录，这个是为了补发结束标志
+	if (RecvMSG->bResCode == 0 && iDataRecordCount == 0 && RecvMSG->bDataRecord[2] == 1) //出现这种情况，一般是刚好达到MAXBATCHREQACKCOUNT的倍率条记录，这个是为了补发结束标志
 	{
 		SetIEndFlag(1);
 		return true;
@@ -780,7 +780,7 @@ bool SelectScoreSysProc::SelectBatchScoreRecvHandle(void* vpData, unsigned int D
 	//结束
 	if (RecvMSG->bDataRecord[2] == 1)
 	{
-		printf(">>总查询到%u条数据\n", (RecvMSG->bDataRecord[1]-1)*MAXBATCHSELECTACKCOUNT + RecvMSG->bDataRecord[0]);
+		printf(">>总查询到%u条数据\n", (RecvMSG->bDataRecord[1]-1)*MAXBATCHREQACKCOUNT + RecvMSG->bDataRecord[0]);
 		SetIEndFlag(1);
 	}
 

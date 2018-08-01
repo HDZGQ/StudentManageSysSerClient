@@ -4,8 +4,8 @@
 
 //最大科目数
 #define MAXSUBJECTSCOUNT 20
-//批量查询单次最大返回记录数
-#define MAXBATCHSELECTACKCOUNT 10
+//批量最大接收或者发送记录数
+#define MAXBATCHREQACKCOUNT 10
 //最大操作权限数目
 #define MAXAUTHORITBYCOUNT 30
 
@@ -68,6 +68,10 @@ enum Assist_ID
 	ASSIST_ID_GET_AUTHORITY_ACK						 =   10023, //获取对象可删除或可增加的权限回复
 	ASSIST_ID_EDIT_AUTHORITY_REQ					 =   10024, //删除或增加对象权限请求
 	ASSIST_ID_EDIT_AUTHORITY_ACK					 =   10025, //删除或增加对象权限回复
+	ASSIST_ID_ADD_SINGLE_USERINFO_REQ				 =   10026, //单条增加用户信息请求
+	ASSIST_ID_ADD_SINGLE_USERINFO_ACK				 =   10027, //单条增加用户信息回复
+	ASSIST_ID_ADD_BATCH_USERINFO_REQ				 =   10028, //批量增加用户信息请求
+	ASSIST_ID_ADD_BATCH_USERINFO_ACK				 =   10029, //批量增加用户信息回复
 
 
 	ASSIST_ID_END												//有效值终止值
@@ -284,17 +288,17 @@ struct CS_MSG_SELECT_BATCH_SCORE_ACK
 	short sType; //1单科批量查询成绩 2现有所有科目批量查询成绩
 	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件  -- 单科批量只有排序和分数范围查询这两种条件
 	unsigned char bRankFlag; //0没有排序 1升序 2降序 全科根据总分（没选总分这条件也是这样）排序，单科根据这科目排序
-	unsigned int uUserid[MAXBATCHSELECTACKCOUNT]; //用户id
-	char cName[MAXBATCHSELECTACKCOUNT][31]; //姓名
-	char cAccount[MAXBATCHSELECTACKCOUNT][31]; //账号 
-	char cGrade[MAXBATCHSELECTACKCOUNT][31]; //班级 
-	short sRank[MAXBATCHSELECTACKCOUNT]; //排名
-	unsigned short bSum[MAXBATCHSELECTACKCOUNT]; //总分
-	unsigned char bAverage[MAXBATCHSELECTACKCOUNT]; //平均分
-	unsigned char bSubjectId[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //每个科目ID
-	unsigned char bScore[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //每科分数
+	unsigned int uUserid[MAXBATCHREQACKCOUNT]; //用户id
+	char cName[MAXBATCHREQACKCOUNT][31]; //姓名
+	char cAccount[MAXBATCHREQACKCOUNT][31]; //账号 
+	char cGrade[MAXBATCHREQACKCOUNT][31]; //班级 
+	short sRank[MAXBATCHREQACKCOUNT]; //排名
+	unsigned short bSum[MAXBATCHREQACKCOUNT]; //总分
+	unsigned char bAverage[MAXBATCHREQACKCOUNT]; //平均分
+	unsigned char bSubjectId[MAXBATCHREQACKCOUNT][MAXSUBJECTSCOUNT]; //每个科目ID
+	unsigned char bScore[MAXBATCHREQACKCOUNT][MAXSUBJECTSCOUNT]; //每科分数
 	unsigned char bSubjectCount; //科目数
-	unsigned char bDataRecord[3]; //[0]查询结果记录数量<= MAXBATCHSELECTACKCOUNT； [1]发送序号，从1开始； [2]发送完毕标志 0没有完毕 1完毕
+	unsigned char bDataRecord[3]; //[0]查询结果记录数量<= MAXBATCHREQACKCOUNT； [1]发送序号，从1开始； [2]发送完毕标志 0没有完毕 1完毕
 	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息或者没有成绩信息 3其他异常
 	CS_MSG_SELECT_BATCH_SCORE_ACK()
 	{
@@ -355,11 +359,11 @@ struct CS_MSG_DELETE_SCORE_ACK
 struct CS_MSG_ADD_BATCH_SCORE_REQ
 {
 	short sType; //1批量单科增加成绩 2现有所有（或者多科）科目批量增加成绩
-	char cAccount[MAXBATCHSELECTACKCOUNT][31]; //通过账号添加成绩  如果数据库没有这个账号，就得创建新的账号。所以不能通过userid，userid是自动增加的
-	unsigned char bSubjectId[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //科目id
-	unsigned char bScore[MAXBATCHSELECTACKCOUNT][MAXSUBJECTSCOUNT]; //科目分数
+	char cAccount[MAXBATCHREQACKCOUNT][31]; //通过账号添加成绩  如果数据库没有这个账号，就得创建新的账号。所以不能通过userid，userid是自动增加的
+	unsigned char bSubjectId[MAXBATCHREQACKCOUNT][MAXSUBJECTSCOUNT]; //科目id
+	unsigned char bScore[MAXBATCHREQACKCOUNT][MAXSUBJECTSCOUNT]; //科目分数
 	unsigned char bSubjectCount; //科目数
-	unsigned char bRecordCount; //成绩数据记录数量，要小于等于MAXBATCHSELECTACKCOUNT
+	unsigned char bRecordCount; //成绩数据记录数量，要小于等于MAXBATCHREQACKCOUNT
 	unsigned char bRecordNO; //发送批次，从1开始
 	unsigned char bEnd; //0没有发送完毕 1完毕
 	CS_MSG_ADD_BATCH_SCORE_REQ()
@@ -426,6 +430,62 @@ struct CS_MSG_EDIT_AUTHORITY_ACK
 	CS_MSG_EDIT_AUTHORITY_ACK()
 	{
 		memset(this, 0, sizeof(CS_MSG_EDIT_AUTHORITY_ACK));
+	}
+};
+
+//单条增加用户信息请求   assist[10026]
+struct CS_MSG_ADD_SINGLE_USERINFO_REQ
+{
+	char cAccount[31];
+	char cPWD[31];
+	char cName[31];
+	unsigned char sSex;
+	unsigned char sIdent;
+	char cMajor[41];
+	char cGrade[31];
+	CS_MSG_ADD_SINGLE_USERINFO_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_SINGLE_USERINFO_REQ));
+	}
+};
+
+//单条增加用户信息回复   assist[10027]
+struct CS_MSG_ADD_SINGLE_USERINFO_ACK
+{
+	bool bSucceed;
+	char cAccount[31];
+	CS_MSG_ADD_SINGLE_USERINFO_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_SINGLE_USERINFO_ACK));
+	}
+};
+
+//批量增加用户信息请求 -- 每次10组数据   assist[10028]
+struct CS_MSG_ADD_BATCH_USERINFO_REQ
+{
+	char cAccount[MAXBATCHREQACKCOUNT][31];
+	char cPWD[MAXBATCHREQACKCOUNT][31];
+	char cName[MAXBATCHREQACKCOUNT][31];
+	unsigned char sSex[MAXBATCHREQACKCOUNT];
+	unsigned char sIdent[MAXBATCHREQACKCOUNT];
+	char cMajor[MAXBATCHREQACKCOUNT][41];
+	char cGrade[MAXBATCHREQACKCOUNT][31];
+	unsigned char bRecordCount; //当次数据记录数量，要小于等于MAXBATCHREQACKCOUNT
+	unsigned char bRecordNO; //发送批次，从1开始
+	unsigned char bEnd; //0没有发送完毕 1完毕
+	CS_MSG_ADD_BATCH_USERINFO_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_USERINFO_REQ));
+	}
+};
+
+//批量增加用户信息回复 -- 每次10组数据   assist[10029]
+struct CS_MSG_ADD_BATCH_USERINFO_ACK
+{
+	bool bSucceed; //客户端接收到返回成功，才继续发剩下的数据给服务端
+	CS_MSG_ADD_BATCH_USERINFO_ACK()
+	{
+		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_USERINFO_ACK));
 	}
 };
 

@@ -216,7 +216,7 @@ void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, str
 		}
 		else
 		{
-			printf("%s  数据库执行有误，错误原因：%s\n", __FUNCTION__, (vStrRecord.at(6)=="1"?"执行注册存储过程有误":(vStrRecord.at(6)=="2"?"取userid语句有误":"未知错误")));
+			printf("%s  数据库执行异常（比如存储过程进行不正确，第二个取字段的肯定就错误了）\n", __FUNCTION__);
 			bSendFlag = 2;
 			break;
 		}
