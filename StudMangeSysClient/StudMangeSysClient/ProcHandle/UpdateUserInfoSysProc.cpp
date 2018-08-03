@@ -109,6 +109,12 @@ void UpdateUserInfoSysProc::GetUserInfoAfterUpdateSingleUserInfoChooseHandle()
 	CS_MSG_SELECT_SINGLE_USERINFO_REQ SendReq;
 	SendReq.uRecordDataTmp = 1;
 	short sIdent = UserInfoMgr::GetInstance()->GetUserIdent();
+
+	/* 身份标识和权限问题：
+	* 1.哪些对象有这些权限；
+	* 2.根据身份标识确定可更改的对象类型（即根据身份表示区分类型），一般是可更改自己和比自己身份标识低的用户；
+	* 3.可更改的那些字段，那些字段不可更改；
+	*/
 	//根据用户当前身份标识得到可获取的不同身份标识的用户信息，教师和学生不能看到自己的密码；管理员可以看到教师和学生的密码，但是不能看到自己的；教师也不能看到学生的密码；密码只能在单子段里面更改，因为需要确认一遍，不适合固定字段情况更改。密码可不可看，由服务端做屏蔽处理
 	if (sIdent== 1)//单条的，只能查询自己，也只能更改自己的
 	{

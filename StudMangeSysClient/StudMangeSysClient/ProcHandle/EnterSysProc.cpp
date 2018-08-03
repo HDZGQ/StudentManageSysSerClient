@@ -213,7 +213,7 @@ bool EnterSysProc::LoginRecvHandle(void* vpData, unsigned int DataLen)
 
 		UserInfoMgr::GetInstance()->SetSomeInfo(RecvMSG->cName, RecvMSG->cAccount, RecvMSG->iUserId, RecvMSG->sIdent, RecvMSG->sSex);
 
-		printf(">>>登录系统成功，欢迎您<<<！\n");
+		printf(">>>账号[%s]登录系统成功，欢迎您<<<！\n", RecvMSG->cAccount);
 		SetIEndFlag(1);
 	}
 	else
@@ -254,7 +254,7 @@ bool EnterSysProc::RegisterRecvHandle(void* vpData, unsigned int DataLen)
 
 		UserInfoMgr::GetInstance()->SetSomeInfo(RecvMSG->cName, RecvMSG->cAccount, RecvMSG->iUserId, RecvMSG->sIdent, RecvMSG->sSex);
 
-		printf(">>>注册成功，欢迎您进入系统！<<<\n");
+		printf(">>>账号[%s]注册成功，欢迎您进入系统！<<<\n", RecvMSG->cAccount);
 		SetIEndFlag(1);
 	}
 	else

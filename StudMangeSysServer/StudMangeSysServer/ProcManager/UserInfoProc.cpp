@@ -519,6 +519,12 @@ void UserInfoProc::SelectSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *M
 					}
 				}
 				
+				/*
+				* 身份标识和权限问题：
+				* 1.哪些对象有这些权限；
+				* 2.根据身份标识确定可查看的对象类型（即根据身份表示区分类型），一般是可查看自己和比自己身份标识低的用户；
+				* 3.可查看的那些字段，那些字段不可查看；
+				*/	
 				//根据身边标识判断是否可查 -- 每种身份都有单条查询权限，所以只能查询自己和比自己身份标识低的用户。特殊的是管理者，可以查询学生和教师的密码，教师则不能查询学生的密码，自己也不能查询自己的密码
 				short sMyIdent = UserInfoMgr::GetInstance()->GetIdentBySocketId(SocketId);
 				if (sMyIdent > SendMsg.sIdent)
