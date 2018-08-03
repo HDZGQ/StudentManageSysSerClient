@@ -26,7 +26,7 @@ enum OperPermission
 	OPER_PER_SELECTBATCHSCOREBYSUBJECTS       =    12,//现有所有科目批量查询成绩 -- 班级性，可选哪个班级 （管理员和老师）
 	OPER_PER_SELECTSINGLESCOREBYONESUBJECT    =    13,//单科单条查询成绩 （管理员和老师； 学生：学生自己）
 	OPER_PER_SELECTSINGLESCOREBYSUBJECTS      =    14,//现有所有科目单条查询成绩 （管理员和老师； 学生：学生自己）
-	OPER_PER_DELETEBATCHSCORE			      =    15,//批量删除成绩 -- 班级性，可选哪个班级 （管理员和老师）
+	OPER_PER_DELETEBATCHSCORE			      =    15,//批量删除成绩 -- 通过用户id （管理员和老师）
 	OPER_PER_DELETESINGLESCORE		          =    16,//单条删除成绩 （管理员和老师）
 	OPER_PER_ALTERADDONESCORESUBJECT		  =    17,//增加成绩科目 （管理员和老师）
 	OPER_PER_ALTERDELETEONESCORESUBJECT		  =    18,//删除成绩科目 （管理员和老师）
@@ -39,7 +39,7 @@ enum OperPermission
 	OPER_PER_UPDATESINGLEUSERINFOBYMORE       =    24,//部分固定字段单条更改用户信息 -- 固定字段更改 （管理员：学生和老师； 老师：老师自己，和学生； 学生：学生自己）
 	OPER_PER_SELECTBATCHUSERINFO	          =    25,//批量查询用户信息 -- 班级性，可选哪个班级；查询固定字段 （管理员和老师）
 	OPER_PER_SELECTSINGLEUSERINFO		      =    26,//单条查询用户信息 -- 查询固定字段 （管理员和老师，学生自己）
-	OPER_PER_DELETEBATCHUSERINFO			  =    27,//批量删除用户信息 -- 班级性，可选哪个班级 （管理员和老师）
+	OPER_PER_DELETEBATCHUSERINFO			  =    27,//批量删除用户信息 -- 通过用户id （管理员和老师）
 	OPER_PER_DELETESINGLEUSERINFO		      =    28,//单条删除用户信息 （管理员和老师）
 
 	OPER_PER_ADDAUTHORITY					  =    29,//增加某用户一种或者多种权限 （管理员）
@@ -82,7 +82,6 @@ enum SelectUserInfoCondition
 	SELECT_USERINFO_GRADE    	               =    2, //班级查询
 	SELECT_USERINFO_PART_NAME    	           =    3, //姓名模糊查询
 	SELECT_USERINFO_SEX         	           =    4, //性别查询
-	SELECT_USERINFO_COUNT         	           =    5, //统计查询 -- 查询当前的总记录数
 
 
 	SELECT_USERINFO_END						          //有效值终止值

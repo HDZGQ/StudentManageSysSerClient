@@ -540,14 +540,14 @@ bool SelectScoreSysProc::GetSubjectsAfterSelectScoreRecvHandle(void* vpData, uns
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_GET_SUBJECTS_ACK))
+	if (DataLen != sizeof(SC_MSG_GET_SUBJECTS_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_GET_SUBJECTS_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_GET_SUBJECTS_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_GET_SUBJECTS_ACK* RecvMSG = (CS_MSG_GET_SUBJECTS_ACK*) vpData;
+	SC_MSG_GET_SUBJECTS_ACK* RecvMSG = (SC_MSG_GET_SUBJECTS_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		if (OPER_PER_SELECTSINGLESCOREBYONESUBJECT == GetCurOper())
@@ -591,14 +591,14 @@ bool SelectScoreSysProc::SelectSingleScoreRecvHandle(void* vpData, unsigned int 
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_SELECT_SINGLE_SCORE_ACK))
+	if (DataLen != sizeof(SC_MSG_SELECT_SINGLE_SCORE_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_SELECT_SINGLE_SCORE_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_SELECT_SINGLE_SCORE_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_SELECT_SINGLE_SCORE_ACK* RecvMSG = (CS_MSG_SELECT_SINGLE_SCORE_ACK*) vpData;
+	SC_MSG_SELECT_SINGLE_SCORE_ACK* RecvMSG = (SC_MSG_SELECT_SINGLE_SCORE_ACK*) vpData;
 
 	if (RecvMSG->bResCode == 1)
 	{
@@ -667,14 +667,14 @@ bool SelectScoreSysProc::SelectBatchScoreRecvHandle(void* vpData, unsigned int D
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_SELECT_BATCH_SCORE_ACK))
+	if (DataLen != sizeof(SC_MSG_SELECT_BATCH_SCORE_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_SELECT_BATCH_SCORE_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_SELECT_BATCH_SCORE_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_SELECT_BATCH_SCORE_ACK* RecvMSG = (CS_MSG_SELECT_BATCH_SCORE_ACK*) vpData;
+	SC_MSG_SELECT_BATCH_SCORE_ACK* RecvMSG = (SC_MSG_SELECT_BATCH_SCORE_ACK*) vpData;
 	if (RecvMSG->bResCode == 1)
 	{
 		printf("%s µ•Ãı≤È—Ø ß∞‹\n", __FUNCTION__);

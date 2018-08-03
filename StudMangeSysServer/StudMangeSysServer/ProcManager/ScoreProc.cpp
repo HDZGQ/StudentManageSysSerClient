@@ -30,7 +30,7 @@ void ScoreProc::CheckCanAlterSubjectRecvHandle(SOCKET SocketId, void* vpData, un
 
 	CS_MSG_GET_SUBJECTS_REQ* RecvMsg = (CS_MSG_GET_SUBJECTS_REQ*)vpData;
 
-	CS_MSG_GET_SUBJECTS_ACK SendMsg;
+	SC_MSG_GET_SUBJECTS_ACK SendMsg;
 	SendMsg.bSucceed = true;
 
 	vector<SubjectsType> vsSubjectsTmp;
@@ -91,7 +91,7 @@ void ScoreProc::AlterSubjectRecvHandle(SOCKET SocketId, void* vpData, unsigned i
 	}
 	else
 	{
-		CS_MSG_ALTER_SUBJECTS_ACK SendMsg;
+		SC_MSG_ALTER_SUBJECTS_ACK SendMsg;
 		SendMsg.bSucceed = false;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_ALTER_SUBJECTS_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -130,7 +130,7 @@ void ScoreProc::AddSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned
 	{
 		printf("%s  分数组数或科目数有误，或两者不相等\n", __FUNCTION__);
 
-		CS_MSG_ADD_SINGLE_SCORE_ACK SendMsg;
+		SC_MSG_ADD_SINGLE_SCORE_ACK SendMsg;
 		SendMsg.bSucceed = false;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_ADD_SINGLE_SCORE_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -254,7 +254,7 @@ void ScoreProc::SelectSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsig
 	CS_MSG_SELECT_SINGLE_SCORE_REQ* RecvMsg = (CS_MSG_SELECT_SINGLE_SCORE_REQ*)vpData;
 	if (RecvMsg->bSubjectCount == 0)
 	{
-		CS_MSG_SELECT_SINGLE_SCORE_ACK SendMsg;
+		SC_MSG_SELECT_SINGLE_SCORE_ACK SendMsg;
 		SendMsg.bResCode = 3;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_SINGLE_SCORE_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -298,7 +298,7 @@ void ScoreProc::SelectBatchScoreRecvHandle(SOCKET SocketId, void* vpData, unsign
 	if (RecvMsg->bSubjectCount == 0 || (RecvMsg->bScoreRange[2] == 1 && !(RecvMsg->bScoreRange[0]<=RecvMsg->bScoreRange[1] && \
 		RecvMsg->bScoreRange[0]>=0 && RecvMsg->bScoreRange[0]<=100 && RecvMsg->bScoreRange[1]>=0 && RecvMsg->bScoreRange[1]<=100)))
 	{
-		CS_MSG_SELECT_BATCH_SCORE_ACK SendMsg;
+		SC_MSG_SELECT_BATCH_SCORE_ACK SendMsg;
 		SendMsg.bResCode = 3;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_SCORE_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -380,7 +380,7 @@ void ScoreProc::UpdateSingleScoreRecvHandle(SOCKET SocketId, void* vpData, unsig
 	CS_MSG_UPDATE_SINGLE_SCORE_REQ* RecvMsg = (CS_MSG_UPDATE_SINGLE_SCORE_REQ*)vpData;
 	if (RecvMsg->bSubjectCount == 0)
 	{
-		CS_MSG_UPDATE_SINGLE_SCORE_ACK SendMsg;
+		SC_MSG_UPDATE_SINGLE_SCORE_ACK SendMsg;
 		SendMsg.bSucceed = false;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_UPDATE_SINGLE_SCORE_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -444,7 +444,7 @@ void ScoreProc::DeleteScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned in
 	}
 	else
 	{
-		CS_MSG_DELETE_SCORE_ACK SendMsg;
+		SC_MSG_DELETE_SCORE_ACK SendMsg;
 		SendMsg.bSucceed = false;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_DELETE_SCORE_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -465,7 +465,7 @@ void ScoreProc::AlterSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, st
 {
 	vector<string> vStrRecord= StringTool::Splite(strRecord);
 
-	CS_MSG_ALTER_SUBJECTS_ACK SendMsg;
+	SC_MSG_ALTER_SUBJECTS_ACK SendMsg;
 	SendMsg.bSucceed = true;
 	if (vStrRecord.size() > 2 && (int)atoi(vStrRecord.at(0).c_str()) == 0)
 	{
@@ -498,7 +498,7 @@ void ScoreProc::AlterSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, st
 
 void ScoreProc::AddSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	CS_MSG_ADD_SINGLE_SCORE_ACK SendMsg;
+	SC_MSG_ADD_SINGLE_SCORE_ACK SendMsg;
 	SendMsg.bSucceed = true;
 	vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
 	do 
@@ -564,7 +564,7 @@ void ScoreProc::AddBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, s
 
 	if (bSendFlag==0 || bSendFlag==2)
 	{
-		CS_MSG_ADD_BATCH_SCORE_ACK SendMsg;
+		SC_MSG_ADD_BATCH_SCORE_ACK SendMsg;
 		SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
 		if (bSendFlag == 0)
 		{
@@ -581,7 +581,7 @@ void ScoreProc::AddBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, s
 
 void ScoreProc::SelectSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	CS_MSG_SELECT_SINGLE_SCORE_ACK SendMsg;
+	SC_MSG_SELECT_SINGLE_SCORE_ACK SendMsg;
 	SendMsg.bResCode = 0;
 	do 
 	{
@@ -711,7 +711,7 @@ void ScoreProc::SelectSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRe
 void ScoreProc::SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
 	unsigned int iRecordCount = 0; //总记录数
-	CS_MSG_SELECT_BATCH_SCORE_ACK SendMsg;
+	SC_MSG_SELECT_BATCH_SCORE_ACK SendMsg;
 	SendMsg.bResCode = 0;
 	do 
 	{
@@ -901,7 +901,7 @@ void ScoreProc::SelectBatchScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes
 
 void ScoreProc::UpdateSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	CS_MSG_UPDATE_SINGLE_SCORE_ACK SendMsg;
+	SC_MSG_UPDATE_SINGLE_SCORE_ACK SendMsg;
 	SendMsg.bSucceed = true;
 	do 
 	{
@@ -930,7 +930,7 @@ void ScoreProc::UpdateSingleScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRe
 
 void ScoreProc::DeleteScoreReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	CS_MSG_DELETE_SCORE_ACK SendMsg;
+	SC_MSG_DELETE_SCORE_ACK SendMsg;
 	SendMsg.bSucceed = true;
 	do 
 	{

@@ -118,7 +118,7 @@ void EnterSysProc::LoginChooseHandle()
 		m_iOperInputErrorLimit = 0;
 
 	//发送服务端
-	SC_MSG_LOGIN_REQ SendReq;
+	CS_MSG_LOGIN_REQ SendReq;
 	strcpy_s(SendReq.cAccount, sizeof(SendReq.cAccount), strAccount.c_str());
 	strcpy_s(SendReq.cPWD, sizeof(SendReq.cPWD), strPassword.c_str());
 	//SendReq.OperPerId = GetMyProcDef();
@@ -176,7 +176,7 @@ void EnterSysProc::RegisterChooseHandle()
 		m_iOperInputErrorLimit = 0;
 
 	//发送服务端
-	SC_MSG_REGISTER_REQ SendReq;
+	CS_MSG_REGISTER_REQ SendReq;
 	strcpy_s(SendReq.cName, sizeof(SendReq.cName), strName.c_str());
 	strcpy_s(SendReq.cAccount, sizeof(SendReq.cAccount), strAccount.c_str());
 	strcpy_s(SendReq.cPWD, sizeof(SendReq.cPWD), strPassword.c_str());
@@ -194,13 +194,13 @@ bool EnterSysProc::LoginRecvHandle(void* vpData, unsigned int DataLen)
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_LOGIN_ACK))
+	if (DataLen != sizeof(SC_MSG_LOGIN_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_LOGIN_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_LOGIN_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
-	CS_MSG_LOGIN_ACK* RecvMSG = (CS_MSG_LOGIN_ACK*) vpData;
+	SC_MSG_LOGIN_ACK* RecvMSG = (SC_MSG_LOGIN_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		if (!UserInfoMgr::GetInstance()->InitVOperPer() || !UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))
@@ -235,13 +235,13 @@ bool EnterSysProc::RegisterRecvHandle(void* vpData, unsigned int DataLen)
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_REGISTER_ACK))
+	if (DataLen != sizeof(SC_MSG_REGISTER_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_REGISTER_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_REGISTER_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
-	CS_MSG_REGISTER_ACK* RecvMSG = (CS_MSG_REGISTER_ACK*) vpData;
+	SC_MSG_REGISTER_ACK* RecvMSG = (SC_MSG_REGISTER_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		if (!UserInfoMgr::GetInstance()->InitVOperPer() || !UserInfoMgr::GetInstance()->SetVOperPer(RecvMSG->cOperPer))

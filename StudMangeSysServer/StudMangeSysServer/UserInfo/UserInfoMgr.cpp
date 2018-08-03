@@ -5,6 +5,9 @@
 UserInfoMgr::UserInfoMgr()
 {
 	initAllOperPer();
+
+	m_maxUserInfoFieldID = 0;
+	InitUserInfoFieldName();
 }
 
 UserInfoMgr::~UserInfoMgr()
@@ -47,6 +50,17 @@ void UserInfoMgr::initAllOperPer()
 
 	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_ADDAUTHORITY, "增加某用户一种或者多种权限"));
 	m_mAllOperPer.insert(pair<OperPermission, string>(OPER_PER_DELETEAUTHORITY, "删除某用户一种或者多种权限"));
+}
+
+void UserInfoMgr::InitUserInfoFieldName()
+{
+	m_mUserInfoFieldName.insert(pair<int, string>(++m_maxUserInfoFieldID, "account|账号"));
+	m_mUserInfoFieldName.insert(pair<int, string>(++m_maxUserInfoFieldID, "password|密码"));
+	m_mUserInfoFieldName.insert(pair<int, string>(++m_maxUserInfoFieldID, "name|姓名"));
+	m_mUserInfoFieldName.insert(pair<int, string>(++m_maxUserInfoFieldID, "sex|性别"));
+	m_mUserInfoFieldName.insert(pair<int, string>(++m_maxUserInfoFieldID, "Ident|身份标识"));
+	m_mUserInfoFieldName.insert(pair<int, string>(++m_maxUserInfoFieldID, "major|专业"));
+	m_mUserInfoFieldName.insert(pair<int, string>(++m_maxUserInfoFieldID, "grade|班级"));
 }
 
 bool UserInfoMgr::InsertInfo(unsigned __int64 socketId, UserInfo userInfo)
@@ -225,6 +239,45 @@ string UserInfoMgr::GetAuthorityByAccount(string strAccount)
 	}
 
 	return "";
+}
+
+bool UserInfoMgr::SetNewAccountByAccount(string strAccount, string strNewAccount)
+{
+	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.begin();
+	for (; iter != m_mUserInfo.end(); iter++)
+	{
+		if (iter->second.strAccount == strAccount)
+		{
+			UserInfoLock::GetInstance()->Lock();
+			iter->second.strAccount = strNewAccount;
+			UserInfoLock::GetInstance()->Unlock();
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UserInfoMgr::IsHaveOneAuthorityBySocketId(unsigned __int64 socketId, OperPermission OperPer)
+{
+	string strAuthority = GetAuthorityBySocketId(socketId);
+	if (strAuthority.empty())
+	{
+		return false;
+	}
+
+	vector<string> vecStrAuthority = StringTool::Splite(strAuthority);
+
+	for (unsigned i=0; i<vecStrAuthority.size(); i++)
+	{
+		if (OperPer == (OperPermission)atoi(vecStrAuthority.at(i).c_str()))
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool UserInfoMgr::SetAccountBySocketId(unsigned __int64 socketId, string strAccount)
@@ -529,4 +582,123 @@ void UserInfoMgr::GetAuthorityByStrAuthority(string strAuthority, vector<OperPer
 	{
 		vecOper.assign(vecOperTmp.begin(), vecOperTmp.end());
 	}
+}
+
+string UserInfoMgr::GetEnglishUserInfoFieldByField(int iFeildId)
+{
+	if (iFeildId < 1 || iFeildId > m_maxUserInfoFieldID)
+	{
+		return "";
+	}
+
+	string strFieldName = m_mUserInfoFieldName[iFeildId];
+	vector<string> strVec = StringTool::Splite(strFieldName);
+	if (strVec.size() != 2)
+	{
+		return "";
+	}
+
+	return strVec.at(0);
+}
+
+string UserInfoMgr::GetChineseUserInfoFieldByField(int iFeildId)
+{
+	if (iFeildId < 1 || iFeildId > m_maxUserInfoFieldID)
+	{
+		return "";
+	}
+
+	string strFieldName = m_mUserInfoFieldName[iFeildId];
+	vector<string> strVec = StringTool::Splite(strFieldName);
+	if (strVec.size() != 2)
+	{
+		return "";
+	}
+
+	return strVec.at(1);
+}
+
+bool UserInfoMgr::GetCanUpdateField(short iMyIdent, string strMyAccount, short iObjIdent, string strObjAccount, bool* pCanUpdate, int iCanUpdateMaxCount)
+{
+	if (pCanUpdate == NULL || iCanUpdateMaxCount < 8) //用户字段id是1-7， 字段id作为数据下标所以长度最小为8
+	{
+		return false;
+	}
+	memset(pCanUpdate, false, iCanUpdateMaxCount*sizeof(bool));
+	if (iMyIdent < 1 || iMyIdent > 3 || iObjIdent < 1 || iObjIdent > 3)
+	{
+		return false;
+	}
+
+	bool bIsMine = false;
+	if (iMyIdent == iObjIdent && strMyAccount == strObjAccount)
+	{
+		bIsMine = true;
+	}
+
+	bool bRes = true;
+	if (iMyIdent == 1)
+	{
+		if (bIsMine) //可更改 1-account 2-password 3-name 4-sex
+		{
+			pCanUpdate[1] = true;
+			pCanUpdate[2] = true;
+			pCanUpdate[3] = true;
+			pCanUpdate[4] = true;
+		}
+		else
+		{
+			bRes = false;
+		}
+	}
+	else if (iMyIdent == 2)
+	{
+		if (bIsMine) //可更改 1-account 2-password 3-name 4-sex
+		{
+			pCanUpdate[1] = true;
+			pCanUpdate[2] = true;
+			pCanUpdate[3] = true;
+			pCanUpdate[4] = true;
+		}
+		else if (iObjIdent == 1) //可更改 1-account 3-name 4-sex 6-major 7-grade
+		{
+			pCanUpdate[1] = true;
+			pCanUpdate[3] = true;
+			pCanUpdate[4] = true;
+			pCanUpdate[6] = true;
+			pCanUpdate[7] = true;
+		}
+		else
+		{
+			bRes = false;
+		}
+	}
+	else
+	{
+		if (bIsMine) //可更改 1-account 2-password 3-name 4-sex 6-major 7-grade
+		{
+			pCanUpdate[1] = true;
+			pCanUpdate[2] = true;
+			pCanUpdate[3] = true;
+			pCanUpdate[4] = true;
+			pCanUpdate[6] = true;
+			pCanUpdate[7] = true;
+		}
+		else if (iObjIdent == 1 || iObjIdent == 2) //可更改 1-account 2-password 3-name 4-sex 5-Ident 6-major 7-grade
+		{
+			pCanUpdate[1] = true;
+			pCanUpdate[2] = true;
+			pCanUpdate[3] = true;
+			pCanUpdate[4] = true;
+			pCanUpdate[5] = true;
+			pCanUpdate[6] = true;
+			pCanUpdate[7] = true;
+		}
+		else
+		{
+			bRes = false;
+		}
+	}
+
+	return bRes;
 }

@@ -30,6 +30,10 @@ public:
 	bool SetAuthorityByAccount(string strAccount, string strAuthority);
 	string GetAuthorityByAccount(string strAccount);
 
+	bool SetNewAccountByAccount(string strAccount, string strNewAccount);
+
+	bool IsHaveOneAuthorityBySocketId(unsigned __int64 socketId, OperPermission OperPer);
+
 	bool SetAccountBySocketId(unsigned __int64 socketId, string strAccount);
 	string GetAccountBySocketId(unsigned __int64 socketId);
 
@@ -51,11 +55,19 @@ public:
 	void GetDefaultAuthorityByIdent(IdentType Ident, vector<OperPermission>& vecOper);
 	void GetAuthorityByStrAuthority(string strAuthority, vector<OperPermission>& vecOper, unsigned char bType, string strSpl="|"); //通过权限字符串，根据bType获取对象对象的权限vector；bType 1现有的  2可增加的
 
+	string GetEnglishUserInfoFieldByField(int iFeildId);
+	string GetChineseUserInfoFieldByField(int iFeildId);
+	bool GetCanUpdateField(short iMyIdent, string strMyAccount, short iObjIdent, string strObjAccount, bool* pCanUpdate, int iCanUpdateMaxCount);
 protected:
 	void initAllOperPer();
+	void InitUserInfoFieldName(); //1-account 2-password 3-name 4-sex 5-Ident 6-major 7-grade
 
 	//所有权限集合
 	map<OperPermission, string> m_mAllOperPer;
+
+	//用户信息字段
+	map<int, string> m_mUserInfoFieldName;
+	int m_maxUserInfoFieldID;
 
 private:
 	map<unsigned __int64, UserInfo> m_mUserInfo;

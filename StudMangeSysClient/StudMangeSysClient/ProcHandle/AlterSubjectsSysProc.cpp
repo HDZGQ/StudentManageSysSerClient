@@ -210,14 +210,14 @@ bool AlterSubjectsSysProc::GetSubjectsAfterAlterSubjectRecvHandle(void* vpData, 
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_GET_SUBJECTS_ACK))
+	if (DataLen != sizeof(SC_MSG_GET_SUBJECTS_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_GET_SUBJECTS_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_GET_SUBJECTS_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_GET_SUBJECTS_ACK* RecvMSG = (CS_MSG_GET_SUBJECTS_ACK*) vpData;
+	SC_MSG_GET_SUBJECTS_ACK* RecvMSG = (SC_MSG_GET_SUBJECTS_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		if (RecvMSG->sGetType == 1)
@@ -254,14 +254,14 @@ bool AlterSubjectsSysProc::AlterSubjectRecvHandle(void* vpData, unsigned int Dat
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_ALTER_SUBJECTS_ACK))
+	if (DataLen != sizeof(SC_MSG_ALTER_SUBJECTS_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_ALTER_SUBJECTS_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_ALTER_SUBJECTS_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_ALTER_SUBJECTS_ACK* RecvMSG = (CS_MSG_ALTER_SUBJECTS_ACK*) vpData;
+	SC_MSG_ALTER_SUBJECTS_ACK* RecvMSG = (SC_MSG_ALTER_SUBJECTS_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		string sChineseName = UserInfoMgr::GetInstance()->GetChineseNameByType((SubjectsType)RecvMSG->sSubjectId);

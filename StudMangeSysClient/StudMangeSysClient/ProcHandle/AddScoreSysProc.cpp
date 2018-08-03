@@ -298,14 +298,14 @@ bool AddScoreSysProc::GetSubjectsAfterAddSingleScoreRecvHandle(void* vpData, uns
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_GET_SUBJECTS_ACK))
+	if (DataLen != sizeof(SC_MSG_GET_SUBJECTS_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_GET_SUBJECTS_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_GET_SUBJECTS_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_GET_SUBJECTS_ACK* RecvMSG = (CS_MSG_GET_SUBJECTS_ACK*) vpData;
+	SC_MSG_GET_SUBJECTS_ACK* RecvMSG = (SC_MSG_GET_SUBJECTS_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		if (OPER_PER_ADDSINGLESCOREBYONESUBJECT == GetCurOper())
@@ -341,14 +341,14 @@ bool AddScoreSysProc::AddSingleScoreRecvHandle(void* vpData, unsigned int DataLe
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_ADD_SINGLE_SCORE_ACK))
+	if (DataLen != sizeof(SC_MSG_ADD_SINGLE_SCORE_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_ADD_SINGLE_SCORE_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_ADD_SINGLE_SCORE_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_ADD_SINGLE_SCORE_ACK* RecvMSG = (CS_MSG_ADD_SINGLE_SCORE_ACK*) vpData;
+	SC_MSG_ADD_SINGLE_SCORE_ACK* RecvMSG = (SC_MSG_ADD_SINGLE_SCORE_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		if (RecvMSG->sType == 1)
@@ -386,14 +386,14 @@ bool AddScoreSysProc::AddBatchScoreRecvHandle(void* vpData, unsigned int DataLen
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_ADD_BATCH_SCORE_ACK))
+	if (DataLen != sizeof(SC_MSG_ADD_BATCH_SCORE_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_ADD_BATCH_SCORE_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_ADD_BATCH_SCORE_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_ADD_BATCH_SCORE_ACK* RecvMSG = (CS_MSG_ADD_BATCH_SCORE_ACK*) vpData;
+	SC_MSG_ADD_BATCH_SCORE_ACK* RecvMSG = (SC_MSG_ADD_BATCH_SCORE_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		if (m_vvAddBatchScoreFileData.empty())

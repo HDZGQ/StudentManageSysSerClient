@@ -23,13 +23,13 @@ void EnterSysProc::LoginRecvHandle(SOCKET SocketId, void* vpData, unsigned int D
 		printf("%s  消息为空\n", __FUNCTION__);
 		return;
 	}
-	if (DataLen != sizeof(SC_MSG_LOGIN_REQ))
+	if (DataLen != sizeof(CS_MSG_LOGIN_REQ))
 	{
-		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(SC_MSG_LOGIN_REQ));
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_LOGIN_REQ));
 		return;
 	}
 	
-	SC_MSG_LOGIN_REQ* RecvMsg = (SC_MSG_LOGIN_REQ*)vpData;
+	CS_MSG_LOGIN_REQ* RecvMsg = (CS_MSG_LOGIN_REQ*)vpData;
 
 	char strMysql[512];
 	memset(strMysql, 0, sizeof(strMysql));
@@ -45,13 +45,13 @@ void EnterSysProc::RegisterRecvHandle(SOCKET SocketId, void* vpData, unsigned in
 		printf("%s  消息为空\n", __FUNCTION__);
 		return;
 	}
-	if (DataLen != sizeof(SC_MSG_REGISTER_REQ))
+	if (DataLen != sizeof(CS_MSG_REGISTER_REQ))
 	{
-		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(SC_MSG_REGISTER_REQ));
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_REGISTER_REQ));
 		return;
 	}
 	
-	SC_MSG_REGISTER_REQ* RecvMsg = (SC_MSG_REGISTER_REQ*)vpData;
+	CS_MSG_REGISTER_REQ* RecvMsg = (CS_MSG_REGISTER_REQ*)vpData;
 
 	vector<OperPermission> vecOper;
 	UserInfoMgr::GetInstance()->GetDefaultAuthorityByIdent((IdentType)atoi(RecvMsg->cIdent), vecOper);
@@ -107,7 +107,7 @@ void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string
 		bExecute = false;
 	}
 
-	CS_MSG_LOGIN_ACK sendMsg;
+	SC_MSG_LOGIN_ACK sendMsg;
 	unsigned rowsNum = (unsigned)mysql_num_rows(MysqlRes);
 	if (1 == rowsNum && bExecute)
 	{
@@ -155,7 +155,7 @@ void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string
 
 void EnterSysProc::RegisterReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	CS_MSG_REGISTER_ACK SendMsg;
+	SC_MSG_REGISTER_ACK SendMsg;
 	unsigned char bSendFlag = 0;
 	short sRegNeed = UserInfoMgr::GetInstance()->GetRegNeedCountBySocketId(SocketId);
 	vector<string> vStrRecord= StringTool::Splite(strRecord, "~");

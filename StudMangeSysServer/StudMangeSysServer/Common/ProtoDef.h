@@ -8,6 +8,8 @@
 #define MAXBATCHREQACKCOUNT 10
 //最大操作权限数目
 #define MAXAUTHORITBYCOUNT 30
+//用户信息最大字段数量
+#define MAXUSERINFOFIELDCOUNT 8
 
 #if 0
 //协议主ID
@@ -72,6 +74,14 @@ enum Assist_ID
 	ASSIST_ID_ADD_SINGLE_USERINFO_ACK				 =   10027, //单条增加用户信息回复
 	ASSIST_ID_ADD_BATCH_USERINFO_REQ				 =   10028, //批量增加用户信息请求
 	ASSIST_ID_ADD_BATCH_USERINFO_ACK				 =   10029, //批量增加用户信息回复
+	ASSIST_ID_SELECT_SINGLE_USERINFO_REQ			 =   10030, //单条查询用户信息请求
+	ASSIST_ID_SELECT_SINGLE_USERINFO_ACK			 =   10031, //单条查询用户信息回复
+	ASSIST_ID_SELECT_BATCH_USERINFO_REQ				 =   10032, //批量查询用户信息请求
+	ASSIST_ID_SELECT_BATCH_USERINFO_ACK				 =   10033, //批量查询用户信息回复
+	ASSIST_ID_UPDATE_SINGLE_USERINFO_REQ			 =   10034, //单条更新用户信息请求
+	ASSIST_ID_UPDATE_SINGLE_USERINFO_ACK			 =   10035, //单条更新用户信息回复
+	ASSIST_ID_DELETE_USERINFO_REQ					 =   10036, //删除用户信息请求
+	ASSIST_ID_DELETE_USERINFO_ACK					 =   10037, //删除用户信息回复
 
 
 	ASSIST_ID_END												//有效值终止值
@@ -92,21 +102,21 @@ struct HeadData
 };
 
 //登录请求   assist[10001]
-struct SC_MSG_LOGIN_REQ
+struct CS_MSG_LOGIN_REQ
 {
 	char cAccount[31];
 	char cPWD[31];
 //	int  OperPerId;
 
 
-	SC_MSG_LOGIN_REQ()
+	CS_MSG_LOGIN_REQ()
 	{
-		memset(this, 0, sizeof(SC_MSG_LOGIN_REQ));
+		memset(this, 0, sizeof(CS_MSG_LOGIN_REQ));
 	}
 };
 
 //登录回复   assist[10002]
-struct CS_MSG_LOGIN_ACK
+struct SC_MSG_LOGIN_ACK
 {
 	bool bSucceed;
 	unsigned int iUserId;
@@ -116,14 +126,14 @@ struct CS_MSG_LOGIN_ACK
 	short sSex;
 	char cOperPer[150];
 
-	CS_MSG_LOGIN_ACK()
+	SC_MSG_LOGIN_ACK()
 	{
-		memset(this, 0, sizeof(SC_MSG_LOGIN_REQ));
+		memset(this, 0, sizeof(CS_MSG_LOGIN_REQ));
 	}
 };
 
 //注册请求   assist[10003]
-struct SC_MSG_REGISTER_REQ
+struct CS_MSG_REGISTER_REQ
 {
 	char cName[31];
 	char cAccount[31];
@@ -132,14 +142,14 @@ struct SC_MSG_REGISTER_REQ
 	char cIdent[3]; //只能注册学生和老师。 1学生 2老师
 //	int  OperPerId;
 
-	SC_MSG_REGISTER_REQ()
+	CS_MSG_REGISTER_REQ()
 	{
-		memset(this, 0, sizeof(SC_MSG_REGISTER_REQ));
+		memset(this, 0, sizeof(CS_MSG_REGISTER_REQ));
 	}
 };
 
 //注册回复   assist[10004]
-struct CS_MSG_REGISTER_ACK
+struct SC_MSG_REGISTER_ACK
 {
 	bool bSucceed;
 	unsigned int iUserId;
@@ -149,9 +159,9 @@ struct CS_MSG_REGISTER_ACK
 	short sSex;
 	char cOperPer[150];
 
-	CS_MSG_REGISTER_ACK()
+	SC_MSG_REGISTER_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_REGISTER_ACK));
+		memset(this, 0, sizeof(SC_MSG_REGISTER_ACK));
 	}
 };
 
@@ -176,14 +186,14 @@ struct CS_MSG_GET_SUBJECTS_REQ
 };
 
 //获取剩余和现有科目回复   assist[10007]
-struct CS_MSG_GET_SUBJECTS_ACK
+struct SC_MSG_GET_SUBJECTS_ACK
 {
 	bool bSucceed;
 	short sGetType; //1剩余科目（未添加）  2现有科目
 	char cCanAlterSubjects[60];
-	CS_MSG_GET_SUBJECTS_ACK()
+	SC_MSG_GET_SUBJECTS_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_GET_SUBJECTS_ACK));
+		memset(this, 0, sizeof(SC_MSG_GET_SUBJECTS_ACK));
 	}
 };
 
@@ -199,14 +209,14 @@ struct CS_MSG_ALTER_SUBJECTS_REQ
 };
 
 //增减科目回复   assist[10009]
-struct CS_MSG_ALTER_SUBJECTS_ACK
+struct SC_MSG_ALTER_SUBJECTS_ACK
 {
 	bool bSucceed;
 	short sGetType;
 	short sSubjectId;
-	CS_MSG_ALTER_SUBJECTS_ACK()
+	SC_MSG_ALTER_SUBJECTS_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_ALTER_SUBJECTS_ACK));
+		memset(this, 0, sizeof(SC_MSG_ALTER_SUBJECTS_ACK));
 	}
 };
 
@@ -224,14 +234,14 @@ struct CS_MSG_ADD_SINGLE_SCORE_REQ
 };
 
 //单条添加成绩回复   assist[10011]
-struct CS_MSG_ADD_SINGLE_SCORE_ACK
+struct SC_MSG_ADD_SINGLE_SCORE_ACK
 {
 	bool bSucceed;
 	short sType; //1单科单条增加成绩 2现有所有科目单条增加成绩
 	char cAccount[31];
-	CS_MSG_ADD_SINGLE_SCORE_ACK()
+	SC_MSG_ADD_SINGLE_SCORE_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_ADD_SINGLE_SCORE_ACK));
+		memset(this, 0, sizeof(SC_MSG_ADD_SINGLE_SCORE_ACK));
 	}
 };
 
@@ -249,7 +259,7 @@ struct CS_MSG_SELECT_SINGLE_SCORE_REQ
 };
 
 //单条查询成绩回复   assist[10013]
-struct CS_MSG_SELECT_SINGLE_SCORE_ACK
+struct SC_MSG_SELECT_SINGLE_SCORE_ACK
 {
 	short sType; //1单科单条查询成绩 2现有所有科目单条查询成绩
 	unsigned int uUserid; //用户id
@@ -260,9 +270,9 @@ struct CS_MSG_SELECT_SINGLE_SCORE_ACK
 	unsigned char bScore[MAXSUBJECTSCOUNT]; //每科分数
 	unsigned char bSubjectCount; //科目数
 	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息或者没有成绩信息 3其他异常
-	CS_MSG_SELECT_SINGLE_SCORE_ACK()
+	SC_MSG_SELECT_SINGLE_SCORE_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_SELECT_SINGLE_SCORE_ACK));
+		memset(this, 0, sizeof(SC_MSG_SELECT_SINGLE_SCORE_ACK));
 	}
 };
 
@@ -283,7 +293,7 @@ struct CS_MSG_SELECT_BATCH_SCORE_REQ
 };
 
 //批量查询成绩回复 -- 每次10组数据   assist[10015]
-struct CS_MSG_SELECT_BATCH_SCORE_ACK
+struct SC_MSG_SELECT_BATCH_SCORE_ACK
 {
 	short sType; //1单科批量查询成绩 2现有所有科目批量查询成绩
 	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件  -- 单科批量只有排序和分数范围查询这两种条件
@@ -300,9 +310,9 @@ struct CS_MSG_SELECT_BATCH_SCORE_ACK
 	unsigned char bSubjectCount; //科目数
 	unsigned char bDataRecord[3]; //[0]查询结果记录数量<= MAXBATCHREQACKCOUNT； [1]发送序号，从1开始； [2]发送完毕标志 0没有完毕 1完毕
 	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息或者没有成绩信息 3其他异常
-	CS_MSG_SELECT_BATCH_SCORE_ACK()
+	SC_MSG_SELECT_BATCH_SCORE_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_SELECT_BATCH_SCORE_ACK));
+		memset(this, 0, sizeof(SC_MSG_SELECT_BATCH_SCORE_ACK));
 	}
 };
 
@@ -321,14 +331,14 @@ struct CS_MSG_UPDATE_SINGLE_SCORE_REQ
 };
 
 //单条更新成绩回复   assist[10017]
-struct CS_MSG_UPDATE_SINGLE_SCORE_ACK
+struct SC_MSG_UPDATE_SINGLE_SCORE_ACK
 {
 	bool bSucceed;
 	short sType; //1单科单条更新成绩 2现有所有科目单条更新成绩
 	char cAccount[31]; //通过账号更改成绩 
-	CS_MSG_UPDATE_SINGLE_SCORE_ACK()
+	SC_MSG_UPDATE_SINGLE_SCORE_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_UPDATE_SINGLE_SCORE_ACK));
+		memset(this, 0, sizeof(SC_MSG_UPDATE_SINGLE_SCORE_ACK));
 	}
 };
 
@@ -345,13 +355,13 @@ struct CS_MSG_DELETE_SCORE_REQ
 };
 
 //删除成绩回复   assist[10019]
-struct CS_MSG_DELETE_SCORE_ACK
+struct SC_MSG_DELETE_SCORE_ACK
 {
 	bool bSucceed;
 	short sType; //1单条删除成绩 2批量删除成绩
-	CS_MSG_DELETE_SCORE_ACK()
+	SC_MSG_DELETE_SCORE_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_DELETE_SCORE_ACK));
+		memset(this, 0, sizeof(SC_MSG_DELETE_SCORE_ACK));
 	}
 };
 
@@ -373,13 +383,13 @@ struct CS_MSG_ADD_BATCH_SCORE_REQ
 };
 
 //批量添加成绩回复  assist[10021]
-struct CS_MSG_ADD_BATCH_SCORE_ACK
+struct SC_MSG_ADD_BATCH_SCORE_ACK
 {
 	bool bSucceed;//客户端接收到返回成功，才继续发剩下的数据给服务端
 	short sType; //1批量单科增加成绩 2现有所有科目批量增加成绩
-	CS_MSG_ADD_BATCH_SCORE_ACK()
+	SC_MSG_ADD_BATCH_SCORE_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_SCORE_ACK));
+		memset(this, 0, sizeof(SC_MSG_ADD_BATCH_SCORE_ACK));
 	}
 };
 
@@ -395,16 +405,16 @@ struct CS_MSG_GET_AUTHORITY_REQ
 };
 
 //根据账号获取对象可删除或者可增加的权限回复 assist[10023]
-struct CS_MSG_GET_AUTHORITY_ACK
+struct SC_MSG_GET_AUTHORITY_ACK
 {
 	bool bSucceed;
 	unsigned char sType; //1可删除的 2可增加的
 	char cAccount[31]; //操作对象账号
 	unsigned char cAuthority[MAXAUTHORITBYCOUNT]; //操作权限
 	unsigned char cAuthorityCount; //权限数量
-	CS_MSG_GET_AUTHORITY_ACK()
+	SC_MSG_GET_AUTHORITY_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_GET_AUTHORITY_ACK));
+		memset(this, 0, sizeof(SC_MSG_GET_AUTHORITY_ACK));
 	}
 };
 
@@ -422,14 +432,14 @@ struct CS_MSG_EDIT_AUTHORITY_REQ
 };
 
 //根据账号增或删对象权限回复 assist[10025]
-struct CS_MSG_EDIT_AUTHORITY_ACK
+struct SC_MSG_EDIT_AUTHORITY_ACK
 {
 	bool bSucceed;
 	unsigned char sType; //1删除权限 2增加权限
 	char cAccount[31]; //操作对象账号
-	CS_MSG_EDIT_AUTHORITY_ACK()
+	SC_MSG_EDIT_AUTHORITY_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_EDIT_AUTHORITY_ACK));
+		memset(this, 0, sizeof(SC_MSG_EDIT_AUTHORITY_ACK));
 	}
 };
 
@@ -450,13 +460,13 @@ struct CS_MSG_ADD_SINGLE_USERINFO_REQ
 };
 
 //单条增加用户信息回复   assist[10027]
-struct CS_MSG_ADD_SINGLE_USERINFO_ACK
+struct SC_MSG_ADD_SINGLE_USERINFO_ACK
 {
 	bool bSucceed;
 	char cAccount[31];
-	CS_MSG_ADD_SINGLE_USERINFO_ACK()
+	SC_MSG_ADD_SINGLE_USERINFO_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_ADD_SINGLE_USERINFO_ACK));
+		memset(this, 0, sizeof(SC_MSG_ADD_SINGLE_USERINFO_ACK));
 	}
 };
 
@@ -480,13 +490,124 @@ struct CS_MSG_ADD_BATCH_USERINFO_REQ
 };
 
 //批量增加用户信息回复 -- 每次10组数据   assist[10029]
-struct CS_MSG_ADD_BATCH_USERINFO_ACK
+struct SC_MSG_ADD_BATCH_USERINFO_ACK
 {
 	bool bSucceed; //客户端接收到返回成功，才继续发剩下的数据给服务端 --如果当次全部添加失败，就返回失败，否则还是成功
 	unsigned char bSucceedRecordCount; //本次成功增加到数据库的数量，要小于等于MAXBATCHREQACKCOUNT
-	CS_MSG_ADD_BATCH_USERINFO_ACK()
+	SC_MSG_ADD_BATCH_USERINFO_ACK()
 	{
-		memset(this, 0, sizeof(CS_MSG_ADD_BATCH_USERINFO_ACK));
+		memset(this, 0, sizeof(SC_MSG_ADD_BATCH_USERINFO_ACK));
+	}
+};
+
+//单条查询用户信息请求   assist[10030]
+struct CS_MSG_SELECT_SINGLE_USERINFO_REQ
+{
+	char cAccount[31]; //账号 
+	unsigned char uRecordDataTmp; // 0不需要记录临时数据 1记录被查询玩家身边标识和账号到临时数据
+	CS_MSG_SELECT_SINGLE_USERINFO_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_SELECT_SINGLE_USERINFO_REQ));
+	}
+};
+
+//单条查询用户信息回复   assist[10031]
+struct SC_MSG_SELECT_SINGLE_USERINFO_ACK
+{
+	unsigned uUserID;
+	char cAccount[31];
+	char cPWD[31]; //查询的要管理员才有权限看密码
+	char cName[31];
+	unsigned char sSex;
+	unsigned char sIdent;
+	char cMajor[41];
+	char cGrade[31];
+	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息 3身份标识不符合查询不了该用户 4其他异常
+	SC_MSG_SELECT_SINGLE_USERINFO_ACK()
+	{
+		memset(this, 0, sizeof(SC_MSG_SELECT_SINGLE_USERINFO_ACK));
+	}
+};
+
+//批量查询用户信息请求   assist[10032]
+struct CS_MSG_SELECT_BATCH_USERINFO_REQ
+{
+	unsigned char cCondition[5]; //查询条件，每一个单元是一个条件 
+	char cGrade[31]; //班级 查询
+	char cName[31]; //姓名模糊查询
+	unsigned char cSex; //性别查询
+	unsigned char bScoreRange[3]; //用户id范围查询，第三个元素为0数据没设置，为1设置数据了
+	CS_MSG_SELECT_BATCH_USERINFO_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_SELECT_BATCH_USERINFO_REQ));
+	}
+};
+
+//批量查询用户信息回复 -- 每次返回10条   assist[10033]
+struct SC_MSG_SELECT_BATCH_USERINFO_ACK
+{
+	unsigned uUserID[MAXBATCHREQACKCOUNT];
+	char cAccount[MAXBATCHREQACKCOUNT][31];
+	char cPWD[MAXBATCHREQACKCOUNT][31]; //查询的要管理员才有权限看密码
+	char cName[MAXBATCHREQACKCOUNT][31];
+	unsigned char sSex[MAXBATCHREQACKCOUNT];
+	unsigned char sIdent[MAXBATCHREQACKCOUNT];
+	char cMajor[MAXBATCHREQACKCOUNT][41];
+	char cGrade[MAXBATCHREQACKCOUNT][31];
+	unsigned char bDataRecord[3]; //[0]查询结果记录数量<= MAXBATCHREQACKCOUNT； [1]发送序号，从1开始； [2]发送完毕标志 0没有完毕 1完毕
+	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息 3其他异常
+	SC_MSG_SELECT_BATCH_USERINFO_ACK()
+	{
+		memset(this, 0, sizeof(SC_MSG_SELECT_BATCH_USERINFO_ACK));
+	}
+};
+
+//单条更新用户信息请求   assist[10034]
+struct CS_MSG_UPDATE_SINGLE_USERINFO_REQ
+{
+	short sType; //1单字段单条更新用户信息 2固定字段单条更新用户信息
+	char cAccount[31]; //通过账号更改用户信息 
+	unsigned char sUserInfoField[MAXUSERINFOFIELDCOUNT]; //用户信息字段id
+	char cUserInfoValue[MAXUSERINFOFIELDCOUNT][41];
+	unsigned char bUserInfoFieldCount; //用户信息字段数
+	CS_MSG_UPDATE_SINGLE_USERINFO_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_UPDATE_SINGLE_USERINFO_REQ));
+	}
+};
+
+//单条更新用户信息回复   assist[10035]
+struct SC_MSG_UPDATE_SINGLE_USERINFO_ACK
+{
+	bool bSucceed;
+	short sType; //1单字段单条更新用户信息 2固定字段单条更新用户信息
+	char cAccount[31]; //通过账号更改用户信息
+	SC_MSG_UPDATE_SINGLE_USERINFO_ACK()
+	{
+		memset(this, 0, sizeof(SC_MSG_UPDATE_SINGLE_USERINFO_ACK));
+	}
+};
+
+//删除用户信息请求   assist[10036]
+struct CS_MSG_DELETE_USERINFO_REQ
+{
+	short sType; //1单条删除用户信息 2批量删除用户信息
+	char cAccount[31]; //单条通过账号删除用户信息 
+	unsigned int uUserid[3]; //用户id范围，用于批量删除，第三个元素为0数据没设置，为1设置数据了
+	CS_MSG_DELETE_USERINFO_REQ()
+	{
+		memset(this, 0, sizeof(CS_MSG_DELETE_USERINFO_REQ));
+	}
+};
+
+//删除用户信息回复   assist[10037]
+struct SC_MSG_DELETE_USERINFO_ACK
+{
+	bool bSucceed;
+	short sType; //1单条删除用户信息 2批量删除用户信息
+	SC_MSG_DELETE_USERINFO_ACK()
+	{
+		memset(this, 0, sizeof(SC_MSG_DELETE_USERINFO_ACK));
 	}
 };
 

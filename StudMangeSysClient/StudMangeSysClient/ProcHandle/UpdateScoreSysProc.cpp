@@ -270,14 +270,14 @@ bool UpdateScoreSysProc::GetSubjectsAfterUpdateSingleScoreRecvHandle(void* vpDat
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_GET_SUBJECTS_ACK))
+	if (DataLen != sizeof(SC_MSG_GET_SUBJECTS_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_GET_SUBJECTS_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_GET_SUBJECTS_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_GET_SUBJECTS_ACK* RecvMSG = (CS_MSG_GET_SUBJECTS_ACK*) vpData;
+	SC_MSG_GET_SUBJECTS_ACK* RecvMSG = (SC_MSG_GET_SUBJECTS_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		GetSubjectsScoreAfterUpdateSingleScoreChooseHandle(RecvMSG->cCanAlterSubjects);
@@ -299,13 +299,13 @@ bool UpdateScoreSysProc::GetSubjectsScoreAfterUpdateSingleScoreRecvHandle(void* 
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_SELECT_SINGLE_SCORE_ACK))
+	if (DataLen != sizeof(SC_MSG_SELECT_SINGLE_SCORE_ACK))
 	{
-		printf("%s DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_SELECT_SINGLE_SCORE_ACK));
+		printf("%s DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_SELECT_SINGLE_SCORE_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
-	CS_MSG_SELECT_SINGLE_SCORE_ACK* RecvMSG = (CS_MSG_SELECT_SINGLE_SCORE_ACK*) vpData;
+	SC_MSG_SELECT_SINGLE_SCORE_ACK* RecvMSG = (SC_MSG_SELECT_SINGLE_SCORE_ACK*) vpData;
 
 	if (RecvMSG->bResCode == 1)
 	{
@@ -352,13 +352,13 @@ bool UpdateScoreSysProc::UpdateSingleScoreRecvHandle(void* vpData, unsigned int 
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_UPDATE_SINGLE_SCORE_ACK))
+	if (DataLen != sizeof(SC_MSG_UPDATE_SINGLE_SCORE_ACK))
 	{
-		printf("%s DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_UPDATE_SINGLE_SCORE_ACK));
+		printf("%s DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_UPDATE_SINGLE_SCORE_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
-	CS_MSG_UPDATE_SINGLE_SCORE_ACK* RecvMSG = (CS_MSG_UPDATE_SINGLE_SCORE_ACK*) vpData;
+	SC_MSG_UPDATE_SINGLE_SCORE_ACK* RecvMSG = (SC_MSG_UPDATE_SINGLE_SCORE_ACK*) vpData;
 
 	if (RecvMSG->bSucceed)
 	{

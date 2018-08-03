@@ -55,7 +55,7 @@ void AuthorityProc::EditAuthoritRecvHandle(SOCKET SocketId, void* vpData, unsign
 	CS_MSG_EDIT_AUTHORITY_REQ* RecvMsg = (CS_MSG_EDIT_AUTHORITY_REQ*)vpData;
 	if (RecvMsg->sType < 1 || RecvMsg->sType > 2 || RecvMsg->cAuthorityCount == 0)
 	{
-		CS_MSG_EDIT_AUTHORITY_ACK SendMsg;
+		SC_MSG_EDIT_AUTHORITY_ACK SendMsg;
 		SendMsg.bSucceed = false;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_EDIT_AUTHORITY_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -83,7 +83,7 @@ void AuthorityProc::EditAuthoritRecvHandle(SOCKET SocketId, void* vpData, unsign
 	}
 	if (iCount != RecvMsg->cAuthorityCount)
 	{
-		CS_MSG_EDIT_AUTHORITY_ACK SendMsg;
+		SC_MSG_EDIT_AUTHORITY_ACK SendMsg;
 		SendMsg.bSucceed = false;
 		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_EDIT_AUTHORITY_ACK);
 		MsgPackageMgr::Send(SocketId, packData);
@@ -133,7 +133,7 @@ void AuthorityProc::EditAuthoritRecvHandle(SOCKET SocketId, void* vpData, unsign
 
 void AuthorityProc::GetAuthoritReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	CS_MSG_GET_AUTHORITY_ACK SendMsg;
+	SC_MSG_GET_AUTHORITY_ACK SendMsg;
 	SendMsg.bSucceed = true;
 	vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
 	do 
@@ -194,7 +194,7 @@ void AuthorityProc::GetAuthoritReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes,
 
 void AuthorityProc::EditAuthoritReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
-	CS_MSG_EDIT_AUTHORITY_ACK SendMsg;
+	SC_MSG_EDIT_AUTHORITY_ACK SendMsg;
 	SendMsg.bSucceed = true;
 	vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
 	do 

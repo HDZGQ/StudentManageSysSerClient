@@ -20,12 +20,16 @@ public:
 	*/
 	void AddSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条增加用户信息请求
 	void AddBatchUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //批量增加用户信息请求
+	void SelectSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条查询用户信息请求
+	void UpdateSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条更新用户信息请求
 
 	/*
 	* 回复消息处理。strRecord需要从前面操作中带到返回函数的数据
 	*/
 	void AddSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //单条增加用户信息回复
 	void AddBatchUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //批量增加用户信息回复
+	void SelectSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //单条查询用户信息回复
+	void UpdateSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //单条更新用户信息回复
 };
 
 #endif

@@ -226,13 +226,13 @@ bool AddUserInfoSysProc::AddSingleUserInfoRecvHandle(void* vpData, unsigned int 
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_ADD_SINGLE_USERINFO_ACK))
+	if (DataLen != sizeof(SC_MSG_ADD_SINGLE_USERINFO_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_ADD_SINGLE_USERINFO_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_ADD_SINGLE_USERINFO_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
-	CS_MSG_ADD_SINGLE_USERINFO_ACK* RecvMSG = (CS_MSG_ADD_SINGLE_USERINFO_ACK*) vpData;
+	SC_MSG_ADD_SINGLE_USERINFO_ACK* RecvMSG = (SC_MSG_ADD_SINGLE_USERINFO_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		printf("单条添加账号[%s]用户信息成功\n", RecvMSG->cAccount);
@@ -256,14 +256,14 @@ bool AddUserInfoSysProc::AddBatchUserInfoRecvHandle(void* vpData, unsigned int D
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_ADD_BATCH_USERINFO_ACK))
+	if (DataLen != sizeof(SC_MSG_ADD_BATCH_USERINFO_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_ADD_BATCH_USERINFO_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_ADD_BATCH_USERINFO_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_ADD_BATCH_USERINFO_ACK* RecvMSG = (CS_MSG_ADD_BATCH_USERINFO_ACK*) vpData;
+	SC_MSG_ADD_BATCH_USERINFO_ACK* RecvMSG = (SC_MSG_ADD_BATCH_USERINFO_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		m_uAddBatchUserInfoSucceedCount += RecvMSG->bSucceedRecordCount;

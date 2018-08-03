@@ -176,14 +176,14 @@ bool AuthoritySysProc::GetAuthoritbyAfterEditAuthoritbyRecvHandle(void* vpData, 
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_GET_AUTHORITY_ACK))
+	if (DataLen != sizeof(SC_MSG_GET_AUTHORITY_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_GET_AUTHORITY_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_GET_AUTHORITY_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_GET_AUTHORITY_ACK* RecvMSG = (CS_MSG_GET_AUTHORITY_ACK*) vpData;
+	SC_MSG_GET_AUTHORITY_ACK* RecvMSG = (SC_MSG_GET_AUTHORITY_ACK*) vpData;
 	if (RecvMSG->bSucceed)
 	{
 		EditAuthoritChooseHandle(RecvMSG->sType, RecvMSG->cAccount, RecvMSG->cAuthority, RecvMSG->cAuthorityCount);
@@ -206,14 +206,14 @@ bool AuthoritySysProc::EditAuthoritRecvHandle(void* vpData, unsigned int DataLen
 		SetIEndFlag(-1);
 		return false;
 	}
-	if (DataLen != sizeof(CS_MSG_EDIT_AUTHORITY_ACK))
+	if (DataLen != sizeof(SC_MSG_EDIT_AUTHORITY_ACK))
 	{
-		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(CS_MSG_EDIT_AUTHORITY_ACK));
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_EDIT_AUTHORITY_ACK));
 		SetIEndFlag(-1);
 		return false;
 	}
 
-	CS_MSG_EDIT_AUTHORITY_ACK* RecvMSG = (CS_MSG_EDIT_AUTHORITY_ACK*) vpData;
+	SC_MSG_EDIT_AUTHORITY_ACK* RecvMSG = (SC_MSG_EDIT_AUTHORITY_ACK*) vpData;
 	if (RecvMSG->sType < 1 || RecvMSG->sType > 2)
 	{
 		printf("%s 返回权限操作类型不对RecvMSG->sType[%u]\n", __FUNCTION__, (unsigned)RecvMSG->sType);
