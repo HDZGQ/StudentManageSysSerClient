@@ -29,6 +29,9 @@ public:
 
 protected:
 	void ShowSelectSingleScoreResult(vector<string> vSelectFieldShow, vector<string> vSelectResultShow, bool bShow=true);
+	bool CheckStringVaildRemoveSpl(string str, string strSpl, string strVaild);
+	bool FindOneInArray(unsigned char* pArray, unsigned char iCount, unsigned char iMaxCount, unsigned char Obj);
+
 };
 
 #endif

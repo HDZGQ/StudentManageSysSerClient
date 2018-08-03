@@ -630,10 +630,11 @@ struct CS_MSG_SELECT_BATCH_USERINFO_REQ
 	char cGrade[31]; //班级 查询
 	char cName[31]; //姓名模糊查询
 	unsigned char cSex; //性别查询
-	unsigned char bScoreRange[3]; //用户id范围查询，第三个元素为0数据没设置，为1设置数据了
+	unsigned uUserIdRange[3]; //用户id范围查询，第三个元素为0数据没设置，为1设置数据了
 	CS_MSG_SELECT_BATCH_USERINFO_REQ()
 	{
 		memset(this, 0, sizeof(CS_MSG_SELECT_BATCH_USERINFO_REQ));
+		cSex = 255;
 	}
 };
 
@@ -649,7 +650,7 @@ struct SC_MSG_SELECT_BATCH_USERINFO_ACK
 	char cMajor[MAXBATCHREQACKCOUNT][41];
 	char cGrade[MAXBATCHREQACKCOUNT][31];
 	unsigned char bDataRecord[3]; //[0]查询结果记录数量<= MAXBATCHREQACKCOUNT； [1]发送序号，从1开始； [2]发送完毕标志 0没有完毕 1完毕
-	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息 3其他异常
+	unsigned char bResCode; //0成功 1失败 2数据库没有账号信息 3身份标识不符合查询不了该用户 4其他异常
 	SC_MSG_SELECT_BATCH_USERINFO_ACK()
 	{
 		memset(this, 0, sizeof(SC_MSG_SELECT_BATCH_USERINFO_ACK));

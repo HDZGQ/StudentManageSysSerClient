@@ -173,6 +173,88 @@ void UserInfoProc::SelectSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData,
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_SELECT_SINGLE_USERINFO_ACK, SocketId, strRecord);
 }
 
+void UserInfoProc::SelectBatchUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_SELECT_BATCH_USERINFO_REQ))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_SELECT_BATCH_USERINFO_REQ));
+		return;
+	}
+
+	CS_MSG_SELECT_BATCH_USERINFO_REQ* RecvMsg = (CS_MSG_SELECT_BATCH_USERINFO_REQ*)vpData;
+
+	string strWhere;
+	if (RecvMsg->uUserIdRange[2] == 1)
+	{
+		if (strWhere.empty())
+		{
+			strWhere = " where ";
+		}
+		else
+		{
+			strWhere += " and ";
+		}
+
+		strWhere += " userID>=" + StringTool::NumberToStr((int)RecvMsg->uUserIdRange[0]) + " and userID<=" + StringTool::NumberToStr((int)RecvMsg->uUserIdRange[1]);
+	}
+
+	if (!string(RecvMsg->cGrade).empty())
+	{
+		if (strWhere.empty())
+		{
+			strWhere = " where ";
+		}
+		else
+		{
+			strWhere += " and ";
+		}
+
+		strWhere += " grade='" + string(RecvMsg->cGrade) + "'";
+	}
+
+	if (RecvMsg->cSex != 255)
+	{
+		if (strWhere.empty())
+		{
+			strWhere = " where ";
+		}
+		else
+		{
+			strWhere += " and ";
+		}
+
+		strWhere += " sex=" + StringTool::NumberToStr((int)RecvMsg->cSex);
+	}
+
+	if (!string(RecvMsg->cName).empty()) //模糊查询
+	{
+		if (strWhere.empty())
+		{
+			strWhere = " where ";
+		}
+		else
+		{
+			strWhere += " and ";
+		}
+
+		strWhere += string(" name like '%") + RecvMsg->cName + "%'";
+	}
+
+	char strMysql[612];
+	memset(strMysql, 0, sizeof(strMysql));
+	sprintf_s(strMysql, sizeof(strMysql), "select userID, account, password, name, sex, Ident, major, grade from userInfo %s", strWhere.c_str());
+
+	//string strRecord = "~";
+	//strRecord += StringTool::NumberToStr(RecvMsg->sType) + "~" + StringTool::CombArrayToStr(RecvMsg->cCondition, 5)  + "~" + StringTool::NumberToStr((int)RecvMsg->bRankFlag);
+
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_SELECT_BATCH_USERINFO_ACK, SocketId/*, strRecord*/);
+}
+
 void UserInfoProc::UpdateSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
 {
 	if ( NULL == vpData)
@@ -573,6 +655,216 @@ void UserInfoProc::SelectSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *M
 	} while (false);
 
 	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_SINGLE_USERINFO_ACK);
+	MsgPackageMgr::Send(SocketId, packData);
+}
+
+void UserInfoProc::SelectBatchUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
+{
+	unsigned int iRecordCount = 0; //总记录数
+	SC_MSG_SELECT_BATCH_USERINFO_ACK SendMsg;
+	SendMsg.bResCode = 0;
+	do 
+	{
+		vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
+		if (vStrRecord.size() != 1)
+		{
+			printf("%s  数据项数量[%u] 记录内数据项数量有错strRecord[%s]\n", __FUNCTION__, vStrRecord.size(), strRecord.c_str());
+			SendMsg.bResCode = 4;
+			break;
+		}
+		if ((int)atoi(vStrRecord.at(0).c_str()) != 0)
+		{
+			printf("%s  数据库操作错误\n", __FUNCTION__);
+			SendMsg.bResCode = 1;
+			break;
+		}
+
+		unsigned rowsNum = (unsigned)mysql_num_rows(MysqlRes);
+		if (rowsNum == 0)
+		{
+			printf("%s  数据库查询没有记录\n", __FUNCTION__);
+			SendMsg.bResCode = 2;
+			break;
+		}
+
+		int j = mysql_num_fields(MysqlRes);
+		if (j != 8)
+		{
+			printf("%s  数据库返回结果错误，列数错误\n", __FUNCTION__);
+			memset(&SendMsg, 0, sizeof(SendMsg));
+			SendMsg.bResCode = 4;
+			break;
+		}
+
+		char chTmp[52];
+		MYSQL_FIELD *fd = NULL;
+		vector<string> vecStrField;
+		for(int i=0; fd=mysql_fetch_field(MysqlRes);i++)
+		{
+			memset(chTmp, 0, sizeof(chTmp));
+			strcpy_s(chTmp, sizeof(chTmp), fd->name);
+			vecStrField.push_back(chTmp);
+		}
+		if (vecStrField.size() != j)
+		{
+			printf("%s  返回结果字段处理后字段数量有误\n", __FUNCTION__);
+			SendMsg.bResCode = 4;
+			break;
+		}
+
+		MYSQL_ROW sql_row;
+		while (sql_row=mysql_fetch_row(MysqlRes)) //获取具体的数据
+		{
+			for (unsigned i=0; i<vecStrField.size(); i++)
+			{
+				if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("userID")))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.uUserID[iRecordCount%MAXBATCHREQACKCOUNT] = (unsigned)atoi(sql_row[i]);
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("account")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("password")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("name")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cName[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("sex")))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.sSex[iRecordCount%MAXBATCHREQACKCOUNT] = (unsigned char)atoi(sql_row[i]);
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("Ident")))
+				{
+					if (sql_row[i])
+					{
+						SendMsg.sIdent[iRecordCount%MAXBATCHREQACKCOUNT] = (unsigned char)atoi(sql_row[i]);
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("major")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cMajor[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cMajor[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cMajor[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cMajor[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
+					}
+				}
+				else if (StringTool::ToLowercase(vecStrField.at(i)) == StringTool::ToLowercase(string("grade")))
+				{
+					if (sql_row[i])
+					{
+						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT]), sql_row[i]);
+					}
+					else
+					{
+						strcpy_s(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cGrade[iRecordCount%MAXBATCHREQACKCOUNT]), "NULL");
+					}
+				}
+				else
+				{
+					printf("%s  没有的字段项[%s]\n", __FUNCTION__, vecStrField.at(i).c_str());
+					memset(&SendMsg, 0, sizeof(SendMsg));
+					SendMsg.bResCode = 4;
+					break;
+				}
+			}
+			
+			/*
+			* 身份标识和权限问题：
+			* 1.哪些对象有这些权限；
+			* 2.根据身份标识确定可查看的对象类型（即根据身份表示区分类型），一般是可查看自己和比自己身份标识低的用户；
+			* 3.可查看的那些字段，那些字段不可查看；
+			*/	
+			//根据身边标识判断是否可查 -- 每种身份都有单条查询权限，所以只能查询自己和比自己身份标识低的用户。特殊的是管理者，可以查询学生和教师的密码，教师则不能查询学生的密码，自己也不能查询自己的密码
+			short sMyIdent = UserInfoMgr::GetInstance()->GetIdentBySocketId(SocketId);
+			if (sMyIdent > SendMsg.sIdent[iRecordCount%MAXBATCHREQACKCOUNT])
+			{
+				if (sMyIdent != 3)
+				{
+					memset(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], 0, sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]));
+					strcpy_s(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]), "******");
+				}
+			}
+			else if (sMyIdent == SendMsg.sIdent[iRecordCount%MAXBATCHREQACKCOUNT] && UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId) == SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT]) //查询用户自己的信息
+			{
+				memset(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], 0, sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]));
+				strcpy_s(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]), "******");
+			}
+			else
+			{
+				printf("%s  用户名[%s]身份标识[%d]查询不了身份标识[%d]的单条用户信息\n", __FUNCTION__, UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId).c_str(), sMyIdent, SendMsg.sIdent[iRecordCount%MAXBATCHREQACKCOUNT]);
+				SendMsg.bResCode = 3;
+				break;
+			}
+			if (SendMsg.bResCode != 0)
+			{
+				break;
+			}
+
+			iRecordCount++;
+			if (iRecordCount % MAXBATCHREQACKCOUNT == 0) //每到达一定数量发送一次记录
+			{
+				SendMsg.bDataRecord[0] = MAXBATCHREQACKCOUNT;
+				SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHREQACKCOUNT + 1;
+				SendMsg.bDataRecord[2] = 0;
+
+				PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_USERINFO_ACK);
+				MsgPackageMgr::Send(SocketId, packData);
+
+				//清空
+				memset(&SendMsg, 0, sizeof(SendMsg));
+				SendMsg.bResCode = 0;
+			}
+// 			if (iRecordCount == 1 || iRecordCount % MAXBATCHREQACKCOUNT == 0)
+// 			{
+// 				SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+// 				SendMsg.bRankFlag = (unsigned char)atoi(vStrRecord.at(3).c_str());
+// 				StringTool::StrSpliteToUcArray(SendMsg.cCondition, 5, vStrRecord.at(2));
+// 			}
+		}
+	} while (false);
+
+	if (SendMsg.bResCode == 0)
+	{
+		SendMsg.bDataRecord[0] = iRecordCount%MAXBATCHREQACKCOUNT;
+		SendMsg.bDataRecord[1] = (iRecordCount>0 ? iRecordCount-1 : 0)/MAXBATCHREQACKCOUNT + 1;
+	}
+	SendMsg.bDataRecord[2] = 1;
+
+	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_USERINFO_ACK);
 	MsgPackageMgr::Send(SocketId, packData);
 }
 

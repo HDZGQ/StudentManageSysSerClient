@@ -21,6 +21,7 @@ public:
 	void AddSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条增加用户信息请求
 	void AddBatchUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //批量增加用户信息请求
 	void SelectSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条查询用户信息请求
+	void SelectBatchUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //批量查询用户信息请求
 	void UpdateSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //单条更新用户信息请求
 
 	/*
@@ -29,6 +30,7 @@ public:
 	void AddSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //单条增加用户信息回复
 	void AddBatchUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //批量增加用户信息回复
 	void SelectSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //单条查询用户信息回复
+	void SelectBatchUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //批量查询用户信息回复
 	void UpdateSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord); //单条更新用户信息回复
 };
 
