@@ -209,8 +209,8 @@ void SelectUserInfoSysProc::SelectBatchUserInfoChooseHandle()
 			OperInputErrorHandle();
 			return;
 		}
-		SendReq.uUserIdRange[0] = (unsigned char)atoi(vecScoreRange.at(0).c_str());
-		SendReq.uUserIdRange[1] = (unsigned char)atoi(vecScoreRange.at(1).c_str());
+		SendReq.uUserIdRange[0] = (unsigned)atoi(vecScoreRange.at(0).c_str());
+		SendReq.uUserIdRange[1] = (unsigned)atoi(vecScoreRange.at(1).c_str());
 		SendReq.uUserIdRange[2] = 1;
 	}
 
@@ -314,7 +314,7 @@ bool SelectUserInfoSysProc::SelectSingleUserInfoRecvHandle(void* vpData, unsigne
 	vSelectFieldShow.push_back("性别");
 	vSelectResultShow.push_back(RecvMSG->sSex==0?"男":(RecvMSG->sSex==1?"女":"NULL"));
 	vSelectFieldShow.push_back("身份标识");
-	vSelectResultShow.push_back(RecvMSG->sIdent==1?"学生":(RecvMSG->sSex==2?"教师":(RecvMSG->sSex==3?"管理员":"NULL")));
+	vSelectResultShow.push_back(RecvMSG->sIdent==1?"学生":(RecvMSG->sIdent==2?"教师":(RecvMSG->sIdent==3?"管理员":"NULL")));
 	vSelectFieldShow.push_back("专业");
 	vSelectResultShow.push_back(RecvMSG->cMajor);
 
@@ -402,7 +402,7 @@ bool SelectUserInfoSysProc::SelectBatchUserInfoRecvHandle(void* vpData, unsigned
 		vSelectFieldShow.push_back("性别");
 		vSelectResultShow.push_back(RecvMSG->sSex[i]==0?"男":(RecvMSG->sSex[i]==1?"女":"NULL"));
 		vSelectFieldShow.push_back("身份标识");
-		vSelectResultShow.push_back(RecvMSG->sIdent[i]==1?"学生":(RecvMSG->sSex[i]==2?"教师":(RecvMSG->sSex[i]==3?"管理员":"NULL")));
+		vSelectResultShow.push_back(RecvMSG->sIdent[i]==1?"学生":(RecvMSG->sIdent[i]==2?"教师":(RecvMSG->sIdent[i]==3?"管理员":"NULL")));
 		vSelectFieldShow.push_back("专业");
 		vSelectResultShow.push_back(RecvMSG->cMajor[i]);
 

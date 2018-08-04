@@ -18,7 +18,7 @@ create table userInfo (
 	primary key(userID)
 ) engine=innodb auto_increment=100000 ;
 -- insert into userInfo(account, password, name, sex, Ident, major, grade) values ('aaaaa','123456', '张三', 0, 1, '自动化', '自动化11-1');
--- select userID, account, password, name, sex, Ident, major, grade from userInfo where userID>=100010 and userID<=100020 and grade='美术18-1' and sex=1 and name like '%小%';
+-- select userID, account, password, name, sex, Ident, major, grade from userInfo where (Ident<3 or Ident=3 and userID=100000) and userID>=100010 and userID<=100020 and grade='美术18-1' and sex=1 and name like '%小%';
 //
 
 -- 后续开设可增减科目功能

@@ -189,6 +189,28 @@ void UserInfoProc::SelectBatchUserInfoRecvHandle(SOCKET SocketId, void* vpData, 
 	CS_MSG_SELECT_BATCH_USERINFO_REQ* RecvMsg = (CS_MSG_SELECT_BATCH_USERINFO_REQ*)vpData;
 
 	string strWhere;
+	unsigned uMyUserId = UserInfoMgr::GetInstance()->GetUserIdBySocketId(SocketId);
+	short sMyIdend = UserInfoMgr::GetInstance()->GetIdentBySocketId(SocketId);
+	string strMyIdend = StringTool::NumberToStr((int)sMyIdend);
+	if (sMyIdend == 1 && UserInfoMgr::GetInstance()->IsHaveOneAuthorityBySocketId(SocketId, OPER_PER_SELECTBATCHUSERINFO)) //学生被管理员授予这种权限时，只可以查询学生身份和自己的
+	{
+		strWhere += string(" where Ident=") + strMyIdend;
+	}
+	else if (sMyIdend > 1) //只能查询比自己低身份表示，和查询自己的
+	{
+		strWhere += string("  where (Ident<") + strMyIdend + " or Ident=" + strMyIdend + " and userID=" + StringTool::NumberToStr((int)uMyUserId) + ")";
+	}
+	else
+	{
+		SC_MSG_SELECT_BATCH_USERINFO_ACK SendMsg;
+		SendMsg.bResCode = 4;
+		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_SELECT_BATCH_USERINFO_ACK);
+		MsgPackageMgr::Send(SocketId, packData);
+
+		printf("%s 没有批量查询用户信息的权限\n", __FUNCTION__);
+		return;
+	}
+
 	if (RecvMsg->uUserIdRange[2] == 1)
 	{
 		if (strWhere.empty())
@@ -808,7 +830,7 @@ void UserInfoProc::SelectBatchUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *My
 			* 2.根据身份标识确定可查看的对象类型（即根据身份表示区分类型），一般是可查看自己和比自己身份标识低的用户；
 			* 3.可查看的那些字段，那些字段不可查看；
 			*/	
-			//根据身边标识判断是否可查 -- 每种身份都有单条查询权限，所以只能查询自己和比自己身份标识低的用户。特殊的是管理者，可以查询学生和教师的密码，教师则不能查询学生的密码，自己也不能查询自己的密码
+			//根据身边标识判断是否可查 -- 教师和管理员都有单条查询权限，只能查询自己和比自己身份标识低的用户。特殊的是管理者，可以查询学生和教师的密码，教师则不能查询学生的密码，自己也不能查询自己的密码；学生被授权后，可以查询学生身份和自己的信息
 			short sMyIdent = UserInfoMgr::GetInstance()->GetIdentBySocketId(SocketId);
 			if (sMyIdent > SendMsg.sIdent[iRecordCount%MAXBATCHREQACKCOUNT])
 			{
@@ -819,6 +841,11 @@ void UserInfoProc::SelectBatchUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *My
 				}
 			}
 			else if (sMyIdent == SendMsg.sIdent[iRecordCount%MAXBATCHREQACKCOUNT] && UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId) == SendMsg.cAccount[iRecordCount%MAXBATCHREQACKCOUNT]) //查询用户自己的信息
+			{
+				memset(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], 0, sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]));
+				strcpy_s(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]), "******");
+			}
+			else if (sMyIdent == 1 && UserInfoMgr::GetInstance()->IsHaveOneAuthorityBySocketId(SocketId, OPER_PER_SELECTBATCHUSERINFO)) //学生被管理员授予这种权限时，只可以查询学生身份和自己的
 			{
 				memset(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], 0, sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]));
 				strcpy_s(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT], sizeof(SendMsg.cPWD[iRecordCount%MAXBATCHREQACKCOUNT]), "******");
