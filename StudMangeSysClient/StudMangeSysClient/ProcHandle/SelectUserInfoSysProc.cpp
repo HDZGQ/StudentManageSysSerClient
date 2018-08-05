@@ -196,7 +196,7 @@ void SelectUserInfoSysProc::SelectBatchUserInfoChooseHandle()
 	SendReq.uUserIdRange[2] = 0;
 	if (FindOneInArray(SendReq.cCondition, cConditionCount, SELECT_USERINFO_END-1, SELECT_USERINFO_RANGE))
 	{
-		printf("请输入需要查询的用户id范围（格式 XXXXXX-XXXXXX）：\n");
+		printf("请输入需要查询的用户id范围（格式 XXXXXXX-XXXXXXX）：\n");
 		string strScoreRange;
 		cin>>strScoreRange;
 		vector<string> vecScoreRange = StringTool::Splite(strScoreRange, "-");

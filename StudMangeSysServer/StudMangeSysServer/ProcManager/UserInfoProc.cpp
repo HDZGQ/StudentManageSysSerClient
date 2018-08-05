@@ -334,9 +334,13 @@ void UserInfoProc::UpdateSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData,
 		return;
 	}
 
-	string strUpdateSet;
+	////
 	int iUpdateMySelfAccount = 0; //是否更改了自己的账号，标记下。如果执行成功，同步更改用户内存的用户数据
 	string strUpdateMySelfAccount; //记录更改自己的账号
+	int iUpdateIdentFlag = 0; //是否更改了身份标识
+	string strAuthority; //新的身份标识支付串
+	////
+	string strUpdateSet;
 	for (unsigned char i=0; i<RecvMsg->bUserInfoFieldCount; i++)
 	{
 		if (!strUpdateSet.empty())
@@ -347,11 +351,21 @@ void UserInfoProc::UpdateSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData,
 		{
 			strUpdateSet += UserInfoMgr::GetInstance()->GetEnglishUserInfoFieldByField(RecvMsg->sUserInfoField[i]);
 			strUpdateSet += string("=") + RecvMsg->cUserInfoValue[i];
+
+			if (RecvMsg->sUserInfoField[i] == 5  && sMyIdent == 3 && string(RecvMsg->cUserInfoValue[i]) != "3")
+			{
+				iUpdateIdentFlag = 1;
+
+				//根据身份使用默认权限
+				vector<OperPermission> vecOper;
+				UserInfoMgr::GetInstance()->GetDefaultAuthorityByIdent((IdentType)atoi(RecvMsg->cUserInfoValue[i]), vecOper);
+				strAuthority = StringTool::CombVecToStr(vecOper);
+			}
 		}
 		else if (((RecvMsg->sUserInfoField[i] > 0 && RecvMsg->sUserInfoField[i] < 4) || (RecvMsg->sUserInfoField[i] > 5  && RecvMsg->sUserInfoField[i] < 8)) && bCanUpdate[RecvMsg->sUserInfoField[i]])
 		{
 			strUpdateSet += UserInfoMgr::GetInstance()->GetEnglishUserInfoFieldByField(RecvMsg->sUserInfoField[i]);
-			strUpdateSet += string("='") + RecvMsg->cUserInfoValue[i] + "'";
+			strUpdateSet += string("=''") + RecvMsg->cUserInfoValue[i] + "''";
 
 			if (RecvMsg->sUserInfoField[i]==1 && sMyIdent==sObjIdent && strMyAccount==strObjAccount)
 			{
@@ -384,12 +398,61 @@ void UserInfoProc::UpdateSingleUserInfoRecvHandle(SOCKET SocketId, void* vpData,
 
 	char strMysql[512];
 	memset(strMysql, 0, sizeof(strMysql));
-	sprintf_s(strMysql, sizeof(strMysql), "update userInfo set %s where account='%s'", strUpdateSet.c_str(), RecvMsg->cAccount);
+	//sprintf_s(strMysql, sizeof(strMysql), "update userInfo set %s where account='%s'", strUpdateSet.c_str(), RecvMsg->cAccount);
+	sprintf_s(strMysql, sizeof(strMysql), "call UpdateSingleUserInfoByAccount('%s', '%s', %d, '%s')", strUpdateSet.c_str(), RecvMsg->cAccount, iUpdateIdentFlag, strAuthority.c_str());
 
 	string strRecord = "~";
 	strRecord += StringTool::NumberToStr((int)RecvMsg->sType) + "~" + RecvMsg->cAccount + "~" + StringTool::NumberToStr(iUpdateMySelfAccount)+"|"+strUpdateMySelfAccount;
 
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_UPDATE, ASSIST_ID_UPDATE_SINGLE_USERINFO_ACK, SocketId, strRecord);
+}
+
+void UserInfoProc::DeleteUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_DELETE_USERINFO_REQ))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_DELETE_USERINFO_REQ));
+		return;
+	}
+
+	CS_MSG_DELETE_USERINFO_REQ* RecvMsg = (CS_MSG_DELETE_USERINFO_REQ*)vpData;
+
+	string strDeleteSql = "call";
+	char ch[258];
+	if (RecvMsg->sType == 1 && RecvMsg->uUserid[2] == 0)
+	{
+		memset(ch,0,sizeof(ch));
+		sprintf_s(ch, sizeof(ch), " DeleteSingleUserInfoByAccount('%s')", RecvMsg->cAccount);
+		strDeleteSql+= ch;
+	}
+	else if (RecvMsg->sType == 2 && RecvMsg->uUserid[2] == 1 && RecvMsg->uUserid[0]<=RecvMsg->uUserid[1])
+	{
+		memset(ch,0,sizeof(ch));
+		sprintf_s(ch, sizeof(ch), " DeleteBatchUserInfoByUserId(%u, %u)", RecvMsg->uUserid[0], RecvMsg->uUserid[1]);
+		strDeleteSql += ch;
+	}
+	else
+	{
+		SC_MSG_DELETE_USERINFO_ACK SendMsg;
+		SendMsg.bSucceed = false;
+		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_DELETE_USERINFO_ACK);
+		MsgPackageMgr::Send(SocketId, packData);
+		return;
+	}
+
+	char strMysql[512];
+	memset(strMysql, 0, sizeof(strMysql));
+	sprintf_s(strMysql, sizeof(strMysql), "%s", strDeleteSql.c_str());
+
+	string strRecord = "~";
+	strRecord += StringTool::NumberToStr(RecvMsg->sType);
+
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_CALL_PROC, ASSIST_ID_DELETE_USERINFO_ACK, SocketId, strRecord);
 }
 
 void UserInfoProc::AddSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
@@ -927,5 +990,32 @@ void UserInfoProc::UpdateSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *M
 	} while (false);
 
 	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_UPDATE_SINGLE_USERINFO_ACK);
+	MsgPackageMgr::Send(SocketId, packData);
+}
+
+void UserInfoProc::DeleteUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
+{
+	SC_MSG_DELETE_USERINFO_ACK SendMsg;
+	SendMsg.bSucceed = true;
+	do 
+	{
+		vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
+		if (vStrRecord.size() != 2)
+		{
+			printf("%s  数据项数量[%u] 记录内数据项数量有错strRecord[%s]\n", __FUNCTION__, vStrRecord.size(), strRecord.c_str());
+			SendMsg.bSucceed = false;
+			break;
+		}
+		if ((int)atoi(vStrRecord.at(0).c_str()) != 0)
+		{
+			printf("%s  数据库操作错误\n", __FUNCTION__);
+			SendMsg.bSucceed = false;
+			break;
+		}
+
+		SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+	} while(false);
+
+	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_DELETE_USERINFO_ACK);
 	MsgPackageMgr::Send(SocketId, packData);
 }

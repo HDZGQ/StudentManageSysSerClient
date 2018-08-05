@@ -271,7 +271,7 @@ void UpdateUserInfoSysProc::UpdateSingleUserInfoByOneFieldChooseHandle(unsigned 
 
 
 	//输入新的用户信息
-	printf("请输入%s新的%s：\n", bIsMe?"您":"对象", GetChineseUserInfoFieldByField(iChooseFieldID).c_str());
+	printf("请输入%s新的%s（性别：0男1女 身份标识：1学生2教师）：\n", bIsMe?"您":"对象", GetChineseUserInfoFieldByField(iChooseFieldID).c_str());
 	string strNewFieldValue;
 	cin>>strNewFieldValue;
 	if (!(CheckUserInfoFieldValue(strNewFieldValue, iChooseFieldID)))
@@ -748,7 +748,7 @@ bool UpdateUserInfoSysProc::InputAllUserInfoFieldValues(string strShowFieldID, m
 		cout<<endl;
 	}
 
-	printf("按照从左到右和从上到下的顺序输入对应新的用户信息（格式为 XX|XX|XX）：\n");
+	printf("按照从左到右和从上到下的顺序输入对应新的用户信息（格式为 XX|XX|XX。 性别：0男1女 身份标识：1学生2教师）：\n");
 	string strNewAllFieldValue;
 	cin>>strNewAllFieldValue;
 	vector<string> vecNewAllFieldValue = StringTool::Splite(strNewAllFieldValue);

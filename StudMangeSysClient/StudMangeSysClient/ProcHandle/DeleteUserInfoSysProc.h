@@ -18,7 +18,11 @@ public:
 
 	virtual void SwitchToOper(OperPermission CurOper);
 
+	//选择操作处理
+	void DeleteUserInfoChooseHandle();
 
+	//返回结果处理
+	bool DeleteUserInfoRecvHandle(void* vpData, unsigned int DataLen);
 };
 
 #endif

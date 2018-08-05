@@ -435,7 +435,7 @@ void ScoreProc::DeleteScoreRecvHandle(SOCKET SocketId, void* vpData, unsigned in
 		sprintf_s(ch, sizeof(ch), " s from studscore s inner join (select userid from userinfo where account='%s') u on s.userid=u.userid", RecvMsg->cAccount);
 		strDeleteSql+= ch;
 	}
-	else if (RecvMsg->sType == 2 && RecvMsg->uUserid[2] == 1)
+	else if (RecvMsg->sType == 2 && RecvMsg->uUserid[2] == 1 && RecvMsg->uUserid[0] <= RecvMsg->uUserid[1])
 	{
 		memset(ch,0,sizeof(ch));
 		strDeleteSql += " from studscore where ";

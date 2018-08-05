@@ -32,6 +32,7 @@ bool ProcMgr::InitMoniter()
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_SINGLE_USERINFO_REQ, &m_UserInfoProc, &UserInfoProc::SelectSingleUserInfoRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_BATCH_USERINFO_REQ, &m_UserInfoProc, &UserInfoProc::SelectBatchUserInfoRecvHandle);
 	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_UPDATE_SINGLE_USERINFO_REQ, &m_UserInfoProc, &UserInfoProc::UpdateSingleUserInfoRecvHandle);
+	m_RecvHandleMoniter.MonitorEvent(ASSIST_ID_DELETE_USERINFO_REQ, &m_UserInfoProc, &UserInfoProc::DeleteUserInfoRecvHandle);
 
 
 	/*
@@ -54,6 +55,7 @@ bool ProcMgr::InitMoniter()
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_SINGLE_USERINFO_ACK, &m_UserInfoProc, &UserInfoProc::SelectSingleUserInfoReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_SELECT_BATCH_USERINFO_ACK, &m_UserInfoProc, &UserInfoProc::SelectBatchUserInfoReplyHandle);
 	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_UPDATE_SINGLE_USERINFO_ACK, &m_UserInfoProc, &UserInfoProc::UpdateSingleUserInfoReplyHandle);
+	m_ReplyHandleMoniter.MonitorEvent(ASSIST_ID_DELETE_USERINFO_ACK, &m_UserInfoProc, &UserInfoProc::DeleteUserInfoReplyHandle);
 
 	return true;
 }

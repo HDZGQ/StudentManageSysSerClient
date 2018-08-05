@@ -93,7 +93,7 @@ void DeleteScoreSysProc::DeleteScoreChooseHandle()
 	{
 		SendReq.sType = 2;
 
-		printf("请输入需要批量删除成绩的用户id范围（格式 XXXXXX-XXXXXX）：\n");
+		printf("请输入需要批量删除成绩的用户id范围（格式 XXXXXXX-XXXXXXX）：\n");
 		string strUserIdRange;
 		cin>>strUserIdRange;
 		vector<string> vecUserIdRange = StringTool::Splite(strUserIdRange, "-");

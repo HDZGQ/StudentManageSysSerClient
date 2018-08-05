@@ -160,6 +160,66 @@ begin
 end;
 //
 
+-- 根据账号更新单条用户信息
+drop procedure if exists StudMangeSystem.UpdateSingleUserInfoByAccount;
+//
+create procedure StudMangeSystem.UpdateSingleUserInfoByAccount(in strUpdateSet varchar(200), in strAccount varchar(31), in iUpdateIdentFlag int, in strIdent varchar(150))
+begin
+	declare v_sql varchar(300);
+	declare useridTmp int default 0;
+	declare iCount int default 0;
+	
+	select s.userID into useridTmp from userInfo s where s.account=strAccount;
+
+	if useridTmp > 0 then
+		-- 组织update userInfo的语句
+		set v_sql = concat('update userInfo set ', strUpdateSet, ' where userID=', useridTmp);
+		set @v_sql = v_sql;
+		prepare cmd from @v_sql;
+		execute cmd;
+	
+		if iUpdateIdentFlag = 1 then
+			select count(1) into iCount from userAuthority where userID=useridTmp;
+			if iCount=1 then
+				update userAuthority set Authority=strIdent where userID=useridTmp;
+			end if;
+		end if;
+	end if;
+end;
+//
+
+
+-- 根据账号删除单条用户信息
+drop procedure if exists StudMangeSystem.DeleteSingleUserInfoByAccount;
+//
+create procedure StudMangeSystem.DeleteSingleUserInfoByAccount(in strAccount varchar(31))
+begin
+	declare useridTmp int default 0;
+	
+	select userID into useridTmp from userInfo where account=strAccount;
+	if useridTmp > 0 then
+		delete from studScore where userID=useridTmp;
+		delete from userAuthority where userID=useridTmp;
+		delete from userInfo where userID=useridTmp;
+	end if;
+end;
+//
+
+
+-- 根据账号删除单条用户信息
+drop procedure if exists StudMangeSystem.DeleteBatchUserInfoByUserId;
+//
+create procedure StudMangeSystem.DeleteBatchUserInfoByUserId(in MinUserId int, in MaxUserId int)
+begin
+	if MinUserId <= MaxUserId then -- 不符合的分支应该要通过参数输入结果的方式告诉服务端操作异常。但是这里只做这个合法判断，服务端保证传入参数必须符合这个条件
+		delete from studScore where userID>=MinUserId and userID<=MaxUserId;
+		delete from userAuthority where userID>=MinUserId and userID<=MaxUserId;
+		delete from userInfo where userID>=MinUserId and userID<=MaxUserId;
+	end if;
+end;
+//
+
+
 
 
 delimiter ;
