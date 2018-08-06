@@ -26,6 +26,7 @@ void APPRun::Run()
 
 	//创建接受信息线程和发送心跳包线程 --心跳包线程后续加上，先做基本功能
 	HANDLE recvThread = CreateThread(NULL, 0, RecvThread, NULL, 0, NULL);
+	CloseHandle(recvThread);
 
 	//启动登录注册进程，之后再获取操作权限，操作权限不需要弄出一个类，可以直接在登录注册进程里面处理
 	ProcMgr::GetInstance()->ProcSwitch(PROC_DEF_ENTERSYSPROC);

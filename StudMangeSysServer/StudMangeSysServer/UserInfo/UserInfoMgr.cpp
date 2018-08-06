@@ -151,6 +151,21 @@ bool UserInfoMgr::RemoveInfoByUserId(unsigned int iUserId)
 	return true;
 }
 
+bool UserInfoMgr::InitNotNetDataBySocketId(unsigned __int64 socketId)
+{
+	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
+	if (iter != m_mUserInfo.end())
+	{
+		UserInfoLock::GetInstance()->Lock();
+		m_mUserInfo[socketId].InitNotNetData();
+		UserInfoLock::GetInstance()->Unlock();
+
+		return true;
+	}
+
+	return false;
+}
+
 bool UserInfoMgr::SetUserIdBySocketId(unsigned __int64 socketId, unsigned int iUserId)
 {
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
@@ -177,6 +192,22 @@ unsigned int UserInfoMgr::GetUserIdBySocketId(unsigned __int64 socketId)
 	}
 
 	return 0; //学号肯定要设置大于0的
+}
+
+unsigned __int64 UserInfoMgr::GetSocketIdByAccount(string strAccount)
+{
+	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.begin();
+	for (; iter != m_mUserInfo.end(); iter++)
+	{
+		if (iter->second.strAccount == strAccount)
+		{
+			UserInfoLock::GetInstance()->Lock();
+			return iter->first;
+			UserInfoLock::GetInstance()->Unlock();
+		}
+	}
+
+	return 0;
 }
 
 bool UserInfoMgr::SetAuthorityBySocketId(unsigned __int64 socketId, string strAuthority)
@@ -257,6 +288,20 @@ bool UserInfoMgr::SetNewAccountByAccount(string strAccount, string strNewAccount
 	}
 
 	return false;
+}
+
+bool UserInfoMgr::FindAccount(string strAccount)
+{
+	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.begin();
+	for (; iter != m_mUserInfo.end(); iter++)
+	{
+		if (iter->second.strAccount == strAccount)
+		{
+			return true;
+		}
+	}
+
+	return false;	
 }
 
 bool UserInfoMgr::IsHaveOneAuthorityBySocketId(unsigned __int64 socketId, OperPermission OperPer)

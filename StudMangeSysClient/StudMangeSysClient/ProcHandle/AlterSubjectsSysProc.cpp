@@ -31,6 +31,8 @@ void AlterSubjectsSysProc::EndProc()
 
 void AlterSubjectsSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId)
 {
+	__super::StartRecv(vpData, DataLen, iAssistId);
+
 	bool bRes = false;
 	switch(iAssistId)
 	{
@@ -41,9 +43,12 @@ void AlterSubjectsSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int i
 		bRes = AlterSubjectRecvHandle(vpData, DataLen);
 		break;
 	default:
-		printf("%s iAssistId[%d] error\n", __FUNCTION__, iAssistId);
-		//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true);
-		SetIEndFlag(-1);
+		if (GetIEndFlag() == 0)
+		{
+			printf("%s iAssistId[%d] error\n", __FUNCTION__, iAssistId);
+			//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //ÖØÐÂµÇÂ¼×¢²á
+			SetIEndFlag(-1);
+		}
 		break;
 	}
 	

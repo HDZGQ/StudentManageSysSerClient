@@ -92,7 +92,7 @@ void BaseProc::StartProc()
 		else if (PROC_DEF_INVALID != GetProcDefByRealChoose(iRealChoose))
 		{
 			SetIEndFlag(1); //正常结束
-			EndRecv();
+			EndRecv(); //先调用派生类重写的接口
 			ProcMgr::GetInstance()->ProcSwitch(GetProcDefByRealChoose(iRealChoose));
 		}
 		else
@@ -128,6 +128,19 @@ void BaseProc::SetIEndFlag(int iEndFlag)
 int BaseProc::GetIEndFlag()
 {
 	return m_iEndFlag;
+}
+
+void BaseProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId)
+{
+	bool bRes = false;
+	switch(iAssistId)
+	{
+	case ASSIST_ID_NOTIFT_USER_EXIT_SYS_ACK:
+		bRes = NotifyUserExitSysRecvHandle(vpData, DataLen);
+		break;
+	default:
+		break;
+	}
 }
 
 void BaseProc::EndRecv()
@@ -236,6 +249,11 @@ int& BaseProc::GetMaxRealChoose()
 	return m_iMaxRealChoose;
 }
 
+int BaseProc::GetMyChoose()
+{
+	return m_iMyChoose;
+}
+
 int BaseProc::GetRealChooseByUserChoose(int iChoose)
 {
 	int iCount = 0;
@@ -273,10 +291,6 @@ void BaseProc::ExitSys()
 {
 	cout<<"退出系统中..."<<endl;
 
-	//发送服务端
-	//CS_MSG_EXIT_SYS_REQ SendReq;
-	//SendReq.bExit = true;
-	//TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS_REQ);
 	TCPHandle::GetInstance()->TCPDisConn();
 
 	system("pause");
@@ -300,4 +314,32 @@ void BaseProc::OperInputErrorHandle(bool bFlag, int uMaxInputErrorCount)
 	{
 		SwitchToOper(GetCurOper());	//注意，这个是调其派生类的，因为这个是虚函数
 	}
+}
+
+bool BaseProc::NotifyUserExitSysRecvHandle(void* vpData, unsigned int DataLen)
+{
+	if (DataLen != sizeof(SC_MSG_NOTIFT_USER_EXIT_SYS_ACK))
+	{
+		printf("DataLen[%u] error, It should be [%u]\n", DataLen, sizeof(SC_MSG_NOTIFT_USER_EXIT_SYS_ACK));
+		SetIEndFlag(-1);
+		return false;
+	}
+
+	SC_MSG_NOTIFT_USER_EXIT_SYS_ACK* RecvMSG = (SC_MSG_NOTIFT_USER_EXIT_SYS_ACK*) vpData;
+	if (RecvMSG->bExit)
+	{
+		if (RecvMSG->iCode == 1)
+		{
+			printf("你的账号异地登录，2秒后关闭系统界面！\n");
+			//SetIEndFlag(1);
+			cout<<"退出系统中..."<<endl;
+			Sleep(2000);
+			
+			TCPHandle::GetInstance()->TCPDisConn();
+			exit(0);
+		}
+		
+	}
+
+	return true;
 }

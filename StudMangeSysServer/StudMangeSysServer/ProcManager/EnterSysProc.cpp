@@ -30,6 +30,17 @@ void EnterSysProc::LoginRecvHandle(SOCKET SocketId, void* vpData, unsigned int D
 	}
 	
 	CS_MSG_LOGIN_REQ* RecvMsg = (CS_MSG_LOGIN_REQ*)vpData;
+	//先判断该账号是否已经有登录。若有，先把另一个地方登录的账号强制下线
+	if (UserInfoMgr::GetInstance()->FindAccount(RecvMsg->cAccount))
+	{
+		SC_MSG_NOTIFT_USER_EXIT_SYS_ACK sendMsg;
+		sendMsg.bExit = true;
+		sendMsg.iCode = 1;
+		PackData packData = MsgPackageMgr::Pack(&sendMsg, sizeof(sendMsg), ASSIST_ID_NOTIFT_USER_EXIT_SYS_ACK);
+		MsgPackageMgr::Send((SOCKET)UserInfoMgr::GetInstance()->GetSocketIdByAccount(RecvMsg->cAccount), packData);
+
+		printf("%s  账号[%s]异地登录\n", __FUNCTION__, RecvMsg->cAccount);
+	}
 
 	char strMysql[512];
 	memset(strMysql, 0, sizeof(strMysql));
@@ -77,25 +88,27 @@ void EnterSysProc::RegisterRecvHandle(SOCKET SocketId, void* vpData, unsigned in
 	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_REGISTER_ACK, SocketId, strRecord+"~2");
 }
 
-// void EnterSysProc::ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
-// {
-// 	if ( NULL == vpData)
-// 	{
-// 		printf("%s  消息为空\n", __FUNCTION__);
-// 		return;
-// 	}
-// 	if (DataLen != sizeof(CS_MSG_EXIT_SYS_REQ))
-// 	{
-// 		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_EXIT_SYS_REQ));
-// 		return;
-// 	}
-// 
-// 	CS_MSG_EXIT_SYS_REQ* RecvMsg = (CS_MSG_EXIT_SYS_REQ*)vpData;
-// 	if (RecvMsg->bExit)
-// 	{
-// 		UserInfoMgr::GetInstance()->RemoveInfoBySocketId(SocketId);
-// 	}
-// }
+void EnterSysProc::ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen)
+{
+	if ( NULL == vpData)
+	{
+		printf("%s  消息为空\n", __FUNCTION__);
+		return;
+	}
+	if (DataLen != sizeof(CS_MSG_EXIT_SYS_REQ))
+	{
+		printf("%s  长度DataLen[%u]不对，正确长度[%u]\n", __FUNCTION__, DataLen, sizeof(CS_MSG_EXIT_SYS_REQ));
+		return;
+	}
+
+	//只是用户不在系统内，但是长连接还在。所以不能清除网络方面的数据，只能清除用户信息数据
+	CS_MSG_EXIT_SYS_REQ* RecvMsg = (CS_MSG_EXIT_SYS_REQ*)vpData;
+	if (RecvMsg->bExit)
+	{
+		printf("账号[%s]退出系统\n", UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId).c_str());
+		UserInfoMgr::GetInstance()->InitNotNetDataBySocketId(SocketId);
+	}
+}
 
 void EnterSysProc::LoginReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {

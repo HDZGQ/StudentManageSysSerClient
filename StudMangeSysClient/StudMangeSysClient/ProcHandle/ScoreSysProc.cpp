@@ -29,7 +29,7 @@ void ScoreSysProc::EndProc()
 
 void ScoreSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId)
 {
-
+	__super::StartRecv(vpData, DataLen, iAssistId);
 }
 void ScoreSysProc::EndRecv()
 {

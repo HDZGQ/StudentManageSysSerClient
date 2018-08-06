@@ -15,12 +15,14 @@ public:
 	BaseProc(ProcDef nProcDef);
 	~BaseProc();
 
+	//派生类公共接口
+public:
 	void OnStart(bool bChooseAgain = false); //启动进程接口
 
 	virtual void StartProc();
 	virtual void EndProc();
 
-	virtual void StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId) = 0;
+	virtual void StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId);
 	virtual void EndRecv();
 
 	void SetIEndFlag(int iEndFlag);
@@ -46,12 +48,20 @@ public:
 	int& GetMinRealChoose();
 	int& GetMaxRealChoose();
 
+	int GetMyChoose();
+
 	int GetRealChooseByUserChoose(int iChoose);//通过用户输入的权限影响过的choose，找到m_mChoose对应的真正key值
 	int GetUserMaxChoose(); //获取用户可选择里的最大选择值
 
-	void ExitSys();
+	void ExitSys(); //结束程序，退出系统
 
 	void OperInputErrorHandle(bool bFlag=true, int uMaxInputErrorCount=OPERINPUTERRORMAXLIMIT); //多次输入操作错误处理 要考虑只在请求处选择错误和到了返回结果处选择错误，bFlag标记用于控制是否需要使用该函数的切换进程
+
+	//基类私有接口
+protected:
+	//返回结果处理
+	bool NotifyUserExitSysRecvHandle(void* vpData, unsigned int DataLen); //通知用户退出系统
+
 protected:
 	//key就是realChoose
 	map<int, ChooseData> m_mChoose;

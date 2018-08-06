@@ -18,7 +18,8 @@ public:
 
 	virtual void SwitchToOper(OperPermission CurOper);
 
-
+protected:
+	void ExitSysHandle(); //通知服务端该用户退出系统
 };
 
 #endif

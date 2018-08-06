@@ -1,4 +1,5 @@
 #include "CommonSysProc.h"
+#include "TCPHandle.h"
 
 
 CommonSysProc::CommonSysProc(ProcDef nProcDef) : BaseProc(nProcDef)
@@ -28,11 +29,15 @@ void CommonSysProc::EndProc()
 
 void CommonSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId)
 {
-
+	__super::StartRecv(vpData, DataLen, iAssistId);
 }
 
 void CommonSysProc::EndRecv()
 {
+	if (PROC_DEF_ENTERSYSPROC == GetProcDefByRealChoose(GetRealChooseByUserChoose(GetMyChoose())))
+	{
+		ExitSysHandle();
+	}
 	__super::EndRecv();
 }
 
@@ -41,4 +46,12 @@ void CommonSysProc::SwitchToOper(OperPermission CurOper)
 	__super::SwitchToOper(CurOper);
 
 
+}
+
+void CommonSysProc::ExitSysHandle()
+{
+	//·¢ËÍ·þÎñ¶Ë
+	CS_MSG_EXIT_SYS_REQ SendReq;
+	SendReq.bExit = true;
+	TCPHandle::GetInstance()->Send(&SendReq, sizeof(SendReq), ASSIST_ID_EXIT_SYS_REQ);
 }

@@ -100,6 +100,12 @@ struct UserInfo
 		PerIoData = NULL;
 		PerHandleData = NULL;
 
+		InitNotNetData();
+	}
+
+	//初始化非网络数据
+	void InitNotNetData()
+	{
 		iUserId = 0;
 		strAccount = "";
 		strIP = "";

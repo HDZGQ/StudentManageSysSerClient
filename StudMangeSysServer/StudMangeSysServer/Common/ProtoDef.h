@@ -49,7 +49,7 @@ enum Assist_ID
 	ASSIST_ID_LOGIN_ACK								 =   10002, //登录回复
 	ASSIST_ID_REGISTER_REQ							 =   10003, //注册请求
 	ASSIST_ID_REGISTER_ACK							 =   10004, //注册回复
-	ASSIST_ID_EXIT_SYS_REQ							 =   10005, //退出系统  -- 用不上这个协议ID
+	ASSIST_ID_EXIT_SYS_REQ							 =   10005, //退出系统 
 	ASSIST_ID_GET_SUBJECTS_REQ						 =   10006, //获取剩余和现有科目请求
 	ASSIST_ID_GET_SUBJECTS_ACK						 =   10007, //获取剩余和现有科目回复
 	ASSIST_ID_ALTER_SUBJECTS_REQ					 =   10008, //增减科目请求
@@ -82,6 +82,7 @@ enum Assist_ID
 	ASSIST_ID_UPDATE_SINGLE_USERINFO_ACK			 =   10035, //单条更新用户信息回复
 	ASSIST_ID_DELETE_USERINFO_REQ					 =   10036, //删除用户信息请求
 	ASSIST_ID_DELETE_USERINFO_ACK					 =   10037, //删除用户信息回复
+	ASSIST_ID_NOTIFT_USER_EXIT_SYS_ACK				 =   10038, //通知用户强退出系统 
 
 
 	ASSIST_ID_END												//有效值终止值
@@ -165,7 +166,7 @@ struct SC_MSG_REGISTER_ACK
 	}
 };
 
-//退出系统   assist[10005]   -- 用不上这个协议
+//退出系统 -- 只是用户不在系统内，但是长连接还在   assist[10005] 
 struct CS_MSG_EXIT_SYS_REQ
 {
 	bool bExit;
@@ -609,6 +610,17 @@ struct SC_MSG_DELETE_USERINFO_ACK
 	SC_MSG_DELETE_USERINFO_ACK()
 	{
 		memset(this, 0, sizeof(SC_MSG_DELETE_USERINFO_ACK));
+	}
+};
+
+//通知用户强退出系统   assist[10038]
+struct SC_MSG_NOTIFT_USER_EXIT_SYS_ACK
+{
+	bool bExit;
+	unsigned char iCode;//0正常通知退出 1账号异地登录被迫强退
+	SC_MSG_NOTIFT_USER_EXIT_SYS_ACK()
+	{
+		memset(this, 0, sizeof(SC_MSG_NOTIFT_USER_EXIT_SYS_ACK));
 	}
 };
 

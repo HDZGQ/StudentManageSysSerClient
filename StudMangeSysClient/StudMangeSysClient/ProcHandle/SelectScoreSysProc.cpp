@@ -33,6 +33,8 @@ void SelectScoreSysProc::EndProc()
 
 void SelectScoreSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId)
 {
+	__super::StartRecv(vpData, DataLen, iAssistId);
+
 	bool bRes = false;
 	switch(iAssistId)
 	{
@@ -46,9 +48,12 @@ void SelectScoreSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMi
 		bRes = SelectBatchScoreRecvHandle(vpData, DataLen);
 		break;
 	default:
-		printf("%s iAssistId[%d] error\n", __FUNCTION__, iAssistId);
-		//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
-		SetIEndFlag(-1);
+		if (GetIEndFlag() == 0)
+		{
+			printf("%s iAssistId[%d] error\n", __FUNCTION__, iAssistId);
+			//ProcMgr::GetInstance()->ProcSwitch(GetMyProcDef(), true); //重新登录注册
+			SetIEndFlag(-1);
+		}
 		break;
 	}
 

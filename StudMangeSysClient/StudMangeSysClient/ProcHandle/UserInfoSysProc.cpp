@@ -28,7 +28,7 @@ void UserInfoSysProc::EndProc()
 
 void UserInfoSysProc::StartRecv(void* vpData, unsigned int DataLen, /*int iMianId,*/ int iAssistId)
 {
-
+	__super::StartRecv(vpData, DataLen, iAssistId);
 }
 
 void UserInfoSysProc::EndRecv()

@@ -20,7 +20,7 @@ public:
 	*/
 	void LoginRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen);
 	void RegisterRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen);
-	//void ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen);
+	void ExitSysRecvHandle(SOCKET SocketId, void* vpData, unsigned int DataLen); //只是用户不在系统内，但是长连接还在
 
 	/*
 	* 回复消息处理。strRecord需要从前面操作中带到返回函数的数据
