@@ -190,15 +190,15 @@ void UserInfoProc::SelectBatchUserInfoRecvHandle(SOCKET SocketId, void* vpData, 
 
 	string strWhere;
 	unsigned uMyUserId = UserInfoMgr::GetInstance()->GetUserIdBySocketId(SocketId);
-	short sMyIdend = UserInfoMgr::GetInstance()->GetIdentBySocketId(SocketId);
-	string strMyIdend = StringTool::NumberToStr((int)sMyIdend);
-	if (sMyIdend == 1 && UserInfoMgr::GetInstance()->IsHaveOneAuthorityBySocketId(SocketId, OPER_PER_SELECTBATCHUSERINFO)) //学生被管理员授予这种权限时，只可以查询学生身份和自己的
+	short sMyIdent = UserInfoMgr::GetInstance()->GetIdentBySocketId(SocketId);
+	string strMyIdent = StringTool::NumberToStr((int)sMyIdent);
+	if (sMyIdent == 1 && UserInfoMgr::GetInstance()->IsHaveOneAuthorityBySocketId(SocketId, OPER_PER_SELECTBATCHUSERINFO)) //学生被管理员授予这种权限时，只可以查询学生身份和自己的
 	{
-		strWhere += string(" where Ident=") + strMyIdend;
+		strWhere += string(" where Ident=") + strMyIdent;
 	}
-	else if (sMyIdend > 1) //只能查询比自己低身份表示，和查询自己的
+	else if (sMyIdent > 1) //只能查询比自己低身份表示，和查询自己的
 	{
-		strWhere += string("  where (Ident<") + strMyIdend + " or Ident=" + strMyIdend + " and userID=" + StringTool::NumberToStr((int)uMyUserId) + ")";
+		strWhere += string("  where (Ident<") + strMyIdent + " or Ident=" + strMyIdent + " and userID=" + StringTool::NumberToStr((int)uMyUserId) + ")";
 	}
 	else
 	{
@@ -422,18 +422,41 @@ void UserInfoProc::DeleteUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsig
 
 	CS_MSG_DELETE_USERINFO_REQ* RecvMsg = (CS_MSG_DELETE_USERINFO_REQ*)vpData;
 
+	//只能删除权限比自己小和删除自己的信息。学生默认没有删除权限，被授权后，只可以删除学生的
+	short sMyIdent = UserInfoMgr::GetInstance()->GetIdentBySocketId(SocketId);
+	string strMyAccount = UserInfoMgr::GetInstance()->GetAccountBySocketId(SocketId);
+	int iStudentCanDelete = 0;
+	if (RecvMsg->sType == 1)
+	{
+		if (sMyIdent == 1 && UserInfoMgr::GetInstance()->IsHaveOneAuthorityBySocketId(SocketId, OPER_PER_DELETESINGLEUSERINFO)) 
+		{
+			iStudentCanDelete = 1;
+		}
+	}
+	else if (RecvMsg->sType == 2)
+	{
+		if (sMyIdent == 1 && UserInfoMgr::GetInstance()->IsHaveOneAuthorityBySocketId(SocketId, OPER_PER_DELETEBATCHUSERINFO)) 
+		{
+			iStudentCanDelete = 1;
+		}
+	}
+
+	char strOutResult[61];
+	memset(strOutResult, 0, sizeof(strOutResult));
+	sprintf_s(strOutResult, sizeof(strOutResult), "@Result_by_scoket_%llu", (unsigned __int64)SocketId);
+
 	string strDeleteSql = "call";
 	char ch[258];
 	if (RecvMsg->sType == 1 && RecvMsg->uUserid[2] == 0)
 	{
 		memset(ch,0,sizeof(ch));
-		sprintf_s(ch, sizeof(ch), " DeleteSingleUserInfoByAccount('%s')", RecvMsg->cAccount);
+		sprintf_s(ch, sizeof(ch), " DeleteSingleUserInfoByAccount('%s', %d, '%s', %d, %s)", RecvMsg->cAccount, sMyIdent, strMyAccount.c_str(), iStudentCanDelete, strOutResult);
 		strDeleteSql+= ch;
 	}
 	else if (RecvMsg->sType == 2 && RecvMsg->uUserid[2] == 1 && RecvMsg->uUserid[0]<=RecvMsg->uUserid[1])
 	{
 		memset(ch,0,sizeof(ch));
-		sprintf_s(ch, sizeof(ch), " DeleteBatchUserInfoByUserId(%u, %u)", RecvMsg->uUserid[0], RecvMsg->uUserid[1]);
+		sprintf_s(ch, sizeof(ch), " DeleteBatchUserInfoByUserId(%u, %u, %d, '%s', %d, %s)", RecvMsg->uUserid[0], RecvMsg->uUserid[1], sMyIdent, strMyAccount.c_str(), iStudentCanDelete, strOutResult);
 		strDeleteSql += ch;
 	}
 	else
@@ -449,10 +472,16 @@ void UserInfoProc::DeleteUserInfoRecvHandle(SOCKET SocketId, void* vpData, unsig
 	memset(strMysql, 0, sizeof(strMysql));
 	sprintf_s(strMysql, sizeof(strMysql), "%s", strDeleteSql.c_str());
 
+	UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 0); 
+
 	string strRecord = "~";
 	strRecord += StringTool::NumberToStr(RecvMsg->sType);
 
-	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_CALL_PROC, ASSIST_ID_DELETE_USERINFO_ACK, SocketId, strRecord);
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_CALL_PROC, ASSIST_ID_DELETE_USERINFO_ACK, SocketId, strRecord+"~1");
+
+	memset(strMysql, 0, sizeof(strMysql));
+	sprintf_s(strMysql, sizeof(strMysql), "select %s", strOutResult);
+	MysqlMgr::GetInstance()->InputMsgQueue(strMysql, MYSQL_OPER_SELECT, ASSIST_ID_DELETE_USERINFO_ACK, SocketId, strRecord+"~2");
 }
 
 void UserInfoProc::AddSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
@@ -996,26 +1025,75 @@ void UserInfoProc::UpdateSingleUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *M
 void UserInfoProc::DeleteUserInfoReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRes, string strRecord)
 {
 	SC_MSG_DELETE_USERINFO_ACK SendMsg;
-	SendMsg.bSucceed = true;
+	short sRegNeed = UserInfoMgr::GetInstance()->GetRegNeedCountBySocketId(SocketId);
+	unsigned char bSendFlag = 0;
+	vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
 	do 
 	{
-		vector<string> vStrRecord= StringTool::Splite(strRecord, "~");
-		if (vStrRecord.size() != 2)
+		if (vStrRecord.size() != 3)
 		{
 			printf("%s  数据项数量[%u] 记录内数据项数量有错strRecord[%s]\n", __FUNCTION__, vStrRecord.size(), strRecord.c_str());
-			SendMsg.bSucceed = false;
+			bSendFlag = 2;
 			break;
 		}
 		if ((int)atoi(vStrRecord.at(0).c_str()) != 0)
 		{
 			printf("%s  数据库操作错误\n", __FUNCTION__);
-			SendMsg.bSucceed = false;
+			bSendFlag = 2;
 			break;
 		}
+		if (sRegNeed==0 && vStrRecord.at(2)=="1") //第一步调用存储过程
+		{
+			bSendFlag = 1;
+			UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, sRegNeed+(short)atoi(vStrRecord.at(2).c_str()));
+			break;
+		}
+		else if (sRegNeed==1 && vStrRecord.at(2)=="2") //调用成功，取出结果
+		{
+			MYSQL_ROW sql_row;
+			int j = mysql_num_fields(MysqlRes);
+			sql_row=mysql_fetch_row(MysqlRes);
+			if (1 == j)
+			{
+				int iResult = (int)atoi(sql_row[0]);
 
-		SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+				if(iResult != 1) //结果为1才算删除成功
+				{
+					printf("%s  操作不成功，没有删除到用户信息\n", __FUNCTION__);
+					bSendFlag = 2;
+					break;
+				}
+			}
+			else
+			{
+				printf("%s  数据返回字段数不对\n", __FUNCTION__);
+				bSendFlag = 2;
+			}
+			break;
+		}
+		else
+		{
+			printf("%s  数据库执行异常（比如存储过程进行不正确，第二个取字段的肯定就错误了）\n", __FUNCTION__);
+			bSendFlag = 2;
+			break;
+		}
+		
 	} while(false);
 
-	PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_DELETE_USERINFO_ACK);
-	MsgPackageMgr::Send(SocketId, packData);
+	if (bSendFlag==0 || bSendFlag==2)
+	{
+		UserInfoMgr::GetInstance()->SetRegNeedCountBySocketId(SocketId, 0); 
+
+		if (bSendFlag == 0)
+		{
+			SendMsg.bSucceed = true;
+			SendMsg.sType = (short)atoi(vStrRecord.at(1).c_str());
+		}
+		else
+		{
+			SendMsg.bSucceed = false;
+		}
+		PackData packData = MsgPackageMgr::Pack(&SendMsg, sizeof(SendMsg), ASSIST_ID_DELETE_USERINFO_ACK);
+		MsgPackageMgr::Send(SocketId, packData);
+	}
 }

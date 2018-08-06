@@ -192,12 +192,19 @@ end;
 -- 根据账号删除单条用户信息
 drop procedure if exists StudMangeSystem.DeleteSingleUserInfoByAccount;
 //
-create procedure StudMangeSystem.DeleteSingleUserInfoByAccount(in strAccount varchar(31))
+create procedure StudMangeSystem.DeleteSingleUserInfoByAccount(in strAccount varchar(31), in myIdent tinyint, in strMyAccount varchar(31), in StudentCanDelete tinyint, out iResult int)
 begin
 	declare useridTmp int default 0;
+	set iResult = 0;
 	
-	select userID into useridTmp from userInfo where account=strAccount;
+	if myIdent=1 and StudentCanDelete=1 then -- 学生被授权后可以删除学生的用户信息
+		select userID into useridTmp from userInfo where account=strAccount and Ident=1;
+	elseif myIdent>1 then  -- 教师和管理员只能删除自己和比自己身份标识低的用户
+		select userID into useridTmp from userInfo where account=strAccount and (Ident<myIdent or Ident=myIdent and account=strMyAccount);
+	end if;
+	
 	if useridTmp > 0 then
+		set iResult = 1;
 		delete from studScore where userID=useridTmp;
 		delete from userAuthority where userID=useridTmp;
 		delete from userInfo where userID=useridTmp;
@@ -206,16 +213,33 @@ end;
 //
 
 
--- 根据账号删除单条用户信息
+-- 根据账号删除单条用户信息 -- 由服务端保证传入参数的合法性
 drop procedure if exists StudMangeSystem.DeleteBatchUserInfoByUserId;
 //
-create procedure StudMangeSystem.DeleteBatchUserInfoByUserId(in MinUserId int, in MaxUserId int)
+create procedure StudMangeSystem.DeleteBatchUserInfoByUserId(in MinUserId int, in MaxUserId int, in myIdent tinyint, in strMyAccount varchar(31), in StudentCanDelete tinyint, out iResult int)
 begin
-	if MinUserId <= MaxUserId then -- 不符合的分支应该要通过参数输入结果的方式告诉服务端操作异常。但是这里只做这个合法判断，服务端保证传入参数必须符合这个条件
-		delete from studScore where userID>=MinUserId and userID<=MaxUserId;
-		delete from userAuthority where userID>=MinUserId and userID<=MaxUserId;
-		delete from userInfo where userID>=MinUserId and userID<=MaxUserId;
-	end if;
+	declare useridTmp int default 0;
+	DECLARE done INT DEFAULT 0;
+	declare mycursor CURSOR FOR SELECT userID FROM userInfo where userID>=MinUserId and userID<=MaxUserId and ((Ident=1 and StudentCanDelete=1) or Ident<myIdent or (Ident=myIdent and account=strMyAccount));
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done=1;
+	set iResult = 0;
+	
+	OPEN mycursor;
+
+	emp_loop: LOOP  
+        FETCH mycursor INTO useridTmp;  
+        IF done=1 THEN  
+            LEAVE emp_loop;  
+        END IF; 
+		if iResult=0 then
+			set iResult = 1;
+		end if;
+		delete from studScore where userID=useridTmp;
+		delete from userAuthority where userID=useridTmp;
+		delete from userInfo where userID=useridTmp;
+    END LOOP emp_loop; 
+	
+    CLOSE mycursor;
 end;
 //
 
