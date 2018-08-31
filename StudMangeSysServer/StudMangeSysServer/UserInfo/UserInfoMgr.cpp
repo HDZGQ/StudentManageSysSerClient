@@ -107,6 +107,7 @@ bool UserInfoMgr::RemoveInfoBySocketId(unsigned __int64 socketId)
 	{
 		UserInfoLock::GetInstance()->Lock();
 
+		//shutdown((SOCKET)iter->first,SD_SEND);
 		closesocket((SOCKET)iter->first);
 		if (NULL != iter->second.PerHandleData)
 			GlobalFree(iter->second.PerHandleData);
