@@ -47,6 +47,8 @@ private:
 	vector<SubjectsType> m_vExistSubjects;
 
 	map<SubjectsType, SubjectsData> m_mAllSubjects;
+
+	CRITICAL_SECTION  _critical;
 };
 
 #endif

@@ -22,6 +22,8 @@ public:
 
 private:
 	queue<RecvMsgData> m_RecvMsgQueue;
+
+	CRITICAL_SECTION  _critical;
 };
 
 

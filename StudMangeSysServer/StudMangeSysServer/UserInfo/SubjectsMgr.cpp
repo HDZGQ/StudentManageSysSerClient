@@ -6,11 +6,13 @@
 SubjectsMgr::SubjectsMgr()
 {
 	init();
+
+	InitializeCriticalSection(&_critical);
 }
 
 SubjectsMgr::~SubjectsMgr()
 {
-
+	DeleteCriticalSection(&_critical);
 }
 
 void SubjectsMgr::init()
@@ -138,9 +140,10 @@ bool SubjectsMgr::DeleteOneExistSubject(SubjectsType sType)
 	{
 		if (sType == *vIter)
 		{
-			ExistSubjectsLock::GetInstance()->Lock();
+			ExistSubjectsLock uLock(_critical);
+			//ExistSubjectsLock::GetInstance()->Lock();
 			m_vExistSubjects.erase(vIter);
-			ExistSubjectsLock::GetInstance()->Unlock();
+			//ExistSubjectsLock::GetInstance()->Unlock();
 			break;
 		}
 	}
@@ -168,9 +171,10 @@ bool SubjectsMgr::AddOneExistSubject(SubjectsType sType)
 
 	if (!isHave)
 	{
-		ExistSubjectsLock::GetInstance()->Lock();
+		ExistSubjectsLock uLock(_critical);
+		//ExistSubjectsLock::GetInstance()->Lock();
 		m_vExistSubjects.push_back(sType);
-		ExistSubjectsLock::GetInstance()->Unlock();
+		//ExistSubjectsLock::GetInstance()->Unlock();
 	}
 
 	return true;
@@ -231,7 +235,8 @@ void SubjectsMgr::GetExistSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRe
 		MYSQL_FIELD *fd;
 		char column[32];
 
-		ExistSubjectsLock::GetInstance()->Lock();
+		ExistSubjectsLock uLock(_critical);
+		//ExistSubjectsLock::GetInstance()->Lock();
 		for(int i = 0; fd = mysql_fetch_field(MysqlRes);i++)
 		{
 			memset(column, 0, sizeof(column));
@@ -248,7 +253,7 @@ void SubjectsMgr::GetExistSubjectReplyHandle(SOCKET SocketId, MYSQL_RES *MysqlRe
 				m_vExistSubjects.push_back(sType);
 			}
 		}
-		ExistSubjectsLock::GetInstance()->Unlock();
+		//ExistSubjectsLock::GetInstance()->Unlock();
 
 		printf("%s  获取已存在科目成功！\n", __FUNCTION__);
 	}

@@ -84,6 +84,8 @@ protected:
 	//动态数据，存在同步
 private:
 	map<unsigned __int64, UserInfo> m_mUserInfo;
+
+	CRITICAL_SECTION  _critical;
 };
 
 #endif

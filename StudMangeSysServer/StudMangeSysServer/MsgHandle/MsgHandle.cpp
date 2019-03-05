@@ -20,12 +20,12 @@ DWORD WINAPI MsgQueueThread(LPVOID IpParameter)
 
 MsgHandleMgr::MsgHandleMgr()
 {
-
+	InitializeCriticalSection(&_critical);
 }
 
 MsgHandleMgr::~MsgHandleMgr()
 {
-
+	DeleteCriticalSection(&_critical);
 }
 
 void MsgHandleMgr::InputMsgQueue(unsigned __int64 SocketId, char* RecvMsg, unsigned int DataLen, Assist_ID AssistId)
@@ -53,9 +53,10 @@ void MsgHandleMgr::InputMsgQueue(unsigned __int64 SocketId, char* RecvMsg, unsig
 	recvMsg.DataLen = DataLen;
 	recvMsg.AssistID = AssistId;
 
-	RecvMsgLock::GetInstance()->Lock();
+	RecvMsgLock uLock(_critical);
+	//RecvMsgLock::GetInstance()->Lock();
 	m_RecvMsgQueue.push(recvMsg);
-	RecvMsgLock::GetInstance()->Unlock();
+	//RecvMsgLock::GetInstance()->Unlock();
 }
 
 void MsgHandleMgr::MsgQueueHandle()
@@ -72,9 +73,10 @@ void MsgHandleMgr::MsgQueueHandle()
 		RecvMsgData recvMsgData = m_RecvMsgQueue.front();
 		ProcMgr::GetInstance()->GetRecvHandleMoniter().DispatchEvent((Assist_ID)recvMsgData.AssistID, (SOCKET)recvMsgData.SocketId, recvMsgData.RecvMsg, recvMsgData.DataLen);
 
-		RecvMsgLock::GetInstance()->Lock();
+		RecvMsgLock uLock(_critical);
+		//RecvMsgLock::GetInstance()->Lock();
 		m_RecvMsgQueue.pop();
-		RecvMsgLock::GetInstance()->Unlock();
+		//RecvMsgLock::GetInstance()->Unlock();
 	}
 	
 }

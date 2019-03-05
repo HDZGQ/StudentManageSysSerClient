@@ -8,11 +8,13 @@ UserInfoMgr::UserInfoMgr()
 
 	m_maxUserInfoFieldID = 0;
 	InitUserInfoFieldName();
+
+	InitializeCriticalSection(&_critical);
 }
 
 UserInfoMgr::~UserInfoMgr()
 {
-
+	DeleteCriticalSection(&_critical);
 }
 
 void UserInfoMgr::initAllOperPer()
@@ -68,9 +70,10 @@ bool UserInfoMgr::InsertInfo(unsigned __int64 socketId, UserInfo userInfo)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter == m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo.insert(pair<unsigned __int64, UserInfo>(socketId, userInfo));
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -88,9 +91,10 @@ bool UserInfoMgr::InsertInfo(unsigned __int64 socketId, string strIP, unsigned s
 		userInfo.sPort = sPort;
 		userInfo.PerHandleData = PerHandleData;
 		
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo.insert(pair<unsigned __int64, UserInfo>(socketId, userInfo));
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		printf("%s  socketId[%llu]  strIP[%s]  sPort[%d]\n", __FUNCTION__, socketId, strIP.c_str(), sPort);
 
@@ -105,7 +109,8 @@ bool UserInfoMgr::RemoveInfoBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 
 		//shutdown((SOCKET)iter->first,SD_SEND);
 		closesocket((SOCKET)iter->first);
@@ -116,7 +121,7 @@ bool UserInfoMgr::RemoveInfoBySocketId(unsigned __int64 socketId)
 
 		m_mUserInfo.erase(iter);
 
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		printf("%s  socketId[%llu]\n", __FUNCTION__, socketId);
 	}
@@ -131,7 +136,8 @@ bool UserInfoMgr::RemoveInfoByUserId(unsigned int iUserId)
 	{
 		if (iter->second.iUserId == iUserId)
 		{
-			UserInfoLock::GetInstance()->Lock();
+			UserInfoLock uLock(_critical);
+			//UserInfoLock::GetInstance()->Lock();
 
 			closesocket((SOCKET)iter->first);
 			if (NULL != iter->second.PerHandleData)
@@ -141,7 +147,7 @@ bool UserInfoMgr::RemoveInfoByUserId(unsigned int iUserId)
 
 			m_mUserInfo.erase(iter);
 
-			UserInfoLock::GetInstance()->Unlock();
+			//UserInfoLock::GetInstance()->Unlock();
 
 			printf("%s  iUserId[%u]\n", __FUNCTION__, iUserId);
 
@@ -157,9 +163,10 @@ bool UserInfoMgr::InitNotNetDataBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].InitNotNetData();
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -172,9 +179,10 @@ bool UserInfoMgr::SetUserIdBySocketId(unsigned __int64 socketId, unsigned int iU
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].iUserId = iUserId;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -187,9 +195,10 @@ unsigned int UserInfoMgr::GetUserIdBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].iUserId;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return 0; //学号肯定要设置大于0的
@@ -202,9 +211,10 @@ unsigned __int64 UserInfoMgr::GetSocketIdByAccount(string strAccount)
 	{
 		if (iter->second.strAccount == strAccount)
 		{
-			UserInfoLock::GetInstance()->Lock();
+			UserInfoLock uLock(_critical);
+			//UserInfoLock::GetInstance()->Lock();
 			return iter->first;
-			UserInfoLock::GetInstance()->Unlock();
+			//UserInfoLock::GetInstance()->Unlock();
 		}
 	}
 
@@ -216,9 +226,10 @@ bool UserInfoMgr::SetAuthorityBySocketId(unsigned __int64 socketId, string strAu
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].strAuthority = strAuthority;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -231,9 +242,10 @@ string UserInfoMgr::GetAuthorityBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].strAuthority;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return ""; 
@@ -246,9 +258,10 @@ bool UserInfoMgr::SetAuthorityByAccount(string strAccount, string strAuthority)
 	{
 		if (iter->second.strAccount == strAccount)
 		{
-			UserInfoLock::GetInstance()->Lock();
+			UserInfoLock uLock(_critical);
+			//UserInfoLock::GetInstance()->Lock();
 			iter->second.strAuthority = strAuthority;
-			UserInfoLock::GetInstance()->Unlock();
+			//UserInfoLock::GetInstance()->Unlock();
 
 			return true;
 		}
@@ -264,9 +277,10 @@ string UserInfoMgr::GetAuthorityByAccount(string strAccount)
 	{
 		if (iter->second.strAccount == strAccount)
 		{
-			UserInfoLock::GetInstance()->Lock();
+			UserInfoLock uLock(_critical);
+			//UserInfoLock::GetInstance()->Lock();
 			return iter->second.strAuthority;
-			UserInfoLock::GetInstance()->Unlock();
+			//UserInfoLock::GetInstance()->Unlock();
 		}
 	}
 
@@ -280,9 +294,10 @@ bool UserInfoMgr::SetNewAccountByAccount(string strAccount, string strNewAccount
 	{
 		if (iter->second.strAccount == strAccount)
 		{
-			UserInfoLock::GetInstance()->Lock();
+			UserInfoLock uLock(_critical);
+			//UserInfoLock::GetInstance()->Lock();
 			iter->second.strAccount = strNewAccount;
-			UserInfoLock::GetInstance()->Unlock();
+			//UserInfoLock::GetInstance()->Unlock();
 
 			return true;
 		}
@@ -331,9 +346,10 @@ bool UserInfoMgr::SetAccountBySocketId(unsigned __int64 socketId, string strAcco
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].strAccount = strAccount;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -346,9 +362,10 @@ string UserInfoMgr::GetAccountBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].strAccount;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return ""; 
@@ -359,9 +376,10 @@ bool UserInfoMgr::SetIdentBySocketId(unsigned __int64 socketId, short sIdent)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].sIdent = sIdent;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -374,9 +392,10 @@ short UserInfoMgr::GetIdentBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].sIdent;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return 0; //非法值
@@ -387,9 +406,10 @@ bool UserInfoMgr::SetRegNeedCountBySocketId(unsigned __int64 socketId, short sRe
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].sRegNeedCount = sRegNeedCount;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -402,9 +422,10 @@ short UserInfoMgr::GetRegNeedCountBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].sRegNeedCount;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return -1; 
@@ -415,9 +436,10 @@ bool UserInfoMgr::SetStrTmpDataBySocketId(unsigned __int64 socketId, string strT
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].strTmpData = strTmpData;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -430,9 +452,10 @@ string UserInfoMgr::GetStrTmpDataBySocketId(unsigned __int64 socketId)
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].strTmpData;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return ""; 
@@ -443,9 +466,10 @@ bool UserInfoMgr::SetPerHandleDataBySocketId(unsigned __int64 socketId, PER_HAND
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].PerHandleData = PerHandleData;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -458,9 +482,10 @@ PER_HANDLE_DATA* UserInfoMgr::GetPerHandleDataBySocketId(unsigned __int64 socket
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].PerHandleData;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return NULL; 
@@ -471,9 +496,10 @@ bool UserInfoMgr::SetPerIoDataBySocketId(unsigned __int64 socketId, LPPER_IO_OPE
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		m_mUserInfo[socketId].PerIoData = PerIoData;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 
 		return true;
 	}
@@ -486,9 +512,10 @@ LPPER_IO_OPERATION_DATA UserInfoMgr::GetPerIoDataBySocketId(unsigned __int64 soc
 	map<unsigned __int64, UserInfo>::iterator iter = m_mUserInfo.find(socketId);
 	if (iter != m_mUserInfo.end())
 	{
-		UserInfoLock::GetInstance()->Lock();
+		UserInfoLock uLock(_critical);
+		//UserInfoLock::GetInstance()->Lock();
 		return m_mUserInfo[socketId].PerIoData;
-		UserInfoLock::GetInstance()->Unlock();
+		//UserInfoLock::GetInstance()->Unlock();
 	}
 
 	return NULL; 

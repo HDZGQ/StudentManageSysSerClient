@@ -12,6 +12,8 @@ MysqlMgr::MysqlMgr() :
 	m_IsConn = false;
 	mysql_init(&m_MysqlCont);
 	m_MysqlRes = NULL;
+
+	InitializeCriticalSection(&_critical);
 }
 
 MysqlMgr::~MysqlMgr()
@@ -21,6 +23,8 @@ MysqlMgr::~MysqlMgr()
 
 	if (m_IsConn)
 		mysql_close(&m_MysqlCont); //¶Ï¿ªÁ¬½Ó
+
+	DeleteCriticalSection(&_critical);
 }
 
 bool MysqlMgr::MysqlConn()
@@ -83,9 +87,10 @@ void MysqlMgr::InputMsgQueue(string strMysql, MysqlOper mysqlOper, Assist_ID Ass
 	mysqlMsgData.SocketId = SocketId;
 	mysqlMsgData.strRecord = strRecord;
 
-	MysqlMsgLock::GetInstance()->Lock();
+	MysqlMsgLock uLock(_critical);
+	//MysqlMsgLock::GetInstance()->Lock();
 	m_MysqlMsgQueue.push(mysqlMsgData);
-	MysqlMsgLock::GetInstance()->Unlock();
+	//MysqlMsgLock::GetInstance()->Unlock();
 }
 
 void MysqlMgr::MsgQueueHandle()
@@ -122,9 +127,9 @@ void MysqlMgr::MsgQueueHandle()
 		}
 
 
-
-		MysqlMsgLock::GetInstance()->Lock();
+		MysqlMsgLock uLock(_critical);
+		//MysqlMsgLock::GetInstance()->Lock();
 		m_MysqlMsgQueue.pop();
-		MysqlMsgLock::GetInstance()->Unlock();
+		//MysqlMsgLock::GetInstance()->Unlock();
 	}
 }

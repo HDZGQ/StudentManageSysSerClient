@@ -7,16 +7,18 @@
 class BaseLock
 {
 public:
-	BaseLock()
+	BaseLock(CRITICAL_SECTION& cs) : _critical(cs)
 	{
-		InitializeCriticalSection(&_critical);
+		//InitializeCriticalSection(&_critical);
+		EnterCriticalSection(&_critical);
 	}
 
 	~BaseLock()
 	{
-		DeleteCriticalSection(&_critical);
+		//DeleteCriticalSection(&_critical);
+		LeaveCriticalSection(&_critical);
 	}
-
+/*
 	void Lock()
 	{
 		EnterCriticalSection(&_critical);
@@ -26,36 +28,36 @@ public:
 	{
 		LeaveCriticalSection(&_critical);
 	}
-
+*/
 protected:
 	CRITICAL_SECTION  _critical;
 };
 
-class UserInfoLock : public BaseLock, public xSingleton<UserInfoLock>
+class UserInfoLock : public BaseLock/*, public xSingleton<UserInfoLock>*/
 {
 public:
-	UserInfoLock(){}
+	UserInfoLock(CRITICAL_SECTION& cs):BaseLock(cs){}
 	~UserInfoLock(){}
 };
 
-class RecvMsgLock : public BaseLock, public xSingleton<RecvMsgLock>
+class RecvMsgLock : public BaseLock/*, public xSingleton<RecvMsgLock>*/
 {
 public:
-	RecvMsgLock(){}
+	RecvMsgLock(CRITICAL_SECTION& cs):BaseLock(cs){}
 	~RecvMsgLock(){}
 };
 
-class MysqlMsgLock : public BaseLock, public xSingleton<MysqlMsgLock>
+class MysqlMsgLock : public BaseLock/*, public xSingleton<MysqlMsgLock>*/
 {
 public:
-	MysqlMsgLock(){}
+	MysqlMsgLock(CRITICAL_SECTION& cs):BaseLock(cs){}
 	~MysqlMsgLock(){}
 };
 
-class ExistSubjectsLock : public BaseLock, public xSingleton<ExistSubjectsLock>
+class ExistSubjectsLock : public BaseLock/*, public xSingleton<ExistSubjectsLock>*/
 {
 public:
-	ExistSubjectsLock(){}
+	ExistSubjectsLock(CRITICAL_SECTION& cs):BaseLock(cs){}
 	~ExistSubjectsLock(){}
 };
 

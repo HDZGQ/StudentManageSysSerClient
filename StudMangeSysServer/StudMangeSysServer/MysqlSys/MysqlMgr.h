@@ -31,6 +31,8 @@ private:
 	const string m_sPswd;
 	const string m_sHost;
 	const string m_sDB;
+
+	CRITICAL_SECTION  _critical;
 };
 
 #endif
