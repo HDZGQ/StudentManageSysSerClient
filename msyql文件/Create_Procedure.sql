@@ -143,19 +143,23 @@ begin
 	declare v_sql varchar(300);
 	declare userid int default 0;
 	
-	-- 组织insert userInfo的语句
-	set v_sql = concat('insert into userInfo(account, name, password, sex, Ident, major, grade) values(', strInsertInfo, ')');
-	set @v_sql = v_sql;
-	prepare cmd from @v_sql;
-	execute cmd;
-	
+	-- 已经存在不需要再增加，也不会更改
 	select s.userID into userid from userInfo s where s.account=strAccount;
-	if userid > 0 then
-		-- 组织insert userAuthority的语句
-		set v_sql = concat('insert into userAuthority(userID, Authority) values(', userid, ',''' ,strIdent, ''')');
+	if userid is null or userid <= 0 then
+		-- 组织insert userInfo的语句
+		set v_sql = concat('insert into userInfo(account, name, password, sex, Ident, major, grade) values(', strInsertInfo, ')');
 		set @v_sql = v_sql;
 		prepare cmd from @v_sql;
 		execute cmd;
+		
+		select s.userID into userid from userInfo s where s.account=strAccount;
+		if userid > 0 then
+			-- 组织insert userAuthority的语句
+			set v_sql = concat('insert into userAuthority(userID, Authority) values(', userid, ',''' ,strIdent, ''')');
+			set @v_sql = v_sql;
+			prepare cmd from @v_sql;
+			execute cmd;
+		end if;
 	end if;
 end;
 //
