@@ -13,6 +13,8 @@ DWORD WINAPI MsgQueueThread(LPVOID IpParameter)
 
 		//数据库消息队列处理
 		MysqlMgr::GetInstance()->MsgQueueHandle();
+
+		Sleep(100);
 	}
 
 	return 0;

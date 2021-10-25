@@ -1,0 +1,12 @@
+*.opensdf
+*.sdf
+StudMangeSysServer/Debug
+StudMangeSysClient/Debug
+StudMangeSysServer/Release
+StudMangeSysClient/Release
+StudMangeSysClient/StudMangeSysClient/Debug
+StudMangeSysServer/StudMangeSysServer/Debug
+StudMangeSysClient/StudMangeSysClient/Release
+StudMangeSysServer/StudMangeSysServer/Release
+*.vcxproj.filters
+*.v11.suo

@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{288686C1-860E-4FE8-BF7A-E985798C0352}</ProjectGuid>
+    <RootNamespace>StudMangeSysServer</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\UserInfo;.\MsgHandle;.\MysqlLib\include;.\Tools;.\ServerCenterSys;.\ProcManager;.\NetSys;.\MysqlSys;.\Main;.\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\MysqlLib\lib\opt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Main\Main.cpp" />
+    <ClCompile Include="ServerCenterSys\ServerMgr.cpp" />
+    <ClCompile Include="MysqlSys\MysqlMgr.cpp" />
+    <ClCompile Include="NetSys\MsgPackageMgr.cpp" />
+    <ClCompile Include="NetSys\NetSysMgr.cpp" />
+    <ClCompile Include="ProcManager\AuthorityProc.cpp" />
+    <ClCompile Include="ProcManager\EnterSysProc.cpp" />
+    <ClCompile Include="ProcManager\ProcMgr.cpp" />
+    <ClCompile Include="ProcManager\ScoreProc.cpp" />
+    <ClCompile Include="ProcManager\UserInfoProc.cpp" />
+    <ClCompile Include="Tools\CheckTool.cpp" />
+    <ClCompile Include="Tools\StringTool.cpp" />
+    <ClCompile Include="MsgHandle\MsgHandle.cpp" />
+    <ClCompile Include="UserInfo\SubjectsMgr.cpp" />
+    <ClCompile Include="UserInfo\UserInfoMgr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ServerCenterSys\ServerMgr.h" />
+    <ClInclude Include="Common\EventMonitor.h" />
+    <ClInclude Include="Common\MysqlDef.h" />
+    <ClInclude Include="Common\NetDef.h" />
+    <ClInclude Include="Common\ProtoDef.h" />
+    <ClInclude Include="Common\PublicDef.h" />
+    <ClInclude Include="Common\xSingleton.h" />
+    <ClInclude Include="MysqlSys\MysqlMgr.h" />
+    <ClInclude Include="NetSys\MsgPackageMgr.h" />
+    <ClInclude Include="NetSys\NetSysMgr.h" />
+    <ClInclude Include="ProcManager\AuthorityProc.h" />
+    <ClInclude Include="ProcManager\EnterSysProc.h" />
+    <ClInclude Include="ProcManager\ProcMgr.h" />
+    <ClInclude Include="ProcManager\ScoreProc.h" />
+    <ClInclude Include="ProcManager\UserInfoProc.h" />
+    <ClInclude Include="Tools\CheckTool.h" />
+    <ClInclude Include="Tools\LockTools.h" />
+    <ClInclude Include="Tools\StringTool.h" />
+    <ClInclude Include="MsgHandle\MsgHandle.h" />
+    <ClInclude Include="UserInfo\SubjectsMgr.h" />
+    <ClInclude Include="UserInfo\UserInfoMgr.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
